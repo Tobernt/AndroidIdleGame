@@ -15,8 +15,14 @@ class BuildingService {
 
   List<Building> get buildings => List.unmodifiable(_buildings);
 
+  /// Returns only buildings that belong to selected factions
+  List<Building> getBuildingsForFactions(List<String> activeFactions) {
+    return _buildings.where((b) => activeFactions.contains(b.faction)).toList();
+  }
+
+  /// Purchase a building, applying cost modifiers
   void buy(Building building, GameState state) {
-    final cost = building.currentCost();
+    final cost = building.currentCost(state);
     for (final entry in cost.entries) {
       if (state.getResource(entry.key) < entry.value) return;
     }
@@ -40,7 +46,6 @@ class BuildingService {
     });
   }
 
-  /// ✅ Add this
   int get allOwnedCount =>
       _buildings.fold(0, (sum, b) => sum + b.level);
 }

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../../core/game_state.dart';
@@ -52,15 +51,21 @@ class HeroService {
   }
 
   void unlockByAchievementId(String achievementId) {
-    final hero = _allHeroes.firstWhere(
-          (h) => h.unlockAchievementId == achievementId,
-      orElse: () => throw Exception("Hero for $achievementId not found"),
-    );
-    hero.unlocked = true;
+    try {
+      final hero = _allHeroes.firstWhere(
+            (h) => h.unlockAchievementId == achievementId,
+      );
+      hero.unlocked = true;
+    } catch (_) {
+      // Silently fail — some factions might not have heroes yet
+    }
   }
 
   void toggleHeroSelection(String heroId) {
-    final hero = _allHeroes.firstWhere((h) => h.id == heroId, orElse: () => throw Exception("Hero $heroId not found"));
+    final hero = _allHeroes.firstWhere(
+          (h) => h.id == heroId,
+      orElse: () => throw Exception("Hero $heroId not found"),
+    );
     if (!hero.unlocked) return;
 
     if (hero.selected) {

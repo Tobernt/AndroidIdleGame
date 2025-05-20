@@ -8,22 +8,12 @@ class ConquestManager {
   final FactionManager factionManager;
   final HeroService heroService;
 
-  /// Minimum required prestige level to begin conquering
-  static const int requiredPrestigeLevel = 10;
-
-  /// Minimum gold needed to be allowed to prestige (and thus conquer)
   static const double minGoldToPrestige = 100000;
-
-  /// Base might required to conquer the first faction
   static const double baseConquestThreshold = 500;
 
-  /// Tracks which factions have been conquered
   final Set<String> conqueredFactions = {};
 
-  /// Whether the conquest system is available
-  bool get conquestUnlocked => state.prestigeLevel >= requiredPrestigeLevel;
-
-  /// Whether all factions are conquered
+  bool get conquestUnlocked => state.conquestUnlocked;
   bool get isGameCompleted => conqueredFactions.length >= 6;
 
   ConquestManager({
@@ -32,21 +22,18 @@ class ConquestManager {
     required this.heroService,
   });
 
-  /// The player’s current might is based on all resources combined
   double get currentMight {
     double sum = 0;
     for (var value in state.resourceAmounts.values) {
       sum += value;
     }
-    return sum / 1000; // scale for balance
+    return sum / 1000;
   }
 
-  /// Gets the conquest cost for the nth conquest (scales exponentially)
   double requiredMightForNext() {
     return pow(2.5, conqueredFactions.length) * baseConquestThreshold;
   }
 
-  /// Returns a list of faction IDs that are eligible for conquest
   List<String> get conquerableFactions {
     return factionManager.allFactions
         .where((f) => !f.unlocked && !conqueredFactions.contains(f.id))
@@ -54,7 +41,6 @@ class ConquestManager {
         .toList();
   }
 
-  /// Attempts to conquer a faction
   bool tryConquer(String factionId) {
     if (!conquestUnlocked) return false;
     if (conqueredFactions.contains(factionId)) return false;
@@ -63,24 +49,29 @@ class ConquestManager {
     double required = requiredMightForNext();
     if (currentMight < required) return false;
 
-    // Mark as conquered
+    // Mark as conquered and unlock faction
     conqueredFactions.add(factionId);
     factionManager.unlock(factionId);
 
-    // If player has available slots, let them pick it — otherwise give passive bonus
+    // Select faction if room
     if (factionManager.canSelectMore()) {
       factionManager.toggleSelect(factionId);
     } else {
-      // Apply global bonus if no free slot (e.g., +5% income)
       state.resourceModifiers['global_bonus'] =
           (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
     }
 
-    // Unlock heroes if this is the first conquest
+    // First conquest triggers hero unlocks
     if (conqueredFactions.length == 1) {
       state.heroesUnlocked = true;
-      for (var f in factionManager.allFactions) {
-        heroService.unlockByAchievementId('hero_unlock_${f.id}');
+
+      for (var faction in factionManager.allFactions) {
+        try {
+          final hero = heroService.all.firstWhere((h) => h.faction == faction.id);
+          heroService.unlockByAchievementId(hero.unlockAchievementId);
+        } catch (_) {
+          // Hero not found for this faction — skip
+        }
       }
     }
 

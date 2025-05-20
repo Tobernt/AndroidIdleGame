@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../core/game_state.dart';
 
 class Building {
   final String id;
@@ -37,12 +38,16 @@ class Building {
     );
   }
 
-  Map<String, double> currentCost() {
-    return baseCost.map(
-          (key, value) => MapEntry(key, value * pow(costGrowth, level)),
-    );
+  /// ✅ Cost scales by level and applies building cost multiplier from GameState
+  Map<String, double> currentCost(GameState state) {
+    final costMultiplier = state.resourceModifiers['building_cost_multiplier'] ?? 1.0;
+    return baseCost.map((key, value) {
+      final scaled = value * pow(costGrowth, level);
+      return MapEntry(key, scaled * costMultiplier);
+    });
   }
 
+  /// Output scales linearly with level
   Map<String, double> outputPerSecond() {
     return baseOutput.map(
           (key, value) => MapEntry(key, value * level),

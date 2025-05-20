@@ -66,15 +66,18 @@ class SkillManager {
         prestigeService.availableSkillPoints >= skill.cost;
   }
 
+  /// Unlock and immediately apply the effect
   bool unlock(Skill skill, GameState state) {
     if (canUnlock(skill, state)) {
       prestigeService.spendSkillPoints(skill.cost);
       skill.unlocked = true;
+      equip(skill, state); // <- auto-equip and apply effect!
       return true;
     }
     return false;
   }
 
+  /// Equips and applies effect
   void equip(Skill skill, GameState state) {
     if (skill.unlocked && !skill.equipped) {
       skill.equipped = true;
@@ -82,7 +85,7 @@ class SkillManager {
     }
   }
 
-  /// Used by achievement or other systems
+  /// Used by achievements or other systems
   void unlockSkillById(String id) {
     final skill = allSkills.firstWhere(
           (s) => s.id == id,
@@ -93,7 +96,7 @@ class SkillManager {
 
   void markSkillAsAvailable(String id) => unlockSkillById(id);
 
-  /// Called after faction selection — only make relevant skills visible
+  /// Apply available skill visibility after selecting factions
   void applyFactionFilters(List<String> selectedFactionIds) {
     for (final skill in allSkills) {
       skill.available = selectedFactionIds.contains(skill.faction);

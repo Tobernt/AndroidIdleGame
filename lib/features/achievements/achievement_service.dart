@@ -5,6 +5,7 @@ import '../../features/skill_tree/skill_manager.dart';
 
 class AchievementService {
   final List<Achievement> _achievements = [];
+
   List<Achievement> get all => List.unmodifiable(_achievements);
 
   late SpellService _spellService;
@@ -19,8 +20,9 @@ class AchievementService {
   }
 
   void load(List<Achievement> initialData) {
-    _achievements.clear();
-    _achievements.addAll(initialData);
+    _achievements
+      ..clear()
+      ..addAll(initialData);
   }
 
   void unlock(String id) {
@@ -74,29 +76,33 @@ class AchievementService {
         case 'gold_total':
           fulfilled = lifetimeGold >= r.amount;
           break;
+
         case 'mana_threshold':
           fulfilled = state.getResource('mana') >= r.amount;
           break;
+
         case 'tap_gold':
           fulfilled = tapCount >= r.amount;
           break;
+
         case 'tap_lifetime':
           fulfilled = state.lifetimeTaps >= r.amount;
           break;
+
         case 'buildings_owned':
           fulfilled = buildingsOwned >= r.amount;
           break;
+
         case 'prestige_level':
-          fulfilled = state.totalPrestiges >= r.amount;
-          break;
         case 'prestige_total':
           fulfilled = state.totalPrestiges >= r.amount;
           break;
+
         case 'resource_lifetime':
-          final resource = r.extra ?? 'gold'; // fallback to gold
-          fulfilled = state.lifetimeResources[resource] != null &&
-              state.lifetimeResources[resource]! >= r.amount;
+          final resource = r.extra ?? 'gold';
+          fulfilled = (state.lifetimeResources[resource] ?? 0) >= r.amount;
           break;
+
         default:
           break;
       }

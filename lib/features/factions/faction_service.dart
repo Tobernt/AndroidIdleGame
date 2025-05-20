@@ -71,7 +71,13 @@ class FactionManager extends ChangeNotifier {
 
   List<Faction> get allFactions => _allFactions;
 
-  List<Faction> get selected => _allFactions.where((f) => f.isSelected).toList();
+  List<Faction> get selected =>
+      _allFactions.where((f) => f.isSelected).toList();
+
+  /// ✅ Returns the IDs of all selected factions
+  List<String> getSelectedFactionIds() {
+    return selected.map((f) => f.id).toList();
+  }
 
   int get maxSelectable => _prestigeService.maxFactions;
 

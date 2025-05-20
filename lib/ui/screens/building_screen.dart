@@ -8,7 +8,9 @@ class BuildingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buildings = gameManager.buildingService.buildings;
+    final state = gameManager.state;
+    final selectedFactions = gameManager.factionManager.getSelectedFactionIds();
+    final buildings = gameManager.buildingService.getBuildingsForFactions(selectedFactions);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -23,11 +25,11 @@ class BuildingScreen extends StatelessWidget {
         itemBuilder: (_, i) {
           final b = buildings[i];
 
-          final costStr = b.currentCost().entries
+          final costStr = b.currentCost(state).entries
               .map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}')
               .join(', ');
 
-          final outputStr = b.baseOutput.entries
+          final outputStr = b.outputPerSecond().entries
               .map((e) => '${e.key}: ${e.value.toStringAsFixed(1)}')
               .join(', ');
 
