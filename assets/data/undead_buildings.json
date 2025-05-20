@@ -1,0 +1,51 @@
+[
+  {
+    "id": "undead_graveyard",
+    "name": "Graveyard",
+    "description": "Raises the dead, increasing population over time.",
+    "baseCost": { "gold": 50 },
+    "output": { "population": 0.1 },
+    "faction": "undead"
+  },
+  {
+    "id": "undead_crypt",
+    "name": "Crypt",
+    "description": "Stores population and enhances ritual efficiency.",
+    "baseCost": { "gold": 100 },
+    "output": {},
+    "faction": "undead"
+  },
+  {
+    "id": "undead_farm",
+    "name": "Necrotic Farm",
+    "description": "Harvests gold through ritual farming of the undead.",
+    "baseCost": { "gold": 150 },
+    "output": { "gold": 2 },
+    "faction": "undead"
+  },
+  {
+    "id": "undead_mine",
+    "name": "Bone Mine",
+    "description": "Mines ore from fallen warriors and old catacombs.",
+    "baseCost": { "gold": 200 },
+    "output": { "ore": 1 },
+    "faction": "undead"
+  },
+  {
+    "id": "undead_altar",
+    "name": "Dark Altar",
+    "description": "Generates mana through population sacrifice.",
+    "baseCost": { "gold": 250 },
+    "output": { "mana": 1 },
+    "faction": "undead"
+  },
+  {
+    "id": "undead_tower",
+    "name": "Haunted Tower",
+    "description": "Increases effectiveness of all undead spells.",
+    "baseCost": { "gold": 300 },
+    "output": {},
+    "modifier": { "spell_power": 1.1 },
+    "faction": "undead"
+  }
+]

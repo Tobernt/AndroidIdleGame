@@ -1,0 +1,32 @@
+[
+  {
+    "factionId": "undead",
+    "name": "Undead Dominion",
+    "description": "Conquer the realm of the Undead.",
+    "baseMightThreshold": 50000
+  },
+  {
+    "factionId": "elves",
+    "name": "Elven Realms",
+    "description": "Defeat the Elves and claim their magic.",
+    "baseMightThreshold": 80000
+  },
+  {
+    "factionId": "orcs",
+    "name": "Orcish Warlands",
+    "description": "Subdue the brutal Orc hordes.",
+    "baseMightThreshold": 120000
+  },
+  {
+    "factionId": "dwarves",
+    "name": "Dwarven Holds",
+    "description": "Crack open the fortified dwarven mines.",
+    "baseMightThreshold": 180000
+  },
+  {
+    "factionId": "automatons",
+    "name": "Automaton Core",
+    "description": "Override the logic core of the automatons.",
+    "baseMightThreshold": 250000
+  }
+]

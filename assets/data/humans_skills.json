@@ -1,0 +1,47 @@
+[
+  {
+    "id": "human_skill_1",
+    "faction": "humans",
+    "name": "Arcane Familiarity",
+    "description": "Increase max mana by 20.",
+    "cost": 1,
+    "effect": "max_mana_50",
+    "tier": 1
+  },
+  {
+    "id": "human_skill_2",
+    "faction": "humans",
+    "name": "City Planning",
+    "description": "Reduce all building costs by 10%.",
+    "cost": 1,
+    "effect": "building_cost_reduce_10",
+    "tier": 2
+  },
+  {
+    "id": "human_skill_3",
+    "faction": "humans",
+    "name": "Efficient Taxation",
+    "description": "Increase all gold production by 10%.",
+    "cost": 1,
+    "effect": "gold_income_20",
+    "tier": 3
+  },
+  {
+    "id": "human_skill_4",
+    "faction": "humans",
+    "name": "Divine Blessing",
+    "description": "Reduce all spell cooldowns by 10%.",
+    "cost": 1,
+    "effect": "cooldown_reduce_10",
+    "tier": 4
+  },
+  {
+    "id": "human_skill_5",
+    "faction": "humans",
+    "name": "Heroic Presence",
+    "description": "+1% gold production per 10 buildings owned.",
+    "cost": 1,
+    "effect": "gold_per_building",
+    "tier": 5
+  }
+]

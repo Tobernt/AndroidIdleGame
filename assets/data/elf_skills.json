@@ -1,0 +1,47 @@
+[
+  {
+    "id": "elf_skill_1",
+    "faction": "elves",
+    "name": "Nature’s Grace",
+    "description": "Mana regeneration increased by 20%.",
+    "cost": 1,
+    "effect": "mana_regen_20",
+    "tier": 1
+  },
+  {
+    "id": "elf_skill_2",
+    "faction": "elves",
+    "name": "Flow State",
+    "description": "Reduces spell cooldowns by 10%.",
+    "cost": 1,
+    "effect": "cooldown_reduce_10",
+    "tier": 2
+  },
+  {
+    "id": "elf_skill_3",
+    "faction": "elves",
+    "name": "Arcane Echo",
+    "description": "15% chance to instantly recast a spell without cost.",
+    "cost": 1,
+    "effect": "spell_recast_chance_15",
+    "tier": 3
+  },
+  {
+    "id": "elf_skill_4",
+    "faction": "elves",
+    "name": "Mana Surge",
+    "description": "Gain 1 mana per second passively.",
+    "cost": 1,
+    "effect": "flat_mana_per_second_1",
+    "tier": 4
+  },
+  {
+    "id": "elf_skill_5",
+    "faction": "elves",
+    "name": "Elder Channeling",
+    "description": "All spell costs reduced by 25%.",
+    "cost": 1,
+    "effect": "spell_cost_reduce_25",
+    "tier": 5
+  }
+]

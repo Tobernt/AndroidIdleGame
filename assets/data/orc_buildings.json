@@ -1,0 +1,47 @@
+[
+  {
+    "id": "orc_building_1",
+    "faction": "orcs",
+    "name": "War Camp",
+    "description": "Generates a moderate amount of gold through raids.",
+    "baseCost": { "gold": 10 },
+    "growthRate": 1.15,
+    "output": { "gold": 1.0 }
+  },
+  {
+    "id": "orc_building_2",
+    "faction": "orcs",
+    "name": "Forge Pits",
+    "description": "Generates ore steadily to support your war machine.",
+    "baseCost": { "gold": 50 },
+    "growthRate": 1.2,
+    "output": { "ore": 0.5 }
+  },
+  {
+    "id": "orc_building_3",
+    "faction": "orcs",
+    "name": "Drum Tower",
+    "description": "Boosts tap power by rallying your warriors.",
+    "baseCost": { "gold": 120 },
+    "growthRate": 1.25,
+    "output": { "gold": 2.0 }
+  },
+  {
+    "id": "orc_building_4",
+    "faction": "orcs",
+    "name": "Raider Tents",
+    "description": "Raids nearby settlements for burst gold income.",
+    "baseCost": { "gold": 300 },
+    "growthRate": 1.3,
+    "output": { "gold": 3.5 }
+  },
+  {
+    "id": "orc_building_5",
+    "faction": "orcs",
+    "name": "Warchief's Arena",
+    "description": "Doubles tap power when active, increases all gold by 25%.",
+    "baseCost": { "gold": 1000, "ore": 20 },
+    "growthRate": 1.4,
+    "output": { "gold": 6.0 }
+  }
+]

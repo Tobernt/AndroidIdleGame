@@ -1,0 +1,32 @@
+[
+  {
+    "type": "gold",
+    "displayName": "Gold",
+    "iconPath": "assets/icons/gold.png",
+    "baseGeneration": 1.0
+  },
+  {
+    "type": "mana",
+    "displayName": "Mana",
+    "iconPath": "assets/icons/mana.png",
+    "baseGeneration": 0.2
+  },
+  {
+    "type": "ore",
+    "displayName": "Ore",
+    "iconPath": "assets/icons/ore.png",
+    "baseGeneration": 0.5
+  },
+  {
+    "type": "population",
+    "displayName": "Population",
+    "iconPath": "assets/icons/population.png",
+    "baseGeneration": 0.0
+  },
+  {
+    "type": "might",
+    "displayName": "Might",
+    "iconPath": "assets/icons/might.png",
+    "baseGeneration": 0.0
+  }
+]

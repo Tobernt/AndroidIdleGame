@@ -1,0 +1,62 @@
+[
+  {
+    "id": "orc_spell_1",
+    "faction": "orcs",
+    "name": "Battle Roar",
+    "description": "Boosts gold gain from tapping by 300% for 10 seconds.",
+    "cooldown": 45,
+    "costs": {},
+    "effect": "Modifier(tap_power=4.0, duration=10)",
+    "tier": 1,
+    "unlockRequirementId": "achieve_orc_spell_1",
+    "unlocked": false
+  },
+  {
+    "id": "orc_spell_2",
+    "faction": "orcs",
+    "name": "Smash & Grab",
+    "description": "Instantly generates gold equal to 60 seconds of tap value.",
+    "cooldown": 60,
+    "costs": {},
+    "effect": "InstantGoldFromTapRate(60)",
+    "tier": 2,
+    "unlockRequirementId": "achieve_orc_spell_2",
+    "unlocked": false
+  },
+  {
+    "id": "orc_spell_3",
+    "faction": "orcs",
+    "name": "Unstoppable Force",
+    "description": "Doubles all building output for 15 seconds.",
+    "cooldown": 90,
+    "costs": {},
+    "effect": "Modifier(building_output=2.0, duration=15)",
+    "tier": 3,
+    "unlockRequirementId": "achieve_orc_spell_3",
+    "unlocked": false
+  },
+  {
+    "id": "orc_spell_4",
+    "faction": "orcs",
+    "name": "Warchief's Command",
+    "description": "All building costs are reduced by 50% for 10 seconds.",
+    "cooldown": 120,
+    "costs": {},
+    "effect": "Modifier(building_cost=0.5, duration=10)",
+    "tier": 4,
+    "unlockRequirementId": "achieve_orc_spell_4",
+    "unlocked": false
+  },
+  {
+    "id": "orc_spell_5",
+    "faction": "orcs",
+    "name": "Bloodfury",
+    "description": "For 20 seconds, gain gold every time you tap AND passively.",
+    "cooldown": 180,
+    "costs": {},
+    "effect": "Modifier(bloodfury=1.0, duration=20)",
+    "tier": 5,
+    "unlockRequirementId": "achieve_orc_spell_5",
+    "unlocked": false
+  }
+]

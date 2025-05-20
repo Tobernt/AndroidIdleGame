@@ -1,0 +1,72 @@
+[
+  {
+    "id": "human_spell_1",
+    "faction": "humans",
+    "name": "Tax Collection",
+    "description": "Gain gold equal to 30 seconds of current gold income.",
+    "cooldown": 60,
+    "costs": {
+      "mana": 0
+    },
+    "effect": "InstantGoldFromIncome(30)",
+    "tier": 1,
+    "unlockRequirementId": "achieve_human_spell_1",
+    "unlocked": false
+  },
+  {
+    "id": "human_spell_2",
+    "faction": "humans",
+    "name": "Royal Decree",
+    "description": "Reduces all building gold costs by 50% for 10 seconds.",
+    "cooldown": 120,
+    "costs": {
+      "mana": 20
+    },
+    "effect": "Modifier(building_cost_multiplier=0.5, duration=10)",
+    "tier": 2,
+    "unlockRequirementId": "achieve_human_spell_2",
+    "unlocked": false
+  },
+  {
+    "id": "human_spell_3",
+    "faction": "humans",
+    "name": "Inspiration",
+    "description": "Increases all gold production by 100% for 15 seconds.",
+    "cooldown": 90,
+    "costs": {
+      "mana": 25
+    },
+    "effect": "Modifier(gold_income_multiplier=2.0, duration=15)",
+    "tier": 3,
+    "unlockRequirementId": "achieve_human_spell_3",
+    "unlocked": false
+  },
+  {
+    "id": "human_spell_4",
+    "faction": "humans",
+    "name": "Holy Light",
+    "description": "Increases all gold production by 20% for 60 seconds.",
+    "cooldown": 180,
+    "costs": {
+      "mana": 30
+    },
+    "effect": "Modifier(gold_income_multiplier=1.2, duration=60)",
+    "tier": 4,
+    "unlockRequirementId": "achieve_human_spell_4",
+    "unlocked": false
+  },
+  {
+    "id": "human_spell_5",
+    "faction": "humans",
+    "name": "Smite Evil",
+    "description": "Deals divine damage, rewarding 150 gold and 20 mana.",
+    "cooldown": 120,
+    "costs": {
+      "mana": 10
+    },
+    "effect": "GainResources(gold=150, mana=20)",
+    "tier": 5,
+    "unlockRequirementId": "achieve_human_spell_5",
+    "unlocked": false
+  }
+]

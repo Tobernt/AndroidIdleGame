@@ -1,0 +1,47 @@
+[
+  {
+    "id": "undead_skill_1",
+    "faction": "undead",
+    "name": "Dark Brood",
+    "description": "Population generation increased by +0.5 per second.",
+    "cost": 1,
+    "effect": "population_growth_bonus_0.5",
+    "tier": 1
+  },
+  {
+    "id": "undead_skill_2",
+    "faction": "undead",
+    "name": "Necrotic Efficiency",
+    "description": "Buildings cost 10% less if population is above 50.",
+    "cost": 1,
+    "effect": "conditional_building_discount_10_if_pop_50",
+    "tier": 2
+  },
+  {
+    "id": "undead_skill_3",
+    "faction": "undead",
+    "name": "Flesh Economy",
+    "description": "Gain 1% gold income per 20 population.",
+    "cost": 1,
+    "effect": "gold_per_20_pop",
+    "tier": 3
+  },
+  {
+    "id": "undead_skill_4",
+    "faction": "undead",
+    "name": "Soulbound Rituals",
+    "description": "Spell cooldowns reduced by 10% if population > 100.",
+    "cost": 1,
+    "effect": "cooldown_reduce_if_pop_100",
+    "tier": 4
+  },
+  {
+    "id": "undead_skill_5",
+    "faction": "undead",
+    "name": "Eternal March",
+    "description": "Removes population soft cap. Undead can endlessly grow.",
+    "cost": 1,
+    "effect": "remove_population_cap",
+    "tier": 5
+  }
+]

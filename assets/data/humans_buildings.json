@@ -1,0 +1,63 @@
+[
+  {
+    "id": "human_building_1",
+    "faction": "faction_humans",
+    "name": "Farm",
+    "baseOutput": {
+      "gold": 5
+    },
+    "baseCost": {
+      "gold": 100
+    },
+    "bonus": null
+  },
+  {
+    "id": "human_building_2",
+    "faction": "faction_humans",
+    "name": "Barracks",
+    "baseOutput": {
+      "gold": 20
+    },
+    "baseCost": {
+      "gold": 1000
+    },
+    "bonus": "Each Barracks increases global gold by 1%"
+  },
+  {
+    "id": "human_building_3",
+    "faction": "faction_humans",
+    "name": "Market",
+    "baseOutput": {
+      "gold": 50
+    },
+    "baseCost": {
+      "gold": 5000
+    },
+    "bonus": null
+  },
+  {
+    "id": "human_building_4",
+    "faction": "faction_humans",
+    "name": "Temple",
+    "baseOutput": {
+      "gold": 10,
+      "mana": 0.1
+    },
+    "baseCost": {
+      "mana": 300
+    },
+    "bonus": "+20 max mana per Temple"
+  },
+  {
+    "id": "human_building_5",
+    "faction": "faction_humans",
+    "name": "Castle",
+    "baseOutput": {
+      "gold": 200
+    },
+    "baseCost": {
+      "gold": 50000
+    },
+    "bonus": "+5% to Farms and Markets"
+  }
+]

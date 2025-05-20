@@ -1,0 +1,62 @@
+[
+  {
+    "id": "elf_spell_1",
+    "faction": "elves",
+    "name": "Mana Bloom",
+    "description": "Instantly gain 15 mana.",
+    "cooldown": 30,
+    "costs": { "mana": 0 },
+    "effect": "GainResources(mana=15)",
+    "tier": 1,
+    "unlockRequirementId": "achieve_elf_spell_1",
+    "unlocked": false
+  },
+  {
+    "id": "elf_spell_2",
+    "faction": "elves",
+    "name": "Arcane Pulse",
+    "description": "Deal magic damage and generate gold based on mana spent in the last 30s.",
+    "cooldown": 60,
+    "costs": { "mana": 20 },
+    "effect": "ManaBasedGoldBurst(duration=30)",
+    "tier": 2,
+    "unlockRequirementId": "achieve_elf_spell_2",
+    "unlocked": false
+  },
+  {
+    "id": "elf_spell_3",
+    "faction": "elves",
+    "name": "Temporal Shift",
+    "description": "Reduces cooldowns of all equipped spells by 10 seconds.",
+    "cooldown": 90,
+    "costs": { "mana": 25 },
+    "effect": "ReduceAllCooldowns(10)",
+    "tier": 3,
+    "unlockRequirementId": "achieve_elf_spell_3",
+    "unlocked": false
+  },
+  {
+    "id": "elf_spell_4",
+    "faction": "elves",
+    "name": "Nature’s Boon",
+    "description": "Boost mana regen by 100% for 20 seconds.",
+    "cooldown": 120,
+    "costs": { "mana": 30 },
+    "effect": "Modifier(mana_regen=2.0, duration=20)",
+    "tier": 4,
+    "unlockRequirementId": "achieve_elf_spell_4",
+    "unlocked": false
+  },
+  {
+    "id": "elf_spell_5",
+    "faction": "elves",
+    "name": "Ethereal Storm",
+    "description": "Casts all equipped spells instantly (ignores cooldowns).",
+    "cooldown": 150,
+    "costs": { "mana": 50 },
+    "effect": "CastAllEquippedSpells",
+    "tier": 5,
+    "unlockRequirementId": "achieve_elf_spell_5",
+    "unlocked": false
+  }
+]

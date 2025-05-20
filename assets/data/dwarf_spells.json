@@ -1,0 +1,73 @@
+[
+  {
+    "id": "dwarf_spell_1",
+    "faction": "dwarves",
+    "name": "Golden Draft",
+    "description": "Gain 100 gold instantly.",
+    "cooldown": 90,
+    "costs": {
+      "ore": 10
+    },
+    "effect": "GainResources(gold=100)",
+    "tier": 1,
+    "unlockRequirementId": "achieve_dwarf_spell_1",
+    "unlocked": false
+  },
+  {
+    "id": "dwarf_spell_2",
+    "faction": "dwarves",
+    "name": "Forge Burst",
+    "description": "Increase all production by 50% for 15 seconds.",
+    "cooldown": 120,
+    "costs": {
+      "gold": 200
+    },
+    "effect": "Modifier(global_bonus=1.5, duration=15)",
+    "tier": 2,
+    "unlockRequirementId": "achieve_dwarf_spell_2",
+    "unlocked": false
+  },
+  {
+    "id": "dwarf_spell_3",
+    "faction": "dwarves",
+    "name": "Reinforce Walls",
+    "description": "Reduces building costs by 25% for 20 seconds.",
+    "cooldown": 150,
+    "costs": {
+      "gold": 300
+    },
+    "effect": "Modifier(building_cost_multiplier=0.75, duration=20)",
+    "tier": 3,
+    "unlockRequirementId": "achieve_dwarf_spell_3",
+    "unlocked": false
+  },
+  {
+    "id": "dwarf_spell_4",
+    "faction": "dwarves",
+    "name": "Deep Delve",
+    "description": "Gain 25 ore instantly.",
+    "cooldown": 180,
+    "costs": {
+      "gold": 250
+    },
+    "effect": "GainResources(ore=25)",
+    "tier": 4,
+    "unlockRequirementId": "achieve_dwarf_spell_4",
+    "unlocked": false
+  },
+  {
+    "id": "dwarf_spell_5",
+    "faction": "dwarves",
+    "name": "King’s Vault",
+    "description": "Doubles your gold income for 30 seconds.",
+    "cooldown": 240,
+    "costs": {
+      "ore": 20,
+      "gold": 500
+    },
+    "effect": "Modifier(gold_income=2.0, duration=30)",
+    "tier": 5,
+    "unlockRequirementId": "achieve_dwarf_spell_5",
+    "unlocked": false
+  }
+]

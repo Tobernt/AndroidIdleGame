@@ -1,0 +1,47 @@
+[
+  {
+    "id": "orc_skill_1",
+    "faction": "orcs",
+    "name": "Warrior’s Rhythm",
+    "description": "Gain +1 tap power.",
+    "cost": 1,
+    "effect": "tap_power_1",
+    "tier": 1
+  },
+  {
+    "id": "orc_skill_2",
+    "faction": "orcs",
+    "name": "Battle Infrastructure",
+    "description": "Buildings produce 10% more gold.",
+    "cost": 1,
+    "effect": "building_output_10",
+    "tier": 2
+  },
+  {
+    "id": "orc_skill_3",
+    "faction": "orcs",
+    "name": "Pillage Mastery",
+    "description": "Increase all gold gain by 20%.",
+    "cost": 1,
+    "effect": "gold_income_20",
+    "tier": 3
+  },
+  {
+    "id": "orc_skill_4",
+    "faction": "orcs",
+    "name": "Crush Costs",
+    "description": "Reduce building costs by 10%.",
+    "cost": 1,
+    "effect": "building_cost_reduce_10",
+    "tier": 4
+  },
+  {
+    "id": "orc_skill_5",
+    "faction": "orcs",
+    "name": "Conquest Frenzy",
+    "description": "+1% gold production per 10 taps made in the last minute.",
+    "cost": 1,
+    "effect": "gold_per_tap_frenzy",
+    "tier": 5
+  }
+]
