@@ -121,11 +121,6 @@ class PrestigeScreen extends StatelessWidget {
                   prestige.prestige(state);
                   gameManager.resetForPrestige();
 
-                  // ✅ Show conquest intro on next GameScreen if unlocked
-                  if (state.conquestUnlocked) {
-                    state.conquestIntroShown = false;
-                  }
-
                   // ✅ Re-evaluate achievements after prestige
                   gameManager.achievementService.evaluate(
                     state: state,

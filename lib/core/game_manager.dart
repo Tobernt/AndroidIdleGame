@@ -107,15 +107,44 @@ class GameManager with ChangeNotifier {
   }
   void tickResources(double deltaSeconds) {
     state.resourceAmounts.forEach((id, _) {
-      // Dynamic gain from external sources (like buildings)
-      final externalIncome = buildingService.totalOutputPerSecond(resource: id);
+      final base = buildingService.totalOutputPerSecond(resource: id);
       final baseIncome = id == 'mana' ? 1.0 : 0.0;
-      final multiplier = state.resourceModifiers['${id}_multiplier'] ?? 1.0;
-      final incomePerSec = (baseIncome + externalIncome) * multiplier;
 
-      state.addResource(id, incomePerSec * deltaSeconds);
-      state.resourceModifiers['${id}_per_sec'] = incomePerSec;
+      double multiplier = 1.0;
+      if (id == 'gold') {
+        multiplier = goldMultiplier;
+      } else if (id == 'mana') {
+        multiplier = state.resourceModifiers['mana_regen'] ?? 1.0;
+      } else {
+        multiplier = state.resourceModifiers['${id}_multiplier'] ?? 1.0;
+      }
+
+      final incomePerSecond = (base + baseIncome) * multiplier;
+      final incomeDelta = incomePerSecond * deltaSeconds;
+
+      state.addResource(id, incomeDelta);
+      state.resourceModifiers['${id}_per_sec'] = incomePerSecond;
     });
+
+    // ✅ New: Ensure conquest unlock is reapplied after claiming achievement
+    if (!state.conquestUnlocked) {
+      final claimed = achievementService.all.any(
+            (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
+      );
+      if (claimed) {
+        state.conquestUnlocked = true;
+      }
+    }
+  }
+  void checkForPassiveUnlocks() {
+    if (!state.conquestUnlocked) {
+      final claimed = achievementService.all.any(
+            (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
+      );
+      if (claimed) {
+        state.conquestUnlocked = true;
+      }
+    }
   }
 
   void applyFactionBonuses() {
@@ -164,15 +193,16 @@ class GameManager with ChangeNotifier {
     final preservedTotalPrestiges = state.totalPrestiges;
     final preservedLifetimeTaps = state.lifetimeTaps;
     final preservedLifetimeResources = Map<String, double>.from(state.lifetimeResources);
-    final unlockedConquest = state.conquestUnlocked;
-
-    state = GameState();
+    final preservedConquestUnlocked = state.conquestUnlocked;
+    final preservedConquestIntro = state.conquestIntroShown;
 
     state.totalPrestiges = preservedTotalPrestiges;
+    state.conquestUnlocked = preservedConquestUnlocked;
     state.lifetimeTaps = preservedLifetimeTaps;
     state.lifetimeResources.addAll(preservedLifetimeResources);
-    state.conquestUnlocked = unlockedConquest;
+    achievementService.applyClaimedRewards(state);
 
+    state.conquestIntroShown = preservedConquestIntro;
     state.resourceAmounts.updateAll((key, _) => 0.0);
     state.resourceModifiers.clear();
     state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 0.0);
@@ -190,11 +220,11 @@ class GameManager with ChangeNotifier {
       skill.unlocked = false;
       skill.equipped = false;
     }
-
+    conquestManager.reset();
     factionManager.clearSelection();
     notifyListeners();
+    checkForPassiveUnlocks();
   }
-
 
   void tapGold() {
     final multiplier = goldMultiplier;

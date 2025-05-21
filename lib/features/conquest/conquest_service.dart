@@ -20,14 +20,23 @@ class ConquestManager {
     required this.state,
     required this.factionManager,
     required this.heroService,
-  });
+  }) {
+    // Load persisted conquest data from GameState
+    conqueredFactions.addAll(state.conqueredFactions);
+  }
 
   double get currentMight {
-    double sum = 0;
-    for (var value in state.resourceAmounts.values) {
-      sum += value;
-    }
-    return sum / 1000;
+    final gold = state.getResource('gold');
+    final mana = state.getResource('mana');
+    final ore = state.getResource('ore');
+    final population = state.getResource('population');
+    final essence = state.getResource('essence');
+    final crystals = state.getResource('crystals');
+
+    final sum = gold + mana + ore + population + essence + crystals;
+    final average = sum / 6;
+
+    return pow(average, 1.25).toDouble();
   }
 
   double requiredMightForNext() {
@@ -51,6 +60,7 @@ class ConquestManager {
 
     // Mark as conquered and unlock faction
     conqueredFactions.add(factionId);
+    state.conqueredFactions.add(factionId); // Persist to GameState
     factionManager.unlock(factionId);
 
     // Select faction if room
@@ -80,6 +90,7 @@ class ConquestManager {
 
   void reset() {
     conqueredFactions.clear();
+    state.conqueredFactions.clear(); // Reset persistent data too
   }
 
   Map<String, dynamic> toJson() {
@@ -93,5 +104,8 @@ class ConquestManager {
     conqueredFactions
       ..clear()
       ..addAll(list.map((e) => e.toString()));
+    state.conqueredFactions
+      ..clear()
+      ..addAll(conqueredFactions);
   }
 }

@@ -24,7 +24,9 @@ class Building {
 
   factory Building.fromJson(Map<String, dynamic> json) {
     Map<String, double> toDoubleMap(Map<String, dynamic> raw) {
-      return raw.map((key, value) => MapEntry(key, (value as num).toDouble()));
+      return raw.map(
+            (key, value) => MapEntry(key, (value as num).toDouble()),
+      );
     }
 
     return Building(
@@ -38,16 +40,17 @@ class Building {
     );
   }
 
-  /// ✅ Cost scales by level and applies building cost multiplier from GameState
+  /// Returns the current cost scaled by level and state modifier
   Map<String, double> currentCost(GameState state) {
-    final costMultiplier = state.resourceModifiers['building_cost_multiplier'] ?? 1.0;
+    final multiplier = state.resourceModifiers['building_cost_multiplier'] ?? 1.0;
+
     return baseCost.map((key, value) {
       final scaled = value * pow(costGrowth, level);
-      return MapEntry(key, scaled * costMultiplier);
+      return MapEntry(key, scaled * multiplier);
     });
   }
 
-  /// Output scales linearly with level
+  /// Returns output scaled by level
   Map<String, double> outputPerSecond() {
     return baseOutput.map(
           (key, value) => MapEntry(key, value * level),

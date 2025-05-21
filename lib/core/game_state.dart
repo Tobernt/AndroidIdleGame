@@ -21,6 +21,7 @@ class GameState {
 
   // Multipliers and effects from skills, buildings, bonuses
   final Map<String, double> resourceModifiers = {};
+  final Set<String> conqueredFactions = {};
 
   // Max caps for resources (can be overridden by skills or buildings)
   final Map<String, double> resourceMax = {
@@ -34,14 +35,18 @@ class GameState {
   // Progression values
   double tapPower = 1.0;
   int prestigeLevel = 0;
+
+  // ✅ Persistent flags
   bool heroesUnlocked = false;
   bool conquestUnlocked = false;
   bool conquestIntroShown = false;
-  Map<String, double> snapshot() => Map.from(resourceAmounts);
+
   // Lifetime & run stats
   int lifetimeTaps = 0;
   int currentRunTaps = 0;
   int totalPrestiges = 0;
+
+  Map<String, double> snapshot() => Map.from(resourceAmounts);
 
   // ====== Resource Logic ======
 
@@ -96,6 +101,7 @@ class GameState {
 
   // ====== Reset Logic ======
 
+  /// ❌ This is used for full game reset — conquest flags should stay
   void reset() {
     resourceAmounts.updateAll((key, _) => 0.0);
     resourceModifiers.clear();
@@ -105,10 +111,10 @@ class GameState {
     prestigeLevel = 0;
     currentRunTaps = 0;
     heroesUnlocked = false;
-    conquestUnlocked = false;
-    conquestIntroShown = false;
+
   }
 
+  /// ✅ This is used during prestige and must preserve conquest/hero flags
   void resetForPrestige() {
     resourceAmounts.updateAll((key, _) => 0.0);
     resourceModifiers.clear();
@@ -116,8 +122,6 @@ class GameState {
     metaValues.clear();
     tapPower = 1.0;
     currentRunTaps = 0;
-    // DO NOT reset lifetimeTaps, lifetimeResources, or totalPrestiges
+
   }
-
-
 }

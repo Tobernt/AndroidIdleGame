@@ -1,7 +1,7 @@
 [
   {
     "id": "human_building_1",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Farm",
     "baseOutput": {
       "gold": 5
@@ -13,7 +13,7 @@
   },
   {
     "id": "human_building_2",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Barracks",
     "baseOutput": {
       "gold": 20
@@ -25,7 +25,7 @@
   },
   {
     "id": "human_building_3",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Market",
     "baseOutput": {
       "gold": 50
@@ -37,7 +37,7 @@
   },
   {
     "id": "human_building_4",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Temple",
     "baseOutput": {
       "gold": 10,
@@ -50,7 +50,7 @@
   },
   {
     "id": "human_building_5",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Castle",
     "baseOutput": {
       "gold": 200
