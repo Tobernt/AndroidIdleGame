@@ -3,7 +3,7 @@
     "id": "human_skill_1",
     "faction": "humans",
     "name": "Arcane Familiarity",
-    "description": "Increase max mana by 20.",
+    "description": "Increase max mana by 50.",
     "cost": 1,
     "effect": "max_mana_50",
     "tier": 1

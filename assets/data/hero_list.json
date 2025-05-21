@@ -4,7 +4,7 @@
     "name": "Sir Gallant",
     "description": "A noble warrior who boosts tapping power over time.",
     "faction": "humans",
-    "unlockAchievementId": "achieve_human_spell_1"
+    "unlockAchievementId": "achieve_human_unlock"
   },
   {
     "id": "hero_undead",
