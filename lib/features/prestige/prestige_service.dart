@@ -26,14 +26,11 @@ class PrestigeService {
   static const int maxFactionSlotLimit = 3;
   static const int maxTotalSkillPoints = 15;
 
-  /// Multiplier from lifetime gold
   double get prestigeMultiplier => _prestigedMultiplier;
 
-  /// Base skill points from gold
   int get _baseSkillPoints =>
       min(maxTotalSkillPoints, (log(1 + lifetimeGold) / 15).floor());
 
-  /// Total available skill points (gold-based + prestige-bought)
   int get totalSkillPoints =>
       min(maxTotalSkillPoints, _baseSkillPoints + _extraSkillPointsBought);
 
@@ -43,16 +40,17 @@ class PrestigeService {
   int get maxEquippedSpells => 1 + _spellSlotUpgrades;
   int get maxFactions => 1 + _factionSlotUpgrades;
 
-  /// Track gold for prestige
   void applyGold(double amount) {
     lifetimeGold += amount;
   }
 
-  /// Perform prestige, grant bonuses and unlock conquest
   void prestige(GameState state) {
     prestigeLevel++;
-    state.totalPrestiges++; // ✅ TRACK TOTAL PRESTIGES
-    prestigePoints++;
+    state.totalPrestiges++;
+
+    // 🎯 1 point per 100k active gold
+    final earnedPoints = (state.getResource('gold') / 100000).floor();
+    prestigePoints += earnedPoints;
 
     final bonus = 1 + (log(1 + lifetimeGold) / 10);
     _prestigedMultiplier = max(_prestigedMultiplier, bonus);
@@ -71,49 +69,51 @@ class PrestigeService {
   }
 
   bool buySpellSlot() {
-    if (availablePrestigePoints > 0 && _spellSlotUpgrades < maxSpellSlotLimit - 1) {
+    final cost = pow(10, _spellSlotUpgrades).toInt();
+    if (availablePrestigePoints >= cost && _spellSlotUpgrades < maxSpellSlotLimit - 1) {
       _spellSlotUpgrades++;
-      _usedPrestigePoints++;
+      _usedPrestigePoints += cost;
       return true;
     }
     return false;
   }
 
   bool buyFactionSlot() {
-    if (availablePrestigePoints > 0 && _factionSlotUpgrades < maxFactionSlotLimit - 1) {
+    final cost = pow(10, _factionSlotUpgrades).toInt();
+    if (availablePrestigePoints >= cost && _factionSlotUpgrades < maxFactionSlotLimit - 1) {
       _factionSlotUpgrades++;
-      _usedPrestigePoints++;
+      _usedPrestigePoints += cost;
       return true;
     }
     return false;
   }
 
   bool buyExtraSkillPoint() {
-    if (availablePrestigePoints > 0 && totalSkillPoints < maxTotalSkillPoints) {
+    final cost = pow(10, _extraSkillPointsBought).toInt();
+    if (availablePrestigePoints >= cost && totalSkillPoints < maxTotalSkillPoints) {
       _extraSkillPointsBought++;
-      _usedPrestigePoints++;
+      _usedPrestigePoints += cost;
       return true;
     }
     return false;
   }
 
   bool buyHeroSlot() {
-    if (availablePrestigePoints > 0 && heroRosterSize < maxHeroRosterSize) {
+    final cost = pow(10, heroRosterSize - 1).toInt();
+    if (availablePrestigePoints >= cost && heroRosterSize < maxHeroRosterSize) {
       heroRosterSize++;
-      _usedPrestigePoints++;
+      _usedPrestigePoints += cost;
       return true;
     }
     return false;
   }
 
   void checkConquestUnlock(GameState state) {
-    if (!state.conquestUnlocked &&
-        prestigeLevel >= 10) {
+    if (!state.conquestUnlocked && prestigeLevel >= 10) {
       state.conquestUnlocked = true;
     }
   }
 
-  /// Reset only prestige upgrade tracking (optional)
   void resetPrestigeUpgrades() {
     _usedPrestigePoints = 0;
     _spellSlotUpgrades = 0;
@@ -121,7 +121,6 @@ class PrestigeService {
     _extraSkillPointsBought = 0;
   }
 
-  // UI accessors
   int get usedPrestigePoints => _usedPrestigePoints;
   int get spellUpgradeLevel => _spellSlotUpgrades;
   int get factionUpgradeLevel => _factionSlotUpgrades;

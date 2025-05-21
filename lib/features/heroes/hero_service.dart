@@ -9,6 +9,7 @@ class HeroService {
   List<HeroData> get all => List.unmodifiable(_allHeroes);
   List<HeroData> get unlockedHeroes => _allHeroes.where((h) => h.unlocked).toList();
   List<HeroData> get selectedHeroes => _allHeroes.where((h) => h.selected).toList();
+
   int maxRosterSize = 1;
 
   final Map<String, HeroEffect> _effectMap = {
@@ -37,6 +38,11 @@ class HeroService {
           (state.resourceModifiers['mana_regen'] ?? 1.0) + 0.05 * multiplier;
     },
   };
+
+  /// ✅ FIXED: Reference _allHeroes correctly
+  bool hasUnlockedHero(String heroId) {
+    return _allHeroes.any((h) => h.id == heroId && h.unlocked);
+  }
 
   Future<void> loadFromJsonAsset(String path) async {
     final raw = await rootBundle.loadString(path);

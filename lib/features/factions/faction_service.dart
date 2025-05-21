@@ -103,6 +103,10 @@ class FactionManager extends ChangeNotifier {
 
     notifyListeners();
   }
+  void selectOnly(String id) {
+    clearSelection();
+    toggleSelect(id);
+  }
 
   /// ✅ Unlocks a faction
   void unlock(String id) {

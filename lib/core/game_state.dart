@@ -22,6 +22,7 @@ class GameState {
   // Multipliers and effects from skills, buildings, bonuses
   final Map<String, double> resourceModifiers = {};
   final Set<String> conqueredFactions = {};
+  final Set<String> destroyedFactions = {};
 
   // Max caps for resources (can be overridden by skills or buildings)
   final Map<String, double> resourceMax = {
@@ -30,7 +31,7 @@ class GameState {
   };
 
   // Meta values (for tracking purposes like "mana_spent_last_30s")
-  final Map<String, double> metaValues = {};
+  final Map<String, dynamic> metaValues = {};
 
   // Progression values
   double tapPower = 1.0;
@@ -118,10 +119,12 @@ class GameState {
   void resetForPrestige() {
     resourceAmounts.updateAll((key, _) => 0.0);
     resourceModifiers.clear();
-    resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 0.0);
+    resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
     metaValues.clear();
     tapPower = 1.0;
     currentRunTaps = 0;
 
+    // Clear the list of conquered factions on prestige (do NOT reset conquestUnlocked):
+    conqueredFactions.clear();
   }
 }

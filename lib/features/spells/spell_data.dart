@@ -51,13 +51,14 @@ class SpellData {
     return Spell(
       id: id,
       name: name,
+      description: description, // ✅ Add this line
       cooldown: Duration(seconds: cooldown),
       effect: effect,
       costs: costs,
       tier: tier,
       unlockRequirementId: unlockRequirementId,
       unlocked: unlocked,
-      faction: faction, // ✅ Pass it through here
+      faction: faction,
     );
   }
 }

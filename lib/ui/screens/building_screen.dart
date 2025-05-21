@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:big_decimal/big_decimal.dart';
 import '../../core/game_manager.dart';
 
 class BuildingScreen extends StatelessWidget {
@@ -8,14 +10,12 @@ class BuildingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🔁 Rebuild when faction selection changes
     return AnimatedBuilder(
       animation: gameManager.factionManager,
       builder: (context, _) {
         final state = gameManager.state;
         final selectedFactions = gameManager.factionManager.getSelectedFactionIds();
-        final buildings =
-        gameManager.buildingService.getBuildingsForFactions(selectedFactions);
+        final buildings = gameManager.buildingService.getBuildingsForFactions(selectedFactions);
 
         return Scaffold(
           backgroundColor: Colors.black,
@@ -39,11 +39,11 @@ class BuildingScreen extends StatelessWidget {
               final b = buildings[i];
 
               final costStr = b.currentCost(state).entries
-                  .map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}')
+                  .map((e) => '${e.key}: ${formatBigDecimalSmart(BigDecimal.parse(e.value.toString()))}')
                   .join(', ');
 
               final outputStr = b.outputPerSecond().entries
-                  .map((e) => '${e.key}: ${e.value.toStringAsFixed(1)}')
+                  .map((e) => '${e.key}: ${formatBigDecimalSmart(BigDecimal.parse(e.value.toString()))}')
                   .join(', ');
 
               return Card(
@@ -56,9 +56,30 @@ class BuildingScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle: Text(
-                    'Cost: $costStr\nOutput: $outputStr/s',
-                    style: const TextStyle(color: Colors.white70),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (b.description.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            b.description,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0),
+                        child: Text(
+                          'Cost: $costStr',
+                          style: const TextStyle(color: Colors.orangeAccent),
+                        ),
+                      ),
+                      if (outputStr.isNotEmpty)
+                        Text(
+                          'Output: $outputStr/s',
+                          style: const TextStyle(color: Colors.lightGreen),
+                        ),
+                    ],
                   ),
                   trailing: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -77,5 +98,26 @@ class BuildingScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  String formatBigDecimalSmart(BigDecimal value) {
+    if (value.intVal == BigInt.zero) return '0';
+
+    final doubleVal = value.toDouble().abs();
+    if (doubleVal < 1000) {
+      return value.withScale(2, roundingMode: RoundingMode.HALF_UP).toPlainString();
+    }
+
+    final log10 = log(doubleVal);
+    final exponent = (log10 / log(10)).floor();
+    final scale = (exponent ~/ 3) * 3;
+
+    final scaled = value.divide(
+      BigDecimal.parse(pow(10, scale).toStringAsFixed(0)),
+      scale: 3,
+      roundingMode: RoundingMode.HALF_UP,
+    );
+
+    return '${scaled.toPlainString()}e$scale';
   }
 }

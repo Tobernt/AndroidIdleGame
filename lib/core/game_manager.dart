@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'dart:math';
 
 import '../features/achievements/achievement.dart';
 import '../features/achievements/achievement_service.dart';
@@ -41,7 +42,6 @@ class GameManager with ChangeNotifier {
   Timer? _loopTimer;
   DateTime? _lastUpdate;
   int tapCount = 0;
-
   Future<void> init() async {
     if (_initialized) return;
 
@@ -54,7 +54,10 @@ class GameManager with ChangeNotifier {
     prestigeService = PrestigeService();
     modifierManager = ModifierManager();
     buildingService = BuildingService();
-    spellService = SpellService(prestigeService: prestigeService);
+    spellService = SpellService(
+      prestigeService: prestigeService,
+      modifierManager: modifierManager,
+    );
     factionManager = FactionManager(prestigeService: prestigeService);
     skillManager = SkillManager(prestigeService: prestigeService);
     resourceManager = ResourceManager();
@@ -69,7 +72,14 @@ class GameManager with ChangeNotifier {
 
     // Load data
     await resourceManager.loadFromConfig();
-    await buildingService.loadFromJsonAsset('assets/data/humans_buildings.json');
+    await buildingService.loadFromJsonAssets([
+      'assets/data/humans_buildings.json',
+      'assets/data/elf_buildings.json',
+      'assets/data/orc_buildings.json',
+      'assets/data/dwarf_buildings.json',
+      'assets/data/undead_buildings.json',
+      'assets/data/automaton_buildings.json',
+    ]);
     await spellService.loadFromJsonAssets([
       'assets/data/humans_spells.json',
       'assets/data/elf_spells.json',
@@ -96,15 +106,21 @@ class GameManager with ChangeNotifier {
     achievementService.init(
       spellService: spellService,
       skillManager: skillManager,
+      factionManager: factionManager,
     );
     achievementService.load(achievements);
 
     factionManager.clearSelection();
     applyFactionBonuses();
+    if (factionManager.selected.isNotEmpty) {
+      state.metaValues['selected_faction_id'] = factionManager.selected.first.id;
+    }
+
     startLoop();
 
     _initialized = true;
   }
+
   void tickResources(double deltaSeconds) {
     state.resourceAmounts.forEach((id, _) {
       final base = buildingService.totalOutputPerSecond(resource: id);
@@ -126,7 +142,11 @@ class GameManager with ChangeNotifier {
       state.resourceModifiers['${id}_per_sec'] = incomePerSecond;
     });
 
-    // ✅ New: Ensure conquest unlock is reapplied after claiming achievement
+    // ✅ Apply hero effects again (in case tickResources runs before applyFactionBonuses)
+    final lifetimeMultiplier = 1 + (log(prestigeService.lifetimeGold + 1) / 100);
+    heroService.applySelectedHeroes(state, lifetimeMultiplier);
+
+    // ✅ Ensure conquest unlock is reapplied after claiming achievement
     if (!state.conquestUnlocked) {
       final claimed = achievementService.all.any(
             (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
@@ -136,6 +156,7 @@ class GameManager with ChangeNotifier {
       }
     }
   }
+
   void checkForPassiveUnlocks() {
     if (!state.conquestUnlocked) {
       final claimed = achievementService.all.any(
@@ -146,10 +167,18 @@ class GameManager with ChangeNotifier {
       }
     }
   }
+  void unlockHeroesFromAchievements() {
+    for (final achievement in achievementService.all) {
+      if (achievement.isClaimed) {
+        heroService.unlockByAchievementId(achievement.id);
+      }
+    }
+  }
 
   void applyFactionBonuses() {
     state.resourceModifiers.clear();
 
+    // 1. Faction resource boosts
     for (var faction in factionManager.selected) {
       for (var entry in faction.resourceBoosts.entries) {
         final key = entry.key;
@@ -157,6 +186,25 @@ class GameManager with ChangeNotifier {
         state.resourceModifiers[key] =
             (state.resourceModifiers[key] ?? 1.0) * bonus;
       }
+    }
+
+    // 2. Building modifiers
+    final buildingModifiers = buildingService.getActiveModifiers();
+    for (final entry in buildingModifiers.entries) {
+      final key = entry.key;
+      final value = entry.value;
+      state.resourceModifiers[key] =
+          (state.resourceModifiers[key] ?? 0.0) + value;
+    }
+
+    // 3. Mana cap from buildings
+    if (state.resourceModifiers.containsKey('max_mana_bonus')) {
+      state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
+    }
+
+    // ✅ 4. Re-apply skill effects for unlocked & equipped skills
+    for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
+      skill.effect(state);
     }
   }
 
@@ -184,6 +232,12 @@ class GameManager with ChangeNotifier {
       final manaIncome = baseManaRegen + buildingService.totalOutputPerSecond(resource: 'mana');
       state.addResource('mana', manaIncome * delta * manaMultiplier);
 
+      final autoTaps = buildingService.getAutomatedTapsPerSecond();
+      final autoTapGain = autoTaps * state.tapPower * goldMultiplier * delta;
+      state.addResource('gold', autoTapGain);
+      prestigeService.applyGold(autoTapGain);
+      tapCount += autoTaps.toInt(); // Optional if you want auto-taps to count
+      conquestManager.checkFactionAnnihilation();
       resourceService.tickIncome(delta);
       notifyListeners();
     });
@@ -195,24 +249,26 @@ class GameManager with ChangeNotifier {
     final preservedLifetimeResources = Map<String, double>.from(state.lifetimeResources);
     final preservedConquestUnlocked = state.conquestUnlocked;
     final preservedConquestIntro = state.conquestIntroShown;
+    final unlockedConquest = state.conquestUnlocked;
 
     state.totalPrestiges = preservedTotalPrestiges;
     state.conquestUnlocked = preservedConquestUnlocked;
     state.lifetimeTaps = preservedLifetimeTaps;
     state.lifetimeResources.addAll(preservedLifetimeResources);
     achievementService.applyClaimedRewards(state);
-
+    state.conquestUnlocked = unlockedConquest; // restore conquestUnlocked
     state.conquestIntroShown = preservedConquestIntro;
     state.resourceAmounts.updateAll((key, _) => 0.0);
     state.resourceModifiers.clear();
-    state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 0.0);
+    state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
     state.metaValues.clear();
     state.tapPower = 1.0;
     state.currentRunTaps = 0;
 
     resourceManager.current.updateAll((key, _) => 0.0);
     resourceService = ResourceService(resourceManager);
-
+    state.conqueredFactions.clear();
+    conquestManager.reset();  // clears ConquestManager.conqueredFactions and state
     buildingService.reset();
     spellService.equippedSpells.clear();
 
@@ -220,6 +276,7 @@ class GameManager with ChangeNotifier {
       skill.unlocked = false;
       skill.equipped = false;
     }
+
     conquestManager.reset();
     factionManager.clearSelection();
     notifyListeners();
@@ -258,15 +315,17 @@ class GameManager with ChangeNotifier {
 
   void buyBuilding(Building building) {
     buildingService.buy(building, state);
+    applyFactionBonuses(); // ← Refresh bonuses
     _checkAchievements();
     notifyListeners();
   }
+
 
   void addGoldAdModifier() {
     modifierManager.addModifier(
       Modifier(
         id: 'gold',
-        multiplier: 2.0,
+        multiplier: 10000.0,
         duration: const Duration(hours: 4),
       ),
     );

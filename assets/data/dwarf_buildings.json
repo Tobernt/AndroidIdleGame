@@ -5,8 +5,8 @@
     "name": "Mining Shaft",
     "description": "Generates a steady amount of ore.",
     "baseCost": { "gold": 15 },
-    "growthRate": 1.12,
-    "output": { "ore": 1.0 }
+    "baseOutput": { "ore": 1.0 },
+    "costGrowth": 1.12
   },
   {
     "id": "dwarf_building_2",
@@ -14,8 +14,8 @@
     "name": "Ale Hall",
     "description": "Generates gold and boosts morale for dwarves.",
     "baseCost": { "gold": 40 },
-    "growthRate": 1.15,
-    "output": { "gold": 1.5 }
+    "baseOutput": { "gold": 1.5 },
+    "costGrowth": 1.15
   },
   {
     "id": "dwarf_building_3",
@@ -23,8 +23,8 @@
     "name": "Rune Forge",
     "description": "Generates both gold and ore at a balanced rate.",
     "baseCost": { "gold": 100, "ore": 5 },
-    "growthRate": 1.2,
-    "output": { "gold": 2.0, "ore": 1.0 }
+    "baseOutput": { "gold": 2.0, "ore": 1.0 },
+    "costGrowth": 1.2
   },
   {
     "id": "dwarf_building_4",
@@ -32,8 +32,8 @@
     "name": "Stoneworks",
     "description": "Passively increases gold generation by improving infrastructure.",
     "baseCost": { "gold": 250, "ore": 15 },
-    "growthRate": 1.25,
-    "output": { "gold": 3.5 }
+    "baseOutput": { "gold": 3.5 },
+    "costGrowth": 1.25
   },
   {
     "id": "dwarf_building_5",
@@ -41,7 +41,7 @@
     "name": "Great Foundry",
     "description": "Massive ore and gold output. Synergizes with production buffs.",
     "baseCost": { "gold": 1000, "ore": 50 },
-    "growthRate": 1.35,
-    "output": { "gold": 6.0, "ore": 3.0 }
+    "baseOutput": { "gold": 6.0, "ore": 3.0 },
+    "costGrowth": 1.35
   }
 ]

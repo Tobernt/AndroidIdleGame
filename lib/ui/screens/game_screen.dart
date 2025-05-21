@@ -11,6 +11,7 @@ import 'prestige_screen.dart';
 import 'achievement_screen.dart';
 import 'conquest_screen.dart';
 import 'hero_screen.dart';
+import 'package:big_decimal/big_decimal.dart';
 
 class GameScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -164,11 +165,12 @@ class _GameScreenState extends State<GameScreen> {
 
       final income = base * multiplier;
       final emoji = _resourceEmoji(id);
-      final displayValue = _smoothedValues[id] ?? 0.0;
+      final value = BigDecimal.parse((_smoothedValues[id] ?? 0.0).toStringAsFixed(1));
+      final inc = BigDecimal.parse(income.toString());
 
       rows.add(
         Text(
-          '$emoji ${id[0].toUpperCase()}${id.substring(1)}: ${_fmt(displayValue)}  +${_fmt(income)}/s',
+          '$emoji ${id[0].toUpperCase()}${id.substring(1)}: ${formatBigDecimal(value)}  +${formatBigDecimal(inc)}/s',
           style: const TextStyle(color: Colors.white),
         ),
       );
@@ -197,17 +199,26 @@ class _GameScreenState extends State<GameScreen> {
     'crystals': '🔮',
   }[key] ?? '';
 
-  String _fmt(double number) {
-    if (number == 0) return '0';
-    const suffixes = {
-      0: '', 3: 'K', 6: 'M', 9: 'B', 12: 'T',
-      15: 'Qa', 18: 'Qi', 21: 'Sx', 24: 'Sp',
-      27: 'Oc', 30: 'No', 33: 'Dc',
-    };
-    final exponent = (log(number.abs()) / log(10)).floor() ~/ 3 * 3;
-    final scaled = number / pow(10, exponent);
-    final suffix = suffixes[exponent] ?? 'e$exponent';
-    return '${scaled.toStringAsFixed(3)}$suffix';
+  String formatBigDecimal(BigDecimal number) {
+    if (number.intVal == BigInt.zero) return '0';
+
+    final doubleVal = number.toDouble().abs();
+
+    // Show normal numbers below 1e3
+    if (doubleVal < 1000) {
+      return number.toPlainString();
+    }
+
+    final exponent = doubleVal == 0.0 ? 0 : (log(doubleVal) / ln10).floor();
+    final scale = (exponent ~/ 3) * 3;
+
+    final scaled = number.divide(
+      BigDecimal.parse(pow(10, scale).toStringAsFixed(0)),
+      scale: 3,
+      roundingMode: RoundingMode.HALF_UP,
+    );
+
+    return '${scaled.toPlainString()}e$scale';
   }
 
   Widget _buildTabContent() {
@@ -291,8 +302,11 @@ class _GameScreenState extends State<GameScreen> {
               child: ListTile(
                 title: Text(spell.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 subtitle: Text(
-                  '${costString.isNotEmpty ? 'Cost: $costString\n' : ''}'
-                      '${isReady ? '' : '- Cooldown: ${(100 * (1 - progress)).toStringAsFixed(0)}%'}',
+                  [
+                    if (costString.isNotEmpty) 'Cost: $costString',
+                    if (!isReady) 'Cooldown: ${(100 * (1 - progress)).toStringAsFixed(0)}%',
+                    if (spell.description.isNotEmpty) spell.description,
+                  ].join('\n'),
                   style: const TextStyle(color: Colors.white70),
                 ),
                 trailing: ElevatedButton(

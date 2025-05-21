@@ -2,6 +2,7 @@ import '../../core/game_state.dart';
 import '../../features/achievements/achievement.dart';
 import '../../features/spells/spell_service.dart';
 import '../../features/skill_tree/skill_manager.dart';
+import '../../features/factions/faction_service.dart';
 import 'package:flutter/foundation.dart';
 
 class AchievementService {
@@ -11,13 +12,16 @@ class AchievementService {
 
   late SpellService _spellService;
   late SkillManager _skillManager;
+  late FactionManager _factionManager;
 
   void init({
     required SpellService spellService,
     required SkillManager skillManager,
+    required FactionManager factionManager,
   }) {
     _spellService = spellService;
     _skillManager = skillManager;
+    _factionManager = factionManager;
   }
 
   void load(List<Achievement> initialData) {
@@ -41,8 +45,6 @@ class AchievementService {
     }
 
     final achievement = _achievements[index];
-    debugPrint("🔍 Attempting to claim '${achievement.id}' — Unlocked: ${achievement.isUnlocked}, Claimed: ${achievement.isClaimed}");
-
     if (!achievement.isUnlocked || achievement.isClaimed) {
       debugPrint("⛔ Cannot claim '${achievement.id}': Either not unlocked or already claimed.");
       return;
@@ -51,49 +53,43 @@ class AchievementService {
     _achievements[index] = achievement.copyWith(isClaimed: true);
     debugPrint("✅ Claimed achievement '${achievement.id}'");
 
-    final reward = achievement.reward;
-    if (reward != null) {
-      switch (reward.type) {
-        case 'unlock_spell':
-          _spellService.unlockSpellById(reward.targetId);
-          debugPrint("🎁 Applied spell reward: ${reward.targetId}");
-          break;
+    _applyReward(achievement.reward, state);
+  }
 
-        case 'unlock_skill':
-          _skillManager.markSkillAsAvailable(reward.targetId);
-          debugPrint("🎁 Applied skill reward: ${reward.targetId}");
-          break;
+  void _applyReward(AchievementReward? reward, GameState state) {
+    if (reward == null) return;
 
-        case 'unlock_conquest':
-          state.conquestUnlocked = true;
-          debugPrint("⚔️ Conquest unlocked via achievement '${achievement.id}'");
-          break;
-
-        default:
-          debugPrint("⚠️ Unknown reward type: ${reward.type}");
-          break;
-      }
-    } else {
-      debugPrint("ℹ️ No reward to apply for '${achievement.id}'");
+    switch (reward.type) {
+      case 'unlock_spell':
+        _spellService.unlockSpellById(reward.targetId);
+        debugPrint("🎁 Applied spell reward: ${reward.targetId}");
+        break;
+      case 'unlock_skill':
+        _skillManager.markSkillAsAvailable(reward.targetId);
+        debugPrint("🎁 Applied skill reward: ${reward.targetId}");
+        break;
+      case 'unlock_conquest':
+        state.conquestUnlocked = true;
+        debugPrint("⚔️ Conquest unlocked");
+        break;
+      case 'unlock_hero':
+        state.metaValues['unlocked_heroes'] ??= <String>[];
+        final unlocked = state.metaValues['unlocked_heroes'] as List<String>;
+        if (!unlocked.contains(reward.targetId)) {
+          unlocked.add(reward.targetId);
+          debugPrint("🦸 Hero unlocked: ${reward.targetId}");
+        }
+        break;
+      default:
+        debugPrint("⚠️ Unknown reward type: ${reward.type}");
+        break;
     }
   }
 
   void applyClaimedRewards(GameState state) {
     for (final achievement in _achievements) {
       if (achievement.isClaimed && achievement.reward != null) {
-        switch (achievement.reward!.type) {
-          case 'unlock_spell':
-            _spellService.unlockSpellById(achievement.reward!.targetId);
-            break;
-          case 'unlock_skill':
-            _skillManager.markSkillAsAvailable(achievement.reward!.targetId);
-            break;
-          case 'unlock_conquest':
-            state.conquestUnlocked = true;
-            break;
-          default:
-            break;
-        }
+        _applyReward(achievement.reward, state);
       }
     }
   }
@@ -104,6 +100,11 @@ class AchievementService {
     required int buildingsOwned,
     required int tapCount,
   }) {
+    final selectedFactionIds = _factionManager.getSelectedFactionIds().toSet();
+    final conquered = state.conqueredFactions.toSet();
+    final destroyed = state.destroyedFactions.toSet();
+    final clearedFactions = {...conquered, ...destroyed};
+
     for (int i = 0; i < _achievements.length; i++) {
       final a = _achievements[i];
       if (a.isUnlocked || a.requirement == null) continue;
@@ -127,7 +128,6 @@ class AchievementService {
         case 'buildings_owned':
           fulfilled = buildingsOwned >= r.amount;
           break;
-        case 'prestige_level':
         case 'prestige_total':
           fulfilled = state.totalPrestiges >= r.amount;
           break;
@@ -135,7 +135,23 @@ class AchievementService {
           final resource = r.extra ?? 'gold';
           fulfilled = (state.lifetimeResources[resource] ?? 0) >= r.amount;
           break;
+
+        case 'faction_conquest':
+          final requiredFaction = r.selectedFaction;
+          final requiredConquered = r.conqueredFactions.toSet();
+
+          final isPlayingRequired = requiredFaction != null && selectedFactionIds.contains(requiredFaction);
+
+          debugPrint("🧩 Checking faction_conquest for ${a.id}");
+          debugPrint("Selected factions: $selectedFactionIds | Required: $requiredFaction");
+          debugPrint("Cleared factions: $clearedFactions");
+          debugPrint("Required to conquer: $requiredConquered");
+
+          fulfilled = isPlayingRequired && requiredConquered.every(clearedFactions.contains);
+          break;
+
         default:
+          debugPrint("⚠️ Unknown requirement type: ${r.type}");
           break;
       }
 

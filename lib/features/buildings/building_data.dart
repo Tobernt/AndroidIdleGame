@@ -8,6 +8,8 @@ class BuildingData {
   final Map<String, double> baseCost;
   final Map<String, double> baseOutput;
   final double costGrowth;
+  final Map<String, dynamic> modifier;
+  final String? unlockRequirementId;
 
   BuildingData({
     required this.id,
@@ -17,6 +19,8 @@ class BuildingData {
     required this.baseCost,
     required this.baseOutput,
     this.costGrowth = 1.15,
+    this.modifier = const {},
+    this.unlockRequirementId,
   });
 
   factory BuildingData.fromJson(Map<String, dynamic> json) {
@@ -24,12 +28,14 @@ class BuildingData {
       id: json['id'],
       name: json['name'],
       faction: json['faction'],
-      description: json['bonus'] ?? '',
+      description: json['description'] ?? json['bonus'] ?? '',
       baseCost: Map<String, double>.from(json['baseCost']),
       baseOutput: Map<String, double>.from(json['baseOutput']),
       costGrowth: json['costGrowth'] != null
           ? (json['costGrowth'] as num).toDouble()
           : 1.15,
+      modifier: Map<String, dynamic>.from(json['modifier'] ?? {}),
+      unlockRequirementId: json['unlockRequirementId'],
     );
   }
 
@@ -41,8 +47,10 @@ class BuildingData {
       faction: faction,
       baseCost: baseCost,
       baseOutput: baseOutput,
-      level: 0,
       costGrowth: costGrowth,
+      level: 0,
+      modifier: modifier,
+      unlockRequirementId: unlockRequirementId,
     );
   }
 }
