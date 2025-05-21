@@ -94,9 +94,15 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      'CD: ${spell.cooldown.inSeconds}s\n${spell.costs.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}').join(', ')}',
+                                      spell.description,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'CD: ${spell.cooldown.inSeconds}s\n${spell.costs.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}').join(', ')}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(color: Colors.white54, fontSize: 11),
                                     ),
                                     const SizedBox(height: 8),
                                     isEquipped
