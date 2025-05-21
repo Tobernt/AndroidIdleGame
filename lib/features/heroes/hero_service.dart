@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../../core/game_state.dart';
@@ -10,6 +9,7 @@ class HeroService {
   List<HeroData> get all => List.unmodifiable(_allHeroes);
   List<HeroData> get unlockedHeroes => _allHeroes.where((h) => h.unlocked).toList();
   List<HeroData> get selectedHeroes => _allHeroes.where((h) => h.selected).toList();
+
   int maxRosterSize = 1;
 
   final Map<String, HeroEffect> _effectMap = {
@@ -39,6 +39,11 @@ class HeroService {
     },
   };
 
+  /// ✅ FIXED: Reference _allHeroes correctly
+  bool hasUnlockedHero(String heroId) {
+    return _allHeroes.any((h) => h.id == heroId && h.unlocked);
+  }
+
   Future<void> loadFromJsonAsset(String path) async {
     final raw = await rootBundle.loadString(path);
     final List<dynamic> jsonList = json.decode(raw);
@@ -52,15 +57,21 @@ class HeroService {
   }
 
   void unlockByAchievementId(String achievementId) {
-    final hero = _allHeroes.firstWhere(
-          (h) => h.unlockAchievementId == achievementId,
-      orElse: () => throw Exception("Hero for $achievementId not found"),
-    );
-    hero.unlocked = true;
+    try {
+      final hero = _allHeroes.firstWhere(
+            (h) => h.unlockAchievementId == achievementId,
+      );
+      hero.unlocked = true;
+    } catch (_) {
+      // Silently fail — some factions might not have heroes yet
+    }
   }
 
   void toggleHeroSelection(String heroId) {
-    final hero = _allHeroes.firstWhere((h) => h.id == heroId, orElse: () => throw Exception("Hero $heroId not found"));
+    final hero = _allHeroes.firstWhere(
+          (h) => h.id == heroId,
+      orElse: () => throw Exception("Hero $heroId not found"),
+    );
     if (!hero.unlocked) return;
 
     if (hero.selected) {

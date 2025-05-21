@@ -17,11 +17,11 @@ class ConquestData {
 
   factory ConquestData.fromJson(Map<String, dynamic> json) {
     return ConquestData(
-      factionId: json['factionId'],
-      name: json['name'],
-      description: json['description'],
+      factionId: json['factionId'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
       baseMightThreshold: (json['baseMightThreshold'] as num).toDouble(),
-      conquered: json['conquered'] ?? false,
+      conquered: (json['conquered'] as bool?) ?? false,
     );
   }
 

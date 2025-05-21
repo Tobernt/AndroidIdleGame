@@ -49,17 +49,18 @@ class _FactionScreenState extends State<FactionScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (_, i) {
                   final faction = factions[i];
+                  final isSelected = faction.isSelected;
 
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        widget.manager.toggleSelect(faction.id);
-                      });
+                      if (!hasSelected) {
+                        setState(() {
+                          widget.manager.selectOnly(faction.id);
+                        });
+                      }
                     },
                     child: Card(
-                      color: faction.isSelected
-                          ? Colors.blueGrey[700]
-                          : Colors.grey[850],
+                      color: isSelected ? Colors.blueGrey[700] : Colors.grey[850],
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -81,6 +82,13 @@ class _FactionScreenState extends State<FactionScreen> {
                                 fontSize: 14,
                               ),
                             ),
+                            if (isSelected) ...[
+                              const SizedBox(height: 8),
+                              const Text(
+                                '✔️ Selected',
+                                style: TextStyle(color: Colors.lightGreenAccent),
+                              ),
+                            ]
                           ],
                         ),
                       ),

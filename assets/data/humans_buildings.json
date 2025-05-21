@@ -1,44 +1,53 @@
 [
   {
     "id": "human_building_1",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Farm",
+    "description": "Produces a steady income of gold to support your economy.",
     "baseOutput": {
       "gold": 5
     },
     "baseCost": {
       "gold": 100
     },
-    "bonus": null
+    "costGrowth": 1.15,
+    "modifier": {}
   },
   {
     "id": "human_building_2",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Barracks",
+    "description": "Each Barracks increases global gold by 1%. Also generates base gold.",
     "baseOutput": {
       "gold": 20
     },
     "baseCost": {
       "gold": 1000
     },
-    "bonus": "Each Barracks increases global gold by 1%"
+    "costGrowth": 1.15,
+    "modifier": {
+      "global_gold_multiplier": 1.01
+    }
   },
   {
     "id": "human_building_3",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Market",
+    "description": "Generates higher income to accelerate mid-game economy.",
     "baseOutput": {
       "gold": 50
     },
     "baseCost": {
       "gold": 5000
     },
-    "bonus": null
+    "costGrowth": 1.15,
+    "modifier": {}
   },
   {
     "id": "human_building_4",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Temple",
+    "description": "Generates gold and mana. +20 max mana per Temple.",
     "baseOutput": {
       "gold": 10,
       "mana": 0.1
@@ -46,18 +55,25 @@
     "baseCost": {
       "mana": 300
     },
-    "bonus": "+20 max mana per Temple"
+    "costGrowth": 1.15,
+    "modifier": {
+      "max_mana_bonus": 20
+    }
   },
   {
     "id": "human_building_5",
-    "faction": "faction_humans",
+    "faction": "humans",
     "name": "Castle",
+    "description": "Provides massive gold output. Boosts Farms and Markets by 5%.",
     "baseOutput": {
       "gold": 200
     },
     "baseCost": {
       "gold": 50000
     },
-    "bonus": "+5% to Farms and Markets"
+    "costGrowth": 1.15,
+    "modifier": {
+      "farm_market_boost": 1.05
+    }
   }
 ]

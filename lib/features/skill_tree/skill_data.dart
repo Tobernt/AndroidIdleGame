@@ -31,13 +31,13 @@ class SkillData {
     );
   }
 
-  Skill toSkill(Map<String, SkillEffect> effectMap) {
-    final effect = effectMap[effectId] ?? ((_) {});
+  Skill toSkill(SkillEffect effect) {
     return Skill(
       id: id,
       name: name,
       description: description,
       cost: cost,
+      effectId: effectId,
       effect: effect,
       tier: tier,
       faction: faction,

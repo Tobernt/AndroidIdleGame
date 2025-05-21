@@ -3,10 +3,15 @@ class AchievementRequirement {
   final double amount;
   final String? extra;
 
+  final String? selectedFaction;
+  final List<String> conqueredFactions;
+
   const AchievementRequirement({
     required this.type,
-    required this.amount,
+    this.amount = 0,
     this.extra,
+    this.selectedFaction,
+    this.conqueredFactions = const [],
   });
 
   factory AchievementRequirement.fromJson(Map<String, dynamic> json) {
@@ -14,6 +19,11 @@ class AchievementRequirement {
       type: json['type'] ?? '',
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       extra: json['extra'] as String?,
+      selectedFaction: json['selectedFaction'] as String?,
+      conqueredFactions: (json['conqueredFactions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+          [],
     );
   }
 
@@ -21,11 +31,14 @@ class AchievementRequirement {
     'type': type,
     'amount': amount,
     if (extra != null) 'extra': extra,
+    if (selectedFaction != null) 'selectedFaction': selectedFaction,
+    if (conqueredFactions.isNotEmpty)
+      'conqueredFactions': conqueredFactions,
   };
 }
 
 class AchievementReward {
-  final String type; // 'unlock_spell' | 'unlock_skill'
+  final String type; // 'unlock_spell' | 'unlock_skill' | etc.
   final String targetId;
 
   const AchievementReward({

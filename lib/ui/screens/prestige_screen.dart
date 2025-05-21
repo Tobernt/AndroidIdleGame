@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:big_decimal/big_decimal.dart';
+import 'dart:math';
 import '../../core/game_manager.dart';
 import 'game_screen.dart';
 import 'faction_screen.dart';
@@ -11,6 +13,19 @@ class PrestigeScreen extends StatelessWidget {
     super.key,
     required this.gameManager,
   });
+
+  String formatBigDecimal(BigDecimal value) {
+    if (value.intVal == BigInt.zero) return '0';
+
+    final doubleVal = value.toDouble().abs();
+    final exponent = log(doubleVal) ~/ log(10);
+    if (exponent >= 3) {
+      final base = doubleVal / pow(10, exponent);
+      return '${base.toStringAsFixed(2)}e$exponent';
+    } else {
+      return value.toPlainString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +52,10 @@ class PrestigeScreen extends StatelessWidget {
                   style: const TextStyle(color: Colors.lightBlueAccent)),
               const SizedBox(height: 12),
 
-              Text('🪙 Lifetime Gold: ${prestige.lifetimeGold.toStringAsFixed(0)}',
-                  style: const TextStyle(color: Colors.amber, fontSize: 20)),
+              Text(
+                '🪙 Current Lifetime Gold: ${formatBigDecimal(BigDecimal.parse(prestige.lifetimeGold.toStringAsFixed(0)))}',
+                style: const TextStyle(color: Colors.amber, fontSize: 20),
+              ),
               const SizedBox(height: 8),
               Text('📈 Multiplier after Prestige:',
                   style: const TextStyle(color: Colors.white70)),
@@ -60,15 +77,19 @@ class PrestigeScreen extends StatelessWidget {
               const Divider(color: Colors.white30),
               const SizedBox(height: 12),
 
-              Text('📊 Lifetime Resources:', style: const TextStyle(color: Colors.amberAccent, fontSize: 16)),
+              Text('📊 Lifetime Resources:',
+                  style: const TextStyle(color: Colors.amberAccent, fontSize: 16)),
               const SizedBox(height: 8),
-              ...state.lifetimeResources.entries.map((e) => Text(
-                '${e.key[0].toUpperCase()}${e.key.substring(1)}: ${e.value.toStringAsFixed(1)}',
-                style: const TextStyle(color: Colors.white),
-              )),
+              ...state.lifetimeResources.entries.map((e) {
+                final value = BigDecimal.parse(e.value.toStringAsFixed(0));
+                final label = '${e.key[0].toUpperCase()}${e.key.substring(1)}';
+                return Text(
+                  '$label: ${formatBigDecimal(value)}',
+                  style: const TextStyle(color: Colors.white),
+                );
+              }),
 
               const SizedBox(height: 32),
-
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.lightBlueAccent,
@@ -87,7 +108,6 @@ class PrestigeScreen extends StatelessWidget {
                 label: const Text('Spend Prestige Points'),
               ),
               const SizedBox(height: 16),
-
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
@@ -117,16 +137,9 @@ class PrestigeScreen extends StatelessWidget {
 
                   if (!context.mounted || confirmed != true) return;
 
-                  // ✅ Perform Prestige logic
                   prestige.prestige(state);
                   gameManager.resetForPrestige();
 
-                  // ✅ Show conquest intro on next GameScreen if unlocked
-                  if (state.conquestUnlocked) {
-                    state.conquestIntroShown = false;
-                  }
-
-                  // ✅ Re-evaluate achievements after prestige
                   gameManager.achievementService.evaluate(
                     state: state,
                     lifetimeGold: prestige.lifetimeGold,

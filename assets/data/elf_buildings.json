@@ -5,8 +5,8 @@
     "name": "Mana Grove",
     "description": "A grove infused with natural magic. Generates passive mana.",
     "baseCost": { "gold": 20 },
-    "costMultiplier": 1.15,
-    "output": { "mana": 0.2 },
+    "baseOutput": { "mana": 0.2 },
+    "costGrowth": 1.15,
     "unlockRequirementId": "achieve_elf_building_1"
   },
   {
@@ -15,8 +15,8 @@
     "name": "Arcane Nexus",
     "description": "Focuses ley energy into reducing spell cooldowns.",
     "baseCost": { "gold": 40, "mana": 10 },
-    "costMultiplier": 1.2,
-    "output": {},
+    "baseOutput": {},
+    "costGrowth": 1.2,
     "modifier": { "spell_cooldown_mult": 0.98 },
     "unlockRequirementId": "achieve_elf_building_2"
   },
@@ -26,8 +26,8 @@
     "name": "Wisp Sanctuary",
     "description": "Wisps amplify magic and reduce spell costs.",
     "baseCost": { "gold": 60, "mana": 20 },
-    "costMultiplier": 1.2,
-    "output": { "mana": 0.3 },
+    "baseOutput": { "mana": 0.3 },
+    "costGrowth": 1.2,
     "modifier": { "spell_cost_reduction": 0.95 },
     "unlockRequirementId": "achieve_elf_building_3"
   },
@@ -37,8 +37,8 @@
     "name": "Moonwell",
     "description": "A sacred pool that boosts mana capacity and regen.",
     "baseCost": { "gold": 100, "mana": 40 },
-    "costMultiplier": 1.25,
-    "output": { "mana": 0.5 },
+    "baseOutput": { "mana": 0.5 },
+    "costGrowth": 1.25,
     "modifier": { "max_mana_bonus": 10 },
     "unlockRequirementId": "achieve_elf_building_4"
   },
@@ -48,8 +48,8 @@
     "name": "Elder Spire",
     "description": "Doubles the effect of all elf spell modifiers for 10 seconds after casting.",
     "baseCost": { "gold": 200, "mana": 100 },
-    "costMultiplier": 1.3,
-    "output": { "mana": 0.6 },
+    "baseOutput": { "mana": 0.6 },
+    "costGrowth": 1.3,
     "modifier": { "spell_modifier_boost": 2.0 },
     "unlockRequirementId": "achieve_elf_building_5"
   }
