@@ -30,10 +30,17 @@ class AchievementService {
       ..addAll(initialData);
   }
 
-  void unlock(String id) {
+  void unlock(String id, {bool force = false}) {
     final index = _achievements.indexWhere((a) => a.id == id);
-    if (index != -1 && !_achievements[index].isUnlocked) {
-      _achievements[index] = _achievements[index].copyWith(isUnlocked: true);
+    if (index == -1) {
+      debugPrint("❌ Achievement not found: $id");
+      return;
+    }
+
+    final achievement = _achievements[index];
+    if (force || !achievement.isUnlocked) {
+      _achievements[index] = achievement.copyWith(isUnlocked: true);
+      debugPrint("✅ Achievement unlocked: $id");
     }
   }
 
@@ -54,6 +61,16 @@ class AchievementService {
     debugPrint("✅ Claimed achievement '${achievement.id}'");
 
     _applyReward(achievement.reward, state);
+  }
+  void forceUnlockById(String id) {
+    final index = _achievements.indexWhere((a) => a.id == id);
+    if (index != -1) {
+      final updated = _achievements[index].copyWith(isUnlocked: true);
+      _achievements[index] = updated;
+      debugPrint("✅ Force-unlocked achievement: $id");
+    } else {
+      debugPrint("❌ Achievement not found: $id");
+    }
   }
 
   void _applyReward(AchievementReward? reward, GameState state) {
@@ -94,13 +111,14 @@ class AchievementService {
     }
   }
 
+// Updated AchievementService.evaluate()
   void evaluate({
     required GameState state,
     required double lifetimeGold,
     required int buildingsOwned,
     required int tapCount,
   }) {
-    final selectedFactionIds = _factionManager.getSelectedFactionIds().toSet();
+    final selectedFactions = _factionManager.getSelectedFactionIds().toSet();
     final conquered = state.conqueredFactions.toSet();
     final destroyed = state.destroyedFactions.toSet();
     final clearedFactions = {...conquered, ...destroyed};
@@ -140,23 +158,22 @@ class AchievementService {
           final requiredFaction = r.selectedFaction;
           final requiredConquered = r.conqueredFactions.toSet();
 
-          final isPlayingRequired = requiredFaction != null && selectedFactionIds.contains(requiredFaction);
+          final isPlayingRequired =
+              requiredFaction != null && selectedFactions.contains(requiredFaction);
 
-          debugPrint("🧩 Checking faction_conquest for ${a.id}");
-          debugPrint("Selected factions: $selectedFactionIds | Required: $requiredFaction");
-          debugPrint("Cleared factions: $clearedFactions");
-          debugPrint("Required to conquer: $requiredConquered");
 
-          fulfilled = isPlayingRequired && requiredConquered.every(clearedFactions.contains);
+          fulfilled = isPlayingRequired &&
+              requiredConquered.every((f) => clearedFactions.contains(f));
           break;
 
         default:
-          debugPrint("⚠️ Unknown requirement type: ${r.type}");
+          debugPrint("\u{26A0}\u{FE0F} Unknown requirement type: \${r.type}");
           break;
       }
 
       if (fulfilled) {
         _achievements[i] = a.copyWith(isUnlocked: true);
+        debugPrint("\u{2705} Achievement \${a.id} unlocked!");
       }
     }
   }

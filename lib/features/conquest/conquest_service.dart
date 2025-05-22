@@ -1,13 +1,15 @@
 import '../../core/game_state.dart';
 import '../factions/faction_service.dart';
 import '../heroes/hero_service.dart';
+import '../achievements/achievement_service.dart';
 import 'dart:math';
-import 'package:flutter/foundation.dart'; // <-- needed for debugPrint
+import 'package:flutter/foundation.dart';
 
 class ConquestManager {
   final GameState state;
   final FactionManager factionManager;
   final HeroService heroService;
+  final AchievementService achievementService;
 
   static const double baseConquestThreshold = 500;
   static const Duration roundDuration = Duration(hours: 8);
@@ -23,6 +25,7 @@ class ConquestManager {
     required this.state,
     required this.factionManager,
     required this.heroService,
+    required this.achievementService,
   }) {
     conqueredFactions.addAll(state.conqueredFactions);
 
@@ -35,72 +38,44 @@ class ConquestManager {
   }
 
   double get currentMight {
-    final gold = state.getResource('gold');
-    final mana = state.getResource('mana');
-    final ore = state.getResource('ore');
-    final population = state.getResource('population');
-    final essence = state.getResource('essence');
-    final crystals = state.getResource('crystals');
-
-    final sum = gold + mana + ore + population + essence + crystals;
-    final average = sum / 6;
-    return pow(average, 1.25).toDouble();
-  }
-
-  double requiredMightForNext() {
-    return pow(2.5, conqueredFactions.length) * baseConquestThreshold;
+    final sum = [
+      'gold',
+      'mana',
+      'ore',
+      'population',
+      'essence',
+      'crystals',
+    ].map((r) => state.getResource(r)).reduce((a, b) => a + b);
+    return pow(sum / 6, 1.25).toDouble();
   }
 
   double mightRequiredForFaction(String factionId) {
     final index = factionManager.allFactions.indexWhere((f) => f.id == factionId);
     final base = 500 + index * 250;
 
-    final now = DateTime.now();
-    final elapsed = now.difference(runStartTime);
-    final seconds = elapsed.inSeconds;
-    final scalingInterval = 8 * 3.6;
-
-    final rounds = seconds / scalingInterval;
+    final elapsed = DateTime.now().difference(runStartTime);
+    final rounds = elapsed.inSeconds / (8 * 3.6);
 
     final remaining = factionManager.allFactions.where((f) =>
     !f.isSelected &&
         !conqueredFactions.contains(f.id) &&
-        !destroyedFactions.contains(f.id)).length;
+        !destroyedFactions.contains(f.id)
+    ).length;
 
-    final dangerMultiplier = max(1, 6 - remaining + 1); // 1 to 6
-    final growthRate = min(5.0, 1.25 * dangerMultiplier); // CAP to prevent overflow
+    final multiplier = max(1, 6 - remaining + 1);
+    final growth = min(5.0, 1.25 * multiplier);
 
-    final totalRemoved = conqueredFactions.length + destroyedFactions.length;
-    return base * pow(growthRate, rounds).toDouble() * pow(10, totalRemoved);
+    return base * pow(growth, rounds).toDouble() * pow(10, conqueredFactions.length + destroyedFactions.length);
   }
 
-  List<String> get conquerableFactions {
-    return factionManager.allFactions
-        .where((f) =>
-    !conqueredFactions.contains(f.id) &&
-        !destroyedFactions.contains(f.id) &&
-        !f.isSelected)
-        .map((f) => f.id)
-        .toList();
-  }
-
-  bool canAddMoreFactions() => factionManager.canSelectMore();
-
-  double getDangerMultiplier() {
-    final remaining = factionManager.allFactions.where((f) =>
-    !f.isSelected &&
-        !conqueredFactions.contains(f.id) &&
-        !destroyedFactions.contains(f.id)).length;
-
-    return remaining > 1
-        ? 1 + ((6 - remaining) * 0.2)
-        : 2.0;
-  }
+  List<String> get conquerableFactions => factionManager.allFactions.where((f) =>
+  !f.isSelected &&
+      !conqueredFactions.contains(f.id) &&
+      !destroyedFactions.contains(f.id)
+  ).map((f) => f.id).toList();
 
   bool tryConquer(String factionId) {
-    if (!conquestUnlocked ||
-        conqueredFactions.contains(factionId) ||
-        !conquerableFactions.contains(factionId)) {
+    if (!conquestUnlocked || conqueredFactions.contains(factionId) || !conquerableFactions.contains(factionId)) {
       return false;
     }
 
@@ -111,29 +86,38 @@ class ConquestManager {
     state.conqueredFactions.add(factionId);
     factionManager.unlock(factionId);
 
-    // 🔍 DEBUG LOGGING
-    debugPrint("✅ Faction conquered: $factionId");
-    debugPrint("🎯 Playing faction: ${state.metaValues['selected_faction_id']}");
-    debugPrint("📜 Conquered: ${state.conqueredFactions.toList()}");
-    debugPrint("💀 Destroyed: ${state.destroyedFactions.toList()}");
-
     if (canAddMoreFactions()) {
       factionManager.toggleSelect(factionId);
     } else {
-      state.resourceModifiers['global_bonus'] =
-          (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
+      state.resourceModifiers['global_bonus'] = (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
     }
 
-    if (conqueredFactions.length == 1) {
-      state.heroesUnlocked = true;
-      for (var faction in factionManager.allFactions) {
-        try {
-          final hero = heroService.all.firstWhere((h) => h.faction == faction.id);
-          heroService.unlockByAchievementId(hero.unlockAchievementId);
-        } catch (_) {}
+    debugPrint("✅ Faction conquered: $factionId");
+    debugPrint("🎯 Selected factions: ${factionManager.getSelectedFactionIds()}");
+    debugPrint("📜 Conquered factions: ${state.conqueredFactions.toList()}");
+    debugPrint("💀 Destroyed factions: ${destroyedFactions.toList()}");
+
+    if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
+      if (factionManager.selectedFactionId == 'humans') {
+        achievementService.forceUnlockById('achieve_hero_human');
+      } else if (factionManager.selectedFactionId == 'elves') {
+        achievementService.forceUnlockById('achieve_hero_elf');
+      } else if (factionManager.selectedFactionId == 'orcs') {
+        achievementService.forceUnlockById('achieve_hero_orc');
+      } else if (factionManager.selectedFactionId == 'dwarves') {
+        achievementService.forceUnlockById('achieve_hero_dwarf');
+      } else if (factionManager.selectedFactionId == 'undead') {
+        achievementService.forceUnlockById('achieve_hero_undead');
+      } else if (factionManager.selectedFactionId == 'automatons') {
+        achievementService.forceUnlockById('achieve_hero_automaton');
       }
     }
-
+    achievementService.evaluate(
+      state: state,
+      lifetimeGold: state.lifetimeResources['gold'] ?? 0,
+      buildingsOwned: 0,
+      tapCount: state.currentRunTaps,
+    );
     return true;
   }
 
@@ -141,32 +125,55 @@ class ConquestManager {
     final elapsed = DateTime.now().difference(runStartTime);
     final rounds = elapsed.inHours ~/ 8;
 
-    final factionsLeft = factionManager.allFactions.where((f) {
-      return !f.isSelected &&
-          !conqueredFactions.contains(f.id) &&
-          !destroyedFactions.contains(f.id);
-    }).toList();
+    final factionsLeft = factionManager.allFactions.where((f) =>
+    !f.isSelected &&
+        !conqueredFactions.contains(f.id) &&
+        !destroyedFactions.contains(f.id)
+    ).toList();
 
     final shouldRemain = max(1, 6 - rounds * 2);
 
     if (factionsLeft.length > shouldRemain) {
-      final toDestroy = factionsLeft.length - shouldRemain;
       factionsLeft.shuffle();
-      for (int i = 0; i < toDestroy; i++) {
+      for (int i = 0; i < factionsLeft.length - shouldRemain; i++) {
         destroyedFactions.add(factionsLeft[i].id);
         debugPrint("💥 Faction annihilated: ${factionsLeft[i].id}");
       }
     }
 
-    // 🔍 DEBUG LOGGING
-    debugPrint("🎯 Playing faction: ${state.metaValues['selected_faction_id']}");
-    debugPrint("📜 Conquered: ${state.conqueredFactions.toList()}");
-    debugPrint("💀 Destroyed: ${state.destroyedFactions.toList()}");
+    debugPrint("🎯 Selected factions: ${factionManager.getSelectedFactionIds()}");
+    debugPrint("📜 Conquered factions: ${state.conqueredFactions.toList()}");
+    debugPrint("💀 Destroyed factions: ${destroyedFactions.toList()}");
 
+    if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
+      if (factionManager.selectedFactionId == 'humans') {
+        achievementService.forceUnlockById('achieve_hero_human');
+      } else if (factionManager.selectedFactionId == 'elves') {
+        achievementService.forceUnlockById('achieve_hero_elf');
+      } else if (factionManager.selectedFactionId == 'orcs') {
+        achievementService.forceUnlockById('achieve_hero_orc');
+      } else if (factionManager.selectedFactionId == 'dwarves') {
+        achievementService.forceUnlockById('achieve_hero_dwarf');
+      } else if (factionManager.selectedFactionId == 'undead') {
+        achievementService.forceUnlockById('achieve_hero_undead');
+      } else if (factionManager.selectedFactionId == 'automatons') {
+        achievementService.forceUnlockById('achieve_hero_automaton');
+      }
+    }
     if (factionsLeft.length == 1 && elapsed.inHours >= 32) {
       state.metaValues['force_prestige'] = true;
     }
+
+    achievementService.evaluate(
+      state: state,
+      lifetimeGold: state.lifetimeResources['gold'] ?? 0,
+      buildingsOwned: 0,
+      tapCount: state.currentRunTaps,
+    );
   }
+
+  bool canAddMoreFactions() => factionManager.canSelectMore();
+
   void reset() {
     conqueredFactions.clear();
     destroyedFactions.clear();
@@ -174,33 +181,5 @@ class ConquestManager {
 
     runStartTime = DateTime.now();
     state.metaValues['run_start_time'] = runStartTime.toIso8601String();
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'conqueredFactions': conqueredFactions.toList(),
-      'destroyedFactions': destroyedFactions.toList(),
-      'runStartTime': runStartTime.toIso8601String(),
-    };
-  }
-
-  void loadFromJson(Map<String, dynamic> json) {
-    final conquered = json['conqueredFactions'] ?? [];
-    final destroyed = json['destroyedFactions'] ?? [];
-    final start = json['runStartTime'];
-
-    conqueredFactions
-      ..clear()
-      ..addAll(List<String>.from(conquered));
-    destroyedFactions
-      ..clear()
-      ..addAll(List<String>.from(destroyed));
-    state.conqueredFactions
-      ..clear()
-      ..addAll(conqueredFactions);
-
-    if (start != null) {
-      runStartTime = DateTime.tryParse(start.toString()) ?? DateTime.now();
-    }
   }
 }

@@ -56,6 +56,7 @@ class _FactionScreenState extends State<FactionScreen> {
                       if (!hasSelected) {
                         setState(() {
                           widget.manager.selectOnly(faction.id);
+                          widget.manager.selectedFactionId = faction.id;
                         });
                       }
                     },

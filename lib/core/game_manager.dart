@@ -68,7 +68,9 @@ class GameManager with ChangeNotifier {
       state: state,
       factionManager: factionManager,
       heroService: heroService,
+      achievementService: achievementService,
     );
+
 
     // Load data
     await resourceManager.loadFromConfig();
