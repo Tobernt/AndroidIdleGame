@@ -92,11 +92,6 @@ class ConquestManager {
       state.resourceModifiers['global_bonus'] = (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
     }
 
-    debugPrint("✅ Faction conquered: $factionId");
-    debugPrint("🎯 Selected factions: ${factionManager.getSelectedFactionIds()}");
-    debugPrint("📜 Conquered factions: ${state.conqueredFactions.toList()}");
-    debugPrint("💀 Destroyed factions: ${destroyedFactions.toList()}");
-
     if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
       if (factionManager.selectedFactionId == 'humans') {
         achievementService.forceUnlockById('achieve_hero_human');
@@ -140,10 +135,6 @@ class ConquestManager {
         debugPrint("💥 Faction annihilated: ${factionsLeft[i].id}");
       }
     }
-
-    debugPrint("🎯 Selected factions: ${factionManager.getSelectedFactionIds()}");
-    debugPrint("📜 Conquered factions: ${state.conqueredFactions.toList()}");
-    debugPrint("💀 Destroyed factions: ${destroyedFactions.toList()}");
 
     if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
       if (factionManager.selectedFactionId == 'humans') {

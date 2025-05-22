@@ -4,41 +4,41 @@
     "name": "Sir Gallant",
     "description": "A noble warrior who boosts tapping power over time.",
     "faction": "humans",
-    "unlockAchievementId": "achieve_human_unlock"
+    "unlockAchievementId": "achieve_hero_human"
   },
   {
     "id": "hero_undead",
     "name": "Necrolord Vex",
     "description": "Raises population from the dead at a steady rate.",
     "faction": "undead",
-    "unlockAchievementId": "achieve_undead_unlock"
+    "unlockAchievementId": "achieve_hero_undead"
   },
   {
     "id": "hero_elf",
     "name": "Elaria Moonshade",
     "description": "A graceful elf who channels extra mana regeneration.",
     "faction": "elves",
-    "unlockAchievementId": "achieve_elf_unlock"
+    "unlockAchievementId": "achieve_hero_elf"
   },
   {
     "id": "hero_orc",
     "name": "Grum Skullsplitter",
     "description": "Boosts gold income with raw brutality.",
     "faction": "orcs",
-    "unlockAchievementId": "achieve_orc_unlock"
+    "unlockAchievementId": "achieve_hero_orc"
   },
   {
     "id": "hero_dwarf",
     "name": "Thrain Ironbeard",
     "description": "Reduces all building costs with unmatched craftsmanship.",
     "faction": "dwarves",
-    "unlockAchievementId": "achieve_dwarf_unlock"
+    "unlockAchievementId": "achieve_hero_dwarf"
   },
   {
     "id": "hero_automaton",
     "name": "Unit-X9",
     "description": "Efficient and precise, boosts both mana and gold gains.",
     "faction": "automatons",
-    "unlockAchievementId": "achieve_automaton_unlock"
+    "unlockAchievementId": "achieve_hero_automaton"
   }
 ]

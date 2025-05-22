@@ -171,6 +171,21 @@ class AchievementService {
           break;
       }
 
+      final heroAchievements = [
+        'achieve_hero_human',
+        'achieve_hero_elf',
+        'achieve_hero_orc',
+        'achieve_hero_dwarf',
+        'achieve_hero_undead',
+        'achieve_hero_automaton',
+      ];
+
+      if (!state.heroesUnlocked &&
+          _achievements.any((a) => heroAchievements.contains(a.id) && a.isUnlocked)) {
+        state.heroesUnlocked = true;
+        debugPrint("🦸 Heroes system unlocked via achievement!");
+      }
+
       if (fulfilled) {
         _achievements[i] = a.copyWith(isUnlocked: true);
         debugPrint("\u{2705} Achievement \${a.id} unlocked!");

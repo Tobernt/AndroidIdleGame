@@ -4,6 +4,7 @@ import 'faction.dart';
 
 class FactionManager extends ChangeNotifier {
   String? selectedFactionId;
+
   final List<Faction> _allFactions = [
     Faction(
       id: 'humans',

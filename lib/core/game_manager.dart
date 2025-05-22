@@ -98,6 +98,7 @@ class GameManager with ChangeNotifier {
       'assets/data/dwarf_skills.json',
       'assets/data/automaton_skills.json',
     ]);
+    await heroService.loadFromJsonAsset('assets/data/hero_list.json');
 
     final rawJson = await rootBundle.loadString('assets/data/achievements.json');
     final List<dynamic> decoded = json.decode(rawJson);
@@ -117,6 +118,10 @@ class GameManager with ChangeNotifier {
     if (factionManager.selected.isNotEmpty) {
       state.metaValues['selected_faction_id'] = factionManager.selected.first.id;
     }
+    achievementService.applyClaimedRewards(state);
+    final unlocked = state.metaValues['unlocked_heroes'] as List<String>? ?? [];
+    heroService.attachState(state);
+    heroService.loadUnlockedFromMeta(unlocked);
 
     startLoop();
 
@@ -263,7 +268,6 @@ class GameManager with ChangeNotifier {
     state.resourceAmounts.updateAll((key, _) => 0.0);
     state.resourceModifiers.clear();
     state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
-    state.metaValues.clear();
     state.tapPower = 1.0;
     state.currentRunTaps = 0;
 
@@ -273,6 +277,7 @@ class GameManager with ChangeNotifier {
     conquestManager.reset();  // clears ConquestManager.conqueredFactions and state
     buildingService.reset();
     spellService.equippedSpells.clear();
+    heroService.clearSelectedHeroes();
 
     for (final skill in skillManager.allSkills) {
       skill.unlocked = false;

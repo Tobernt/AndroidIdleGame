@@ -252,7 +252,7 @@ class _GameScreenState extends State<GameScreen> {
         );
       case 7:
         return gm.state.heroesUnlocked
-            ? HeroScreen(heroService: gm.heroService)
+            ? const HeroScreen()
             : Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
