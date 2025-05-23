@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../features/factions/faction_service.dart';
+import 'hero_screen.dart'; // Make sure this import is correct for your folder structure
 
 class FactionScreen extends StatefulWidget {
   final FactionManager manager;
@@ -53,12 +54,10 @@ class _FactionScreenState extends State<FactionScreen> {
 
                   return GestureDetector(
                     onTap: () {
-                      if (!hasSelected) {
-                        setState(() {
-                          widget.manager.selectOnly(faction.id);
-                          widget.manager.selectedFactionId = faction.id;
-                        });
-                      }
+                      setState(() {
+                        widget.manager.selectOnly(faction.id);
+                        widget.manager.selectedFactionId = faction.id;
+                      });
                     },
                     child: Card(
                       color: isSelected ? Colors.blueGrey[700] : Colors.grey[850],
@@ -102,10 +101,21 @@ class _FactionScreenState extends State<FactionScreen> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
-                onPressed: widget.onConfirm,
-                icon: const Icon(Icons.play_arrow),
+                onPressed: () async {
+                  // ✅ Move to HeroScreen instead of directly starting the game
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HeroScreen(),
+                    ),
+                  );
+
+                  // Then call onConfirm to continue game setup
+                  widget.onConfirm?.call();
+                },
+                icon: const Icon(Icons.arrow_forward),
                 label: const Text(
-                  "Start Game",
+                  "Proceed",
                   style: TextStyle(fontSize: 18),
                 ),
                 style: ElevatedButton.styleFrom(

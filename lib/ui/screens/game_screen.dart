@@ -333,7 +333,6 @@ class _GameScreenState extends State<GameScreen> {
       const BottomNavigationBarItem(icon: Icon(Icons.stars), label: "Prestige"),
       const BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Achievements"),
       const BottomNavigationBarItem(icon: Icon(Icons.military_tech), label: "Conquest"), // Always shown
-      const BottomNavigationBarItem(icon: Icon(Icons.supervisor_account), label: "Heroes"),
     ];
 
     return BottomNavigationBar(

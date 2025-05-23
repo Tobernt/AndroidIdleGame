@@ -37,7 +37,9 @@ class HeroScreen extends StatelessWidget {
       builder: (context, snapshot) {
         return Consumer<HeroService>(
           builder: (context, heroService, _) {
-            final visible = heroService.unlockedHeroes;
+            final visible = [...heroService.unlockedHeroes]..shuffle();
+            final limited = visible.take(heroService.maxRosterSize).toList();
+
             final selected = heroService.selectedHeroes;
 
             return Scaffold(
@@ -65,11 +67,11 @@ class HeroScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     Expanded(
                       child: ListView.separated(
-                        itemCount: visible.length,
+                        itemCount: limited.length,
                         separatorBuilder: (_, __) =>
                         const SizedBox(height: 12),
                         itemBuilder: (_, index) {
-                          final hero = visible[index];
+                          final hero = limited[index];
                           final isSelected = hero.selected;
 
                           return GestureDetector(
