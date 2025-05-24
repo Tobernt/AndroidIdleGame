@@ -19,6 +19,7 @@
     "name": "Royal Decree",
     "description": "Reduces all building gold costs by 50% for 10 seconds.",
     "cooldown": 120,
+    "duration": 15,
     "costs": {
       "mana": 20
     },
@@ -33,6 +34,7 @@
     "name": "Inspiration",
     "description": "Increases all gold production by 100% for 15 seconds.",
     "cooldown": 90,
+    "duration": 15,
     "costs": {
       "mana": 25
     },
@@ -47,6 +49,7 @@
     "name": "Holy Light",
     "description": "Increases all gold production by 20% for 60 seconds.",
     "cooldown": 180,
+    "duration": 60,
     "costs": {
       "mana": 30
     },
@@ -58,13 +61,13 @@
   {
     "id": "human_spell_5",
     "faction": "humans",
-    "name": "Smite Evil",
-    "description": "Deals divine damage, rewarding 150 gold and 20 mana.",
-    "cooldown": 120,
+    "name": "Divine Aura",
+    "description": "Toggle a divine aura: halves your max mana but doubles all other production.",
+    "cooldown": 0,
     "costs": {
-      "mana": 10
+      "mana": 0
     },
-    "effect": "GainResources(gold=150, mana=20)",
+    "effect": "ToggleDivineAura",
     "tier": 5,
     "unlockRequirementId": "achieve_human_spell_5",
     "unlocked": false

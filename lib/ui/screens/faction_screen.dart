@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../features/factions/faction_service.dart';
+import '../../features/prestige/prestige_service.dart';
+import '../../features/achievements/achievement_service.dart';
+import 'hero_screen.dart';
 
 class FactionScreen extends StatefulWidget {
   final FactionManager manager;
   final VoidCallback? onConfirm;
   final bool hideBack;
 
+  // Add optional services to enable debug unlocking
+  final PrestigeService? prestigeService;
+  final AchievementService? achievementService;
+
   const FactionScreen({
     super.key,
     required this.manager,
     this.onConfirm,
     this.hideBack = false,
+    this.prestigeService,
+    this.achievementService,
   });
 
   @override
@@ -49,17 +58,17 @@ class _FactionScreenState extends State<FactionScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (_, i) {
                   final faction = factions[i];
+                  final isSelected = faction.isSelected;
 
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        widget.manager.toggleSelect(faction.id);
+                        widget.manager.selectOnly(faction.id);
+                        widget.manager.selectedFactionId = faction.id;
                       });
                     },
                     child: Card(
-                      color: faction.isSelected
-                          ? Colors.blueGrey[700]
-                          : Colors.grey[850],
+                      color: isSelected ? Colors.blueGrey[700] : Colors.grey[850],
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -81,6 +90,13 @@ class _FactionScreenState extends State<FactionScreen> {
                                 fontSize: 14,
                               ),
                             ),
+                            if (isSelected) ...[
+                              const SizedBox(height: 8),
+                              const Text(
+                                '✔️ Selected',
+                                style: TextStyle(color: Colors.lightGreenAccent),
+                              ),
+                            ]
                           ],
                         ),
                       ),
@@ -93,12 +109,17 @@ class _FactionScreenState extends State<FactionScreen> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
-                onPressed: widget.onConfirm,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text(
-                  "Start Game",
-                  style: TextStyle(fontSize: 18),
-                ),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HeroScreen(),
+                    ),
+                  );
+                  widget.onConfirm?.call();
+                },
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text("Proceed", style: TextStyle(fontSize: 18)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.black,
@@ -106,8 +127,30 @@ class _FactionScreenState extends State<FactionScreen> {
                 ),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: TextButton(
+              onPressed: () {
+                debugUnlockEverything();
+                setState(() {});
+              },
+              child: const Text(
+                "Debug: Unlock All",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  void debugUnlockEverything() {
+    widget.manager.unlockAllFactions();
+
+    widget.achievementService?.unlockAllAchievements();
+    widget.prestigeService?.maxAllSkills();
+
+    debugPrint("🧪 Debug: All factions, achievements, and prestige skills unlocked.");
   }
 }

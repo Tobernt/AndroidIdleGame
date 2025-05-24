@@ -76,16 +76,6 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                   if (success) setState(() {});
                 },
               ),
-              const SizedBox(height: 16),
-              _buildUpgradeTile(
-                title: '🦸 Hero Roster Size',
-                current: prestige.heroRosterSize,
-                max: PrestigeService.maxHeroRosterSize,
-                onTap: () {
-                  final success = prestige.buyHeroSlot();
-                  if (success) setState(() {});
-                },
-              ),
               const Spacer(),
               ElevatedButton(
                 onPressed: widget.onDone ?? () => Navigator.pop(context),

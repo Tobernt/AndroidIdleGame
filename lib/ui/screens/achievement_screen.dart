@@ -5,11 +5,13 @@ import '../../features/achievements/achievement_service.dart';
 class AchievementScreen extends StatefulWidget {
   final AchievementService achievementService;
   final GameState gameState;
+  final VoidCallback onConquestUnlocked; // ✅ Callback to notify parent
 
   const AchievementScreen({
     super.key,
     required this.achievementService,
     required this.gameState,
+    required this.onConquestUnlocked,
   });
 
   @override
@@ -26,6 +28,29 @@ class _AchievementScreenState extends State<AchievementScreen> {
       appBar: AppBar(
         title: const Text('🏆 Achievements'),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bolt, color: Colors.amber),
+            tooltip: 'Unlock & Claim All (Debug)',
+            onPressed: () {
+              for (final a in achievements) {
+                widget.achievementService.unlock(a.id, force: true);
+                if (!a.isClaimed) {
+                  widget.achievementService.claim(a.id, widget.gameState);
+                }
+              }
+
+              if (!widget.gameState.conquestIntroShown &&
+                  widget.gameState.conquestUnlocked) {
+                widget.gameState.conquestIntroShown = true;
+                widget.onConquestUnlocked();
+                _showConquestIntro();
+              }
+
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
@@ -77,10 +102,18 @@ class _AchievementScreenState extends State<AchievementScreen> {
                         if (a.isUnlocked && !a.isClaimed)
                           TextButton(
                             onPressed: () {
+                              final reward = a.reward;
                               widget.achievementService
                                   .claim(a.id, widget.gameState);
-                              setState(() {});
                               Navigator.pop(context);
+                              setState(() {});
+
+                              if (reward?.type == 'unlock_conquest' &&
+                                  !widget.gameState.conquestIntroShown) {
+                                widget.gameState.conquestIntroShown = true;
+                                widget.onConquestUnlocked();
+                                _showConquestIntro();
+                              }
                             },
                             child: const Text("Claim"),
                           ),
@@ -119,6 +152,33 @@ class _AchievementScreenState extends State<AchievementScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  void _showConquestIntro() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          '⚔️ Conquest Unlocked!',
+          style: TextStyle(color: Colors.amber),
+        ),
+        content: const Text(
+          "As your legend grows, rival factions grow wary.\n\n"
+              "You may now challenge and **conquer** other factions.\n"
+              "Each conquest grants you permanent bonuses, new spells, skills, or even the ability to assimilate them into your own empire.\n\n"
+              "**Only the strongest may unify the world.**",
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+            const Text("Begin Conquest", style: TextStyle(color: Colors.amber)),
+          ),
+        ],
       ),
     );
   }

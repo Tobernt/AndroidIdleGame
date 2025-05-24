@@ -1,106 +1,176 @@
 import '../../core/game_state.dart';
 import '../factions/faction_service.dart';
 import '../heroes/hero_service.dart';
+import '../achievements/achievement_service.dart';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 
 class ConquestManager {
   final GameState state;
   final FactionManager factionManager;
   final HeroService heroService;
+  final AchievementService achievementService;
 
-  /// Minimum required prestige level to begin conquering
-  static const int requiredPrestigeLevel = 10;
-
-  /// Minimum gold needed to be allowed to prestige (and thus conquer)
-  static const double minGoldToPrestige = 100000;
-
-  /// Base might required to conquer the first faction
   static const double baseConquestThreshold = 500;
+  static const Duration roundDuration = Duration(hours: 8);
 
-  /// Tracks which factions have been conquered
   final Set<String> conqueredFactions = {};
+  final Set<String> destroyedFactions = {};
+  DateTime runStartTime = DateTime.now();
 
-  /// Whether the conquest system is available
-  bool get conquestUnlocked => state.prestigeLevel >= requiredPrestigeLevel;
-
-  /// Whether all factions are conquered
+  bool get conquestUnlocked => state.conquestUnlocked;
   bool get isGameCompleted => conqueredFactions.length >= 6;
 
   ConquestManager({
     required this.state,
     required this.factionManager,
     required this.heroService,
-  });
+    required this.achievementService,
+  }) {
+    conqueredFactions.addAll(state.conqueredFactions);
 
-  /// The player’s current might is based on all resources combined
+    final rawTime = state.metaValues['run_start_time'];
+    runStartTime = rawTime is String
+        ? DateTime.tryParse(rawTime) ?? DateTime.now()
+        : DateTime.now();
+
+    state.metaValues['run_start_time'] = runStartTime.toIso8601String();
+  }
+
   double get currentMight {
-    double sum = 0;
-    for (var value in state.resourceAmounts.values) {
-      sum += value;
-    }
-    return sum / 1000; // scale for balance
+    final sum = [
+      'gold',
+      'mana',
+      'ore',
+      'population',
+      'essence',
+      'crystals',
+    ].map((r) => state.getResource(r)).reduce((a, b) => a + b);
+    return pow(sum / 6, 1.25).toDouble();
   }
 
-  /// Gets the conquest cost for the nth conquest (scales exponentially)
-  double requiredMightForNext() {
-    return pow(2.5, conqueredFactions.length) * baseConquestThreshold;
+  double mightRequiredForFaction(String factionId) {
+    final index = factionManager.allFactions.indexWhere((f) => f.id == factionId);
+    final base = 500 + index * 250;
+
+    final elapsed = DateTime.now().difference(runStartTime);
+    final rounds = elapsed.inSeconds / (8 * 3.6);
+
+    final remaining = factionManager.allFactions.where((f) =>
+    !f.isSelected &&
+        !conqueredFactions.contains(f.id) &&
+        !destroyedFactions.contains(f.id)
+    ).length;
+
+    final multiplier = max(1, 6 - remaining + 1);
+    final growth = min(5.0, 1.25 * multiplier);
+
+    return base * pow(growth, rounds).toDouble() * pow(10, conqueredFactions.length + destroyedFactions.length);
   }
 
-  /// Returns a list of faction IDs that are eligible for conquest
-  List<String> get conquerableFactions {
-    return factionManager.allFactions
-        .where((f) => !f.unlocked && !conqueredFactions.contains(f.id))
-        .map((f) => f.id)
-        .toList();
-  }
+  List<String> get conquerableFactions => factionManager.allFactions.where((f) =>
+  !f.isSelected &&
+      !conqueredFactions.contains(f.id) &&
+      !destroyedFactions.contains(f.id)
+  ).map((f) => f.id).toList();
 
-  /// Attempts to conquer a faction
   bool tryConquer(String factionId) {
-    if (!conquestUnlocked) return false;
-    if (conqueredFactions.contains(factionId)) return false;
-    if (!conquerableFactions.contains(factionId)) return false;
+    if (!conquestUnlocked || conqueredFactions.contains(factionId) || !conquerableFactions.contains(factionId)) {
+      return false;
+    }
 
-    double required = requiredMightForNext();
+    final required = mightRequiredForFaction(factionId);
     if (currentMight < required) return false;
 
-    // Mark as conquered
     conqueredFactions.add(factionId);
+    state.conqueredFactions.add(factionId);
     factionManager.unlock(factionId);
 
-    // If player has available slots, let them pick it — otherwise give passive bonus
-    if (factionManager.canSelectMore()) {
+    if (canAddMoreFactions()) {
       factionManager.toggleSelect(factionId);
     } else {
-      // Apply global bonus if no free slot (e.g., +5% income)
-      state.resourceModifiers['global_bonus'] =
-          (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
+      state.resourceModifiers['global_bonus'] = (state.resourceModifiers['global_bonus'] ?? 1.0) * 1.05;
     }
 
-    // Unlock heroes if this is the first conquest
-    if (conqueredFactions.length == 1) {
-      state.heroesUnlocked = true;
-      for (var f in factionManager.allFactions) {
-        heroService.unlockByAchievementId('hero_unlock_${f.id}');
+    if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
+      if (factionManager.selectedFactionId == 'humans') {
+        achievementService.forceUnlockById('achieve_hero_human');
+      } else if (factionManager.selectedFactionId == 'elves') {
+        achievementService.forceUnlockById('achieve_hero_elf');
+      } else if (factionManager.selectedFactionId == 'orcs') {
+        achievementService.forceUnlockById('achieve_hero_orc');
+      } else if (factionManager.selectedFactionId == 'dwarves') {
+        achievementService.forceUnlockById('achieve_hero_dwarf');
+      } else if (factionManager.selectedFactionId == 'undead') {
+        achievementService.forceUnlockById('achieve_hero_undead');
+      } else if (factionManager.selectedFactionId == 'automatons') {
+        achievementService.forceUnlockById('achieve_hero_automaton');
       }
     }
-
+    achievementService.evaluate(
+      state: state,
+      lifetimeGold: state.lifetimeResources['gold'] ?? 0,
+      buildingsOwned: 0,
+      tapCount: state.currentRunTaps,
+    );
     return true;
   }
 
+  void checkFactionAnnihilation() {
+    final elapsed = DateTime.now().difference(runStartTime);
+    final rounds = elapsed.inHours ~/ 8;
+
+    final factionsLeft = factionManager.allFactions.where((f) =>
+    !f.isSelected &&
+        !conqueredFactions.contains(f.id) &&
+        !destroyedFactions.contains(f.id)
+    ).toList();
+
+    final shouldRemain = max(1, 6 - rounds * 2);
+
+    if (factionsLeft.length > shouldRemain) {
+      factionsLeft.shuffle();
+      for (int i = 0; i < factionsLeft.length - shouldRemain; i++) {
+        destroyedFactions.add(factionsLeft[i].id);
+        debugPrint("💥 Faction annihilated: ${factionsLeft[i].id}");
+      }
+    }
+
+    if ((state.conqueredFactions.length + destroyedFactions.length) == 5) {
+      if (factionManager.selectedFactionId == 'humans') {
+        achievementService.forceUnlockById('achieve_hero_human');
+      } else if (factionManager.selectedFactionId == 'elves') {
+        achievementService.forceUnlockById('achieve_hero_elf');
+      } else if (factionManager.selectedFactionId == 'orcs') {
+        achievementService.forceUnlockById('achieve_hero_orc');
+      } else if (factionManager.selectedFactionId == 'dwarves') {
+        achievementService.forceUnlockById('achieve_hero_dwarf');
+      } else if (factionManager.selectedFactionId == 'undead') {
+        achievementService.forceUnlockById('achieve_hero_undead');
+      } else if (factionManager.selectedFactionId == 'automatons') {
+        achievementService.forceUnlockById('achieve_hero_automaton');
+      }
+    }
+    if (factionsLeft.length == 1 && elapsed.inHours >= 32) {
+      state.metaValues['force_prestige'] = true;
+    }
+
+    achievementService.evaluate(
+      state: state,
+      lifetimeGold: state.lifetimeResources['gold'] ?? 0,
+      buildingsOwned: 0,
+      tapCount: state.currentRunTaps,
+    );
+  }
+
+  bool canAddMoreFactions() => factionManager.canSelectMore();
+
   void reset() {
     conqueredFactions.clear();
-  }
+    destroyedFactions.clear();
+    state.conqueredFactions.clear();
 
-  Map<String, dynamic> toJson() {
-    return {
-      'conqueredFactions': conqueredFactions.toList(),
-    };
-  }
-
-  void loadFromJson(Map<String, dynamic> json) {
-    final List<dynamic> list = json['conqueredFactions'] ?? [];
-    conqueredFactions
-      ..clear()
-      ..addAll(list.map((e) => e.toString()));
+    runStartTime = DateTime.now();
+    state.metaValues['run_start_time'] = runStartTime.toIso8601String();
   }
 }

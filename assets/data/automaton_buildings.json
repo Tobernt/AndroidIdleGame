@@ -7,9 +7,8 @@
     "baseCost": {
       "gold": 100
     },
-    "costMultiplier": 1.15,
-    "outputPerSecond": {},
-    "tapPerSecond": 1
+    "baseOutput": {},
+    "costGrowth": 1.15
   },
   {
     "id": "auto_building_2",
@@ -19,10 +18,10 @@
     "baseCost": {
       "gold": 250
     },
-    "costMultiplier": 1.2,
-    "outputPerSecond": {
+    "baseOutput": {
       "mana": 0.3
-    }
+    },
+    "costGrowth": 1.2
   },
   {
     "id": "auto_building_3",
@@ -32,10 +31,10 @@
     "baseCost": {
       "gold": 300
     },
-    "costMultiplier": 1.25,
-    "outputPerSecond": {
+    "baseOutput": {
       "ore": 0.4
-    }
+    },
+    "costGrowth": 1.25
   },
   {
     "id": "auto_building_4",
@@ -46,8 +45,8 @@
       "gold": 500,
       "mana": 50
     },
-    "costMultiplier": 1.3,
-    "outputPerSecond": {}
+    "baseOutput": {},
+    "costGrowth": 1.3
   },
   {
     "id": "auto_building_5",
@@ -58,7 +57,7 @@
       "gold": 800,
       "ore": 10
     },
-    "costMultiplier": 1.3,
-    "outputPerSecond": {}
+    "baseOutput": {},
+    "costGrowth": 1.3
   }
 ]

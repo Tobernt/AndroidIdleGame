@@ -1,15 +1,21 @@
-
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart'; // Needed for ChangeNotifier
 import '../../core/game_state.dart';
 import 'hero.dart';
 
-class HeroService {
+class HeroService extends ChangeNotifier {
   final List<HeroData> _allHeroes = [];
 
   List<HeroData> get all => List.unmodifiable(_allHeroes);
   List<HeroData> get unlockedHeroes => _allHeroes.where((h) => h.unlocked).toList();
   List<HeroData> get selectedHeroes => _allHeroes.where((h) => h.selected).toList();
+  Map<String, HeroEffect> get effectMap => _effectMap;
+  late GameState gameState;
+
+  void addHero(HeroData hero) => _allHeroes.add(hero);
+  void clearAll() => _allHeroes.clear();
+
   int maxRosterSize = 1;
 
   final Map<String, HeroEffect> _effectMap = {
@@ -38,6 +44,24 @@ class HeroService {
           (state.resourceModifiers['mana_regen'] ?? 1.0) + 0.05 * multiplier;
     },
   };
+  void loadUnlockedFromMeta(List<String> ids) {
+    final selected = gameState.metaValues['selected_heroes'] as List<String>? ?? [];
+    updateMaxRosterSizeFromState();
+    for (final hero in _allHeroes) {
+      hero.unlocked = ids.contains(hero.id);
+      hero.selected = selected.contains(hero.id);
+    }
+
+    notifyListeners();
+  }
+
+  void attachState(GameState state) {
+    gameState = state;
+  }
+
+  bool hasUnlockedHero(String heroId) {
+    return _allHeroes.any((h) => h.id == heroId && h.unlocked);
+  }
 
   Future<void> loadFromJsonAsset(String path) async {
     final raw = await rootBundle.loadString(path);
@@ -49,18 +73,29 @@ class HeroService {
       final effect = _effectMap[id] ?? ((_, __) {});
       _allHeroes.add(HeroData.fromJson(Map<String, dynamic>.from(e), effect));
     }
+
+    notifyListeners(); // Refresh UI after loading
   }
 
   void unlockByAchievementId(String achievementId) {
-    final hero = _allHeroes.firstWhere(
-          (h) => h.unlockAchievementId == achievementId,
-      orElse: () => throw Exception("Hero for $achievementId not found"),
-    );
-    hero.unlocked = true;
+    try {
+      final hero = _allHeroes.firstWhere(
+            (h) => h.unlockAchievementId == achievementId,
+      );
+      if (!hero.unlocked) {
+        hero.unlocked = true;
+        notifyListeners(); // Notify only on change
+      }
+    } catch (_) {
+      // Fail silently if no hero matches
+    }
   }
 
   void toggleHeroSelection(String heroId) {
-    final hero = _allHeroes.firstWhere((h) => h.id == heroId, orElse: () => throw Exception("Hero $heroId not found"));
+    final hero = _allHeroes.firstWhere(
+          (h) => h.id == heroId,
+      orElse: () => throw Exception("Hero $heroId not found"),
+    );
     if (!hero.unlocked) return;
 
     if (hero.selected) {
@@ -68,6 +103,13 @@ class HeroService {
     } else if (selectedHeroes.length < maxRosterSize) {
       hero.selected = true;
     }
+    _saveSelectedHeroesToMeta();
+    notifyListeners(); // Update UI after toggling
+  }
+
+  void _saveSelectedHeroesToMeta() {
+    gameState.metaValues['selected_heroes'] =
+        selectedHeroes.map((h) => h.id).toList();
   }
 
   void applySelectedHeroes(GameState state, double lifetimeMultiplier) {
@@ -75,10 +117,26 @@ class HeroService {
       hero.effect(state, lifetimeMultiplier);
     }
   }
+  void clearSelectedHeroes() {
+    for (final hero in _allHeroes) {
+      hero.selected = false;
+    }
+    gameState.metaValues['selected_heroes'] = <String>[]; // Clear saved list
+    notifyListeners();
+  }
+  List<HeroData> getRandomSubset(int count) {
+    final copy = [...unlockedHeroes];
+    copy.shuffle();
+    return copy.take(count).toList();
+  }
+  void updateMaxRosterSizeFromState() {
+    maxRosterSize = gameState.metaValues['max_roster_size'] as int? ?? 1;
+  }
 
   void reset() {
     for (final hero in _allHeroes) {
       hero.selected = false;
     }
+    notifyListeners(); // Reflect reset in UI
   }
 }

@@ -569,7 +569,7 @@
     "name": "Unify the World",
     "description": "Prestige 10 times to unlock Conquest.",
     "hint": "Reach prestige level 10.",
-    "isUnlocked": true,
+    "isUnlocked": false,
     "isClaimed": false,
     "reward": {
       "type": "unlock_conquest"
@@ -577,6 +577,90 @@
     "requirement": {
       "type": "prestige_level",
       "amount": 10
+    }
+  },
+  {
+    "id": "achieve_hero_human",
+    "name": "Chosen Champion: Humans",
+    "description": "Unlock the Human hero.",
+    "hint": "Conquer all other factions while playing as the Humans.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_human" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "humans",
+      "conqueredFactions": ["elves", "orcs", "dwarves", "undead", "automatons"]
+    }
+  },
+  {
+    "id": "achieve_hero_elf",
+    "name": "Chosen Champion: Elves",
+    "description": "Unlock the Elf hero.",
+    "hint": "Conquer all other factions while playing as the Elves.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_elf" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "elves",
+      "conqueredFactions": ["humans", "orcs", "dwarves", "undead", "automatons"]
+    }
+  },
+  {
+    "id": "achieve_hero_orc",
+    "name": "Chosen Champion: Orcs",
+    "description": "Unlock the Orc hero.",
+    "hint": "Conquer all other factions while playing as the Orcs.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_orc" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "orcs",
+      "conqueredFactions": ["humans", "elves", "dwarves", "undead", "automatons"]
+    }
+  },
+  {
+    "id": "achieve_hero_dwarf",
+    "name": "Chosen Champion: Dwarves",
+    "description": "Unlock the Dwarf hero.",
+    "hint": "Conquer all other factions while playing as the Dwarves.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_dwarf" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "dwarves",
+      "conqueredFactions": ["humans", "elves", "orcs", "undead", "automatons"]
+    }
+  },
+  {
+    "id": "achieve_hero_undead",
+    "name": "Chosen Champion: Undead",
+    "description": "Unlock the Undead hero.",
+    "hint": "Conquer all other factions while playing as the Undead.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_undead" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "undead",
+      "conqueredFactions": ["humans", "elves", "orcs", "dwarves", "automatons"]
+    }
+  },
+  {
+    "id": "achieve_hero_automaton",
+    "name": "Chosen Champion: Automatons",
+    "description": "Unlock the Automaton hero.",
+    "hint": "Conquer all other factions while playing as the Automatons.",
+    "isUnlocked": false,
+    "isClaimed": false,
+    "reward": { "type": "unlock_hero", "targetId": "hero_automaton" },
+    "requirement": {
+      "type": "faction_conquest",
+      "selectedFaction": "automatons",
+      "conqueredFactions": ["humans", "elves", "orcs", "dwarves", "undead"]
     }
   }
 ]

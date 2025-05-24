@@ -1,4 +1,3 @@
-
 import '../../core/game_state.dart';
 
 typedef HeroEffect = void Function(GameState state, double multiplier);
@@ -7,6 +6,7 @@ class HeroData {
   final String id;
   final String name;
   final String description;
+  final String faction;             // <-- added
   final String unlockAchievementId;
   final HeroEffect effect;
 
@@ -17,6 +17,7 @@ class HeroData {
     required this.id,
     required this.name,
     required this.description,
+    required this.faction,          // <-- added
     required this.unlockAchievementId,
     required this.effect,
     this.unlocked = false,
@@ -28,6 +29,7 @@ class HeroData {
       id: json['id'],
       name: json['name'],
       description: json['description'],
+      faction: json['faction'],                     // <-- added
       unlockAchievementId: json['unlockAchievementId'],
       effect: effect,
       unlocked: json['unlocked'] ?? false,
@@ -39,6 +41,7 @@ class HeroData {
     'id': id,
     'name': name,
     'description': description,
+    'faction': faction,                         // <-- added
     'unlockAchievementId': unlockAchievementId,
     'unlocked': unlocked,
     'selected': selected,

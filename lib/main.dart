@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/game_manager.dart';
 import 'ui/screens/home_screen.dart'; // Use HomeScreen if you have navigation
+import 'package:provider/provider.dart'; // Ensure this is at the top
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures async init can run
@@ -18,11 +19,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Idle Game',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: HomeScreen(gameManager: gameManager), // Prefer HomeScreen
+    return ChangeNotifierProvider.value(
+      value: gameManager.heroService,
+      child: MaterialApp(
+        title: 'Idle Realms',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: HomeScreen(gameManager: gameManager),
+      ),
     );
   }
 }

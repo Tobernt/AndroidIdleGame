@@ -6,11 +6,12 @@ class SpellData {
   final String description;
   final String effectId;
   final int cooldown;
+  final int? duration;
   final Map<String, double> costs;
   final int tier;
   final String unlockRequirementId;
   final bool unlocked;
-  final String faction; // ✅ Add this field
+  final String faction;
 
   SpellData({
     required this.id,
@@ -18,6 +19,7 @@ class SpellData {
     required this.description,
     required this.effectId,
     required this.cooldown,
+    this.duration,
     required this.costs,
     required this.tier,
     required this.unlockRequirementId,
@@ -36,6 +38,7 @@ class SpellData {
       description: json['description'] ?? '',
       effectId: json['effect'] as String,
       cooldown: (json['cooldown'] ?? 0) as int,
+      duration: json['duration'],
       costs: (json['costs'] as Map<String, dynamic>).map(
             (k, v) => MapEntry(k, (v as num).toDouble()),
       ),
@@ -51,13 +54,15 @@ class SpellData {
     return Spell(
       id: id,
       name: name,
+      description: description, // ✅ Add this line
       cooldown: Duration(seconds: cooldown),
+      duration: duration != null ? Duration(seconds: duration!) : null,
       effect: effect,
       costs: costs,
       tier: tier,
       unlockRequirementId: unlockRequirementId,
       unlocked: unlocked,
-      faction: faction, // ✅ Pass it through here
+      faction: faction,
     );
   }
 }

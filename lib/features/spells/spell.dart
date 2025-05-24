@@ -5,6 +5,7 @@ typedef SpellEffect = void Function(GameState);
 class Spell {
   final String id;
   final String name;
+  final String description; // ✅ Add this line
   final Duration cooldown;
   final SpellEffect effect;
   final Map<String, double> costs;
@@ -12,13 +13,15 @@ class Spell {
   final String unlockRequirementId;
   final String faction;
   bool unlocked;
-
-  final Duration? duration; // 🔄 Optional effect duration
+  final Duration? duration;
   DateTime? _lastCast;
+  bool get isDivineAuraActive =>
+      id == 'human_spell_5' && _lastCast != null && isOnCooldown;
 
   Spell({
     required this.id,
     required this.name,
+    required this.description,
     required this.cooldown,
     required this.effect,
     required this.costs,
@@ -71,6 +74,7 @@ class Spell {
     return Spell(
       id: json['id'],
       name: json['name'],
+      description: json['description'] ?? '', // ✅ Add this
       cooldown: Duration(seconds: json['cooldown']),
       duration: json['duration'] != null ? Duration(seconds: json['duration']) : null,
       effect: effect,
@@ -81,6 +85,7 @@ class Spell {
       unlocked: json['unlocked'] ?? false,
     );
   }
+
 
   /// Serialize to JSON
   Map<String, dynamic> toJson() => {

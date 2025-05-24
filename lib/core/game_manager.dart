@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'dart:math';
 
 import '../features/achievements/achievement.dart';
 import '../features/achievements/achievement_service.dart';
@@ -41,7 +42,6 @@ class GameManager with ChangeNotifier {
   Timer? _loopTimer;
   DateTime? _lastUpdate;
   int tapCount = 0;
-
   Future<void> init() async {
     if (_initialized) return;
 
@@ -54,7 +54,10 @@ class GameManager with ChangeNotifier {
     prestigeService = PrestigeService();
     modifierManager = ModifierManager();
     buildingService = BuildingService();
-    spellService = SpellService(prestigeService: prestigeService);
+    spellService = SpellService(
+      prestigeService: prestigeService,
+      modifierManager: modifierManager,
+    );
     factionManager = FactionManager(prestigeService: prestigeService);
     skillManager = SkillManager(prestigeService: prestigeService);
     resourceManager = ResourceManager();
@@ -65,11 +68,20 @@ class GameManager with ChangeNotifier {
       state: state,
       factionManager: factionManager,
       heroService: heroService,
+      achievementService: achievementService,
     );
+
 
     // Load data
     await resourceManager.loadFromConfig();
-    await buildingService.loadFromJsonAsset('assets/data/humans_buildings.json');
+    await buildingService.loadFromJsonAssets([
+      'assets/data/humans_buildings.json',
+      'assets/data/elf_buildings.json',
+      'assets/data/orc_buildings.json',
+      'assets/data/dwarf_buildings.json',
+      'assets/data/undead_buildings.json',
+      'assets/data/automaton_buildings.json',
+    ]);
     await spellService.loadFromJsonAssets([
       'assets/data/humans_spells.json',
       'assets/data/elf_spells.json',
@@ -86,6 +98,7 @@ class GameManager with ChangeNotifier {
       'assets/data/dwarf_skills.json',
       'assets/data/automaton_skills.json',
     ]);
+    await heroService.loadFromJsonAsset('assets/data/hero_list.json');
 
     final rawJson = await rootBundle.loadString('assets/data/achievements.json');
     final List<dynamic> decoded = json.decode(rawJson);
@@ -96,31 +109,90 @@ class GameManager with ChangeNotifier {
     achievementService.init(
       spellService: spellService,
       skillManager: skillManager,
+      factionManager: factionManager,
     );
     achievementService.load(achievements);
 
     factionManager.clearSelection();
     applyFactionBonuses();
+    if (factionManager.selected.isNotEmpty) {
+      state.metaValues['selected_faction_id'] = factionManager.selected.first.id;
+    }
+    achievementService.applyClaimedRewards(state);
+    final unlocked = state.metaValues['unlocked_heroes'] as List<String>? ?? [];
+    heroService.attachState(state);
+    heroService.loadUnlockedFromMeta(unlocked);
+
     startLoop();
 
     _initialized = true;
   }
+
   void tickResources(double deltaSeconds) {
     state.resourceAmounts.forEach((id, _) {
-      // Dynamic gain from external sources (like buildings)
-      final externalIncome = buildingService.totalOutputPerSecond(resource: id);
+      final base = buildingService.totalOutputPerSecond(resource: id);
       final baseIncome = id == 'mana' ? 1.0 : 0.0;
-      final multiplier = state.resourceModifiers['${id}_multiplier'] ?? 1.0;
-      final incomePerSec = (baseIncome + externalIncome) * multiplier;
 
-      state.addResource(id, incomePerSec * deltaSeconds);
-      state.resourceModifiers['${id}_per_sec'] = incomePerSec;
+      double multiplier = 1.0;
+      if (id == 'gold') {
+        multiplier = (state.resourceModifiers['gold_income'] ?? 1.0) *
+            modifierManager.getCombinedMultiplier('gold') *
+            modifierManager.getCombinedMultiplier('gold_income_multiplier') *
+            prestigeService.prestigeMultiplier;
+      } else if (id == 'mana') {
+        multiplier = state.resourceModifiers['mana_regen'] ?? 1.0;
+      } else {
+        multiplier = state.resourceModifiers['${id}_multiplier'] ?? 1.0;
+      }
+
+      if (id != 'mana') {
+        multiplier *= (state.resourceModifiers['global_output'] ?? 1.0);
+      }
+
+      final incomePerSecond = (base + baseIncome) * multiplier;
+      final incomeDelta = incomePerSecond * deltaSeconds;
+
+      state.addResource(id, incomeDelta);
+      state.resourceModifiers['${id}_per_sec'] = incomePerSecond;
     });
+
+    // ✅ Apply hero effects again (in case tickResources runs before applyFactionBonuses)
+    final lifetimeMultiplier = 1 + (log(prestigeService.lifetimeGold + 1) / 100);
+    heroService.applySelectedHeroes(state, lifetimeMultiplier);
+
+    // ✅ Ensure conquest unlock is reapplied after claiming achievement
+    if (!state.conquestUnlocked) {
+      final claimed = achievementService.all.any(
+            (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
+      );
+      if (claimed) {
+        state.conquestUnlocked = true;
+      }
+    }
+  }
+
+  void checkForPassiveUnlocks() {
+    if (!state.conquestUnlocked) {
+      final claimed = achievementService.all.any(
+            (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
+      );
+      if (claimed) {
+        state.conquestUnlocked = true;
+      }
+    }
+  }
+  void unlockHeroesFromAchievements() {
+    for (final achievement in achievementService.all) {
+      if (achievement.isClaimed) {
+        heroService.unlockByAchievementId(achievement.id);
+      }
+    }
   }
 
   void applyFactionBonuses() {
     state.resourceModifiers.clear();
 
+    // 1. Faction resource boosts
     for (var faction in factionManager.selected) {
       for (var entry in faction.resourceBoosts.entries) {
         final key = entry.key;
@@ -128,6 +200,25 @@ class GameManager with ChangeNotifier {
         state.resourceModifiers[key] =
             (state.resourceModifiers[key] ?? 1.0) * bonus;
       }
+    }
+
+    // 2. Building modifiers
+    final buildingModifiers = buildingService.getActiveModifiers();
+    for (final entry in buildingModifiers.entries) {
+      final key = entry.key;
+      final value = entry.value;
+      state.resourceModifiers[key] =
+          (state.resourceModifiers[key] ?? 0.0) + value;
+    }
+
+    // 3. Mana cap from buildings
+    if (state.resourceModifiers.containsKey('max_mana_bonus')) {
+      state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
+    }
+
+    // ✅ 4. Re-apply skill effects for unlocked & equipped skills
+    for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
+      skill.effect(state);
     }
   }
 
@@ -141,12 +232,16 @@ class GameManager with ChangeNotifier {
 
       modifierManager.cleanup();
 
-      final goldMultiplier = (state.resourceModifiers['gold_income'] ?? 1.0) *
-          modifierManager.getCombinedMultiplier('gold') *
-          prestigeService.prestigeMultiplier;
+      final goldMultiplier =
+          (state.resourceModifiers['gold_income'] ?? 1.0) *
+              modifierManager.getCombinedMultiplier('gold') *
+              modifierManager.getCombinedMultiplier('gold_income_multiplier') *
+              prestigeService.prestigeMultiplier;
+
 
       final goldIncome = buildingService.totalOutputPerSecond(resource: 'gold');
-      final goldGain = goldIncome * delta * goldMultiplier;
+      final globalOutput = state.resourceModifiers['global_output'] ?? 1.0;
+      final goldGain = goldIncome * delta * goldMultiplier * globalOutput;
       state.addResource('gold', goldGain);
       prestigeService.applyGold(goldGain);
 
@@ -155,6 +250,12 @@ class GameManager with ChangeNotifier {
       final manaIncome = baseManaRegen + buildingService.totalOutputPerSecond(resource: 'mana');
       state.addResource('mana', manaIncome * delta * manaMultiplier);
 
+      final autoTaps = buildingService.getAutomatedTapsPerSecond();
+      final autoTapGain = autoTaps * state.tapPower * goldMultiplier * globalOutput * delta;
+      state.addResource('gold', autoTapGain);
+      prestigeService.applyGold(autoTapGain);
+      tapCount += autoTaps.toInt(); // Optional if you want auto-taps to count
+      conquestManager.checkFactionAnnihilation();
       resourceService.tickIncome(delta);
       notifyListeners();
     });
@@ -164,41 +265,45 @@ class GameManager with ChangeNotifier {
     final preservedTotalPrestiges = state.totalPrestiges;
     final preservedLifetimeTaps = state.lifetimeTaps;
     final preservedLifetimeResources = Map<String, double>.from(state.lifetimeResources);
+    final preservedConquestUnlocked = state.conquestUnlocked;
+    final preservedConquestIntro = state.conquestIntroShown;
     final unlockedConquest = state.conquestUnlocked;
 
-    state = GameState();
-
     state.totalPrestiges = preservedTotalPrestiges;
+    state.conquestUnlocked = preservedConquestUnlocked;
     state.lifetimeTaps = preservedLifetimeTaps;
     state.lifetimeResources.addAll(preservedLifetimeResources);
-    state.conquestUnlocked = unlockedConquest;
-
+    achievementService.applyClaimedRewards(state);
+    state.conquestUnlocked = unlockedConquest; // restore conquestUnlocked
+    state.conquestIntroShown = preservedConquestIntro;
     state.resourceAmounts.updateAll((key, _) => 0.0);
     state.resourceModifiers.clear();
-    state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 0.0);
-    state.metaValues.clear();
+    state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
     state.tapPower = 1.0;
     state.currentRunTaps = 0;
 
     resourceManager.current.updateAll((key, _) => 0.0);
     resourceService = ResourceService(resourceManager);
-
+    state.conqueredFactions.clear();
+    conquestManager.reset();  // clears ConquestManager.conqueredFactions and state
     buildingService.reset();
     spellService.equippedSpells.clear();
+    heroService.clearSelectedHeroes();
 
     for (final skill in skillManager.allSkills) {
       skill.unlocked = false;
       skill.equipped = false;
     }
 
+    conquestManager.reset();
     factionManager.clearSelection();
     notifyListeners();
+    checkForPassiveUnlocks();
   }
 
-
   void tapGold() {
-    final multiplier = goldMultiplier;
-    final tapGain = state.tapPower * multiplier;
+    final globalOutput = state.resourceModifiers['global_output'] ?? 1.0;
+    final tapGain = state.tapPower * goldMultiplier * globalOutput;
     state.addResource('gold', tapGain);
     prestigeService.applyGold(tapGain);
 
@@ -227,7 +332,8 @@ class GameManager with ChangeNotifier {
   }
 
   void buyBuilding(Building building) {
-    buildingService.buy(building, state);
+    buildingService.buy(building, state, modifierManager);
+    applyFactionBonuses();
     _checkAchievements();
     notifyListeners();
   }
@@ -236,7 +342,7 @@ class GameManager with ChangeNotifier {
     modifierManager.addModifier(
       Modifier(
         id: 'gold',
-        multiplier: 2.0,
+        multiplier: 1000000.0,
         duration: const Duration(hours: 4),
       ),
     );
@@ -246,7 +352,10 @@ class GameManager with ChangeNotifier {
   double get gold => state.getResource('gold');
 
   double get goldMultiplier =>
-      modifierManager.getCombinedMultiplier('gold') * prestigeService.prestigeMultiplier;
+      (state.resourceModifiers['gold_income'] ?? 1.0) *
+          modifierManager.getCombinedMultiplier('gold') *
+          modifierManager.getCombinedMultiplier('gold_income_multiplier') *
+          prestigeService.prestigeMultiplier;
 
   double get goldBoostSecondsLeft =>
       modifierManager.getRemainingTimeFor("gold");
