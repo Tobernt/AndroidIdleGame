@@ -569,7 +569,7 @@
     "name": "Unify the World",
     "description": "Prestige 10 times to unlock Conquest.",
     "hint": "Reach prestige level 10.",
-    "isUnlocked": true,
+    "isUnlocked": false,
     "isClaimed": false,
     "reward": {
       "type": "unlock_conquest"

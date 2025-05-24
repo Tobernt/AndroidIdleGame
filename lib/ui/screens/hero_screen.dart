@@ -5,19 +5,31 @@ import 'package:provider/provider.dart';
 import '../../features/heroes/hero_service.dart';
 import '../../features/heroes/hero.dart';
 
-class HeroScreen extends StatelessWidget {
+class HeroScreen extends StatefulWidget {
   const HeroScreen({super.key});
 
-  Future<void> _initHeroService(BuildContext context) async {
+  @override
+  State<HeroScreen> createState() => _HeroScreenState();
+}
+
+class _HeroScreenState extends State<HeroScreen> {
+  bool _loading = true;
+  bool _shouldSkip = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initHeroService();
+  }
+
+  Future<void> _initHeroService() async {
     final heroService = Provider.of<HeroService>(context, listen: false);
 
-    // Load hero list from JSON asset
     final raw = await rootBundle.loadString('assets/data/hero_list.json');
     final List<dynamic> jsonList = json.decode(raw);
-
     final effectMap = heroService.effectMap;
 
-    heroService.clearAll(); // Optional cleanup
+    heroService.clearAll();
     for (var e in jsonList) {
       final id = e['id'];
       final effect = effectMap[id] ?? ((_, __) {});
@@ -28,105 +40,112 @@ class HeroScreen extends StatelessWidget {
     final meta = heroService.gameState.metaValues;
     final unlocked = meta['unlocked_heroes'] as List<String>? ?? [];
     heroService.loadUnlockedFromMeta(unlocked);
+
+    if (heroService.unlockedHeroes.isEmpty) {
+      _shouldSkip = true;
+      // Skip to next screen immediately
+      Future.microtask(() => Navigator.pop(context));
+    } else {
+      setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initHeroService(context),
-      builder: (context, snapshot) {
-        return Consumer<HeroService>(
-          builder: (context, heroService, _) {
-            final visible = [...heroService.unlockedHeroes]..shuffle();
-            final limited = visible.take(heroService.maxRosterSize).toList();
+    if (_loading || _shouldSkip) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: SizedBox.shrink(),
+      );
+    }
 
-            final selected = heroService.selectedHeroes;
+    return Consumer<HeroService>(
+      builder: (context, heroService, _) {
+        final visible = heroService.unlockedHeroes;
+        final selected = heroService.selectedHeroes;
 
-            return Scaffold(
-              backgroundColor: Colors.black,
-              appBar: AppBar(
-                title: const Text('🦸 Heroes'),
-                backgroundColor: Colors.black,
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(16),
-                child: visible.isEmpty
-                    ? const Center(
-                  child: Text(
-                    'No heroes unlocked yet.',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-                    : Column(
-                  children: [
-                    Text(
-                      'Roster Slots: ${selected.length} / ${heroService.maxRosterSize}',
-                      style: const TextStyle(
-                          color: Colors.amber, fontSize: 16),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: limited.length,
-                        separatorBuilder: (_, __) =>
-                        const SizedBox(height: 12),
-                        itemBuilder: (_, index) {
-                          final hero = limited[index];
-                          final isSelected = hero.selected;
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            title: const Text('🦸 Heroes'),
+            backgroundColor: Colors.black,
+            automaticallyImplyLeading: false,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  'Selected: ${selected.length}',
+                  style: const TextStyle(color: Colors.amber, fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: visible.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (_, index) {
+                      final hero = visible[index];
+                      final isSelected = hero.selected;
 
-                          return GestureDetector(
-                            onTap: () {
-                              heroService.toggleHeroSelection(hero.id);
-                            },
-                            child: Card(
-                              color: isSelected
-                                  ? Colors.green[700]
-                                  : Colors.grey[900],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                      return GestureDetector(
+                        onTap: () {
+                          heroService.toggleHeroSelection(hero.id);
+                        },
+                        child: Card(
+                          color: isSelected ? Colors.green[700] : Colors.grey[900],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          hero.name,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        if (isSelected)
-                                          const Icon(Icons.check_circle,
-                                              color: Colors
-                                                  .lightGreenAccent),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
                                     Text(
-                                      hero.description,
+                                      hero.name,
                                       style: const TextStyle(
-                                          color: Colors.white70),
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
+                                    const SizedBox(width: 8),
+                                    if (isSelected)
+                                      const Icon(Icons.check_circle, color: Colors.lightGreenAccent),
                                   ],
                                 ),
-                              ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  hero.description,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Continue"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.black,
+                    minimumSize: const Size.fromHeight(56),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

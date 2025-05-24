@@ -46,7 +46,7 @@ class HeroService extends ChangeNotifier {
   };
   void loadUnlockedFromMeta(List<String> ids) {
     final selected = gameState.metaValues['selected_heroes'] as List<String>? ?? [];
-
+    updateMaxRosterSizeFromState();
     for (final hero in _allHeroes) {
       hero.unlocked = ids.contains(hero.id);
       hero.selected = selected.contains(hero.id);
@@ -123,6 +123,14 @@ class HeroService extends ChangeNotifier {
     }
     gameState.metaValues['selected_heroes'] = <String>[]; // Clear saved list
     notifyListeners();
+  }
+  List<HeroData> getRandomSubset(int count) {
+    final copy = [...unlockedHeroes];
+    copy.shuffle();
+    return copy.take(count).toList();
+  }
+  void updateMaxRosterSizeFromState() {
+    maxRosterSize = gameState.metaValues['max_roster_size'] as int? ?? 1;
   }
 
   void reset() {

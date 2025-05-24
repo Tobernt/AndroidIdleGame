@@ -332,7 +332,7 @@ class GameManager with ChangeNotifier {
     modifierManager.addModifier(
       Modifier(
         id: 'gold',
-        multiplier: 10000.0,
+        multiplier: 1000000.0,
         duration: const Duration(hours: 4),
       ),
     );

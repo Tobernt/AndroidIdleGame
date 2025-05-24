@@ -18,8 +18,6 @@ class PrestigeService {
   // Skill point usage tracking
   int _spentSkillPoints = 0;
 
-  int heroRosterSize = 1;
-  static const int maxHeroRosterSize = 6;
 
   /// Upgrade limits
   static const int maxSpellSlotLimit = 5;
@@ -92,16 +90,6 @@ class PrestigeService {
     final cost = pow(10, _extraSkillPointsBought).toInt();
     if (availablePrestigePoints >= cost && totalSkillPoints < maxTotalSkillPoints) {
       _extraSkillPointsBought++;
-      _usedPrestigePoints += cost;
-      return true;
-    }
-    return false;
-  }
-
-  bool buyHeroSlot() {
-    final cost = pow(10, heroRosterSize - 1).toInt();
-    if (availablePrestigePoints >= cost && heroRosterSize < maxHeroRosterSize) {
-      heroRosterSize++;
       _usedPrestigePoints += cost;
       return true;
     }

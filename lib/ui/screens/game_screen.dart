@@ -152,18 +152,8 @@ class _GameScreenState extends State<GameScreen> {
     final modifiers = gm.state.resourceModifiers;
 
     resources.forEach((id, _) {
-      final base = modifiers['${id}_per_sec'] ?? 0.0;
-      double multiplier = 1.0;
+      final income = modifiers['${id}_per_sec'] ?? 0.0;
 
-      if (id == 'gold') {
-        multiplier *= gm.goldMultiplier;
-      } else if (id == 'mana') {
-        multiplier *= gm.state.resourceModifiers['mana_regen'] ?? 1.0;
-      } else {
-        multiplier *= gm.state.resourceModifiers['${id}_multiplier'] ?? 1.0;
-      }
-
-      final income = base * multiplier;
       final emoji = _resourceEmoji(id);
       final value = BigDecimal.parse((_smoothedValues[id] ?? 0.0).toStringAsFixed(1));
       final inc = BigDecimal.parse(income.toString());
@@ -210,7 +200,10 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     final exponent = doubleVal == 0.0 ? 0 : (log(doubleVal) / ln10).floor();
-    final scale = (exponent ~/ 3) * 3;
+    int scale = (exponent ~/ 3) * 3;
+
+    // ✅ Fix: Prevent negative exponent errors
+    if (scale < 0) scale = 0;
 
     final scaled = number.divide(
       BigDecimal.parse(pow(10, scale).toStringAsFixed(0)),

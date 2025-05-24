@@ -28,6 +28,29 @@ class _AchievementScreenState extends State<AchievementScreen> {
       appBar: AppBar(
         title: const Text('🏆 Achievements'),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bolt, color: Colors.amber),
+            tooltip: 'Unlock & Claim All (Debug)',
+            onPressed: () {
+              for (final a in achievements) {
+                widget.achievementService.unlock(a.id, force: true);
+                if (!a.isClaimed) {
+                  widget.achievementService.claim(a.id, widget.gameState);
+                }
+              }
+
+              if (!widget.gameState.conquestIntroShown &&
+                  widget.gameState.conquestUnlocked) {
+                widget.gameState.conquestIntroShown = true;
+                widget.onConquestUnlocked();
+                _showConquestIntro();
+              }
+
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
@@ -88,8 +111,8 @@ class _AchievementScreenState extends State<AchievementScreen> {
                               if (reward?.type == 'unlock_conquest' &&
                                   !widget.gameState.conquestIntroShown) {
                                 widget.gameState.conquestIntroShown = true;
-                                widget.onConquestUnlocked(); // ✅ notify parent
-                                _showConquestIntro(); // ✅ show intro dialog once
+                                widget.onConquestUnlocked();
+                                _showConquestIntro();
                               }
                             },
                             child: const Text("Claim"),
