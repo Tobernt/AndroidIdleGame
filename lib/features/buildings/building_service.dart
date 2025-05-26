@@ -82,7 +82,10 @@ class BuildingService {
     return modifiers;
   }
 
+<<<<<<< Updated upstream
   /// ✅ Aggregate all tap-per-second effects (e.g. from Auto-Press)
+=======
+>>>>>>> Stashed changes
   double getAutomatedTapsPerSecond() {
     return _buildings.fold(
       0.0,
@@ -90,6 +93,9 @@ class BuildingService {
     );
   }
 
+<<<<<<< Updated upstream
   /// ✅ Sum all owned building levels
+=======
+>>>>>>> Stashed changes
   int get allOwnedCount => _buildings.fold(0, (sum, b) => sum + b.level);
 }

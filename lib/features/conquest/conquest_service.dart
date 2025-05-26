@@ -51,10 +51,17 @@ class ConquestManager {
 
   double mightRequiredForFaction(String factionId) {
     final index = factionManager.allFactions.indexWhere((f) => f.id == factionId);
+<<<<<<< Updated upstream
     final base = 500 + index * 250;
 
     final elapsed = DateTime.now().difference(runStartTime);
     final rounds = elapsed.inSeconds / (8 * 3.6);
+=======
+    final base = 1000 + index * 750;
+
+    final elapsed = DateTime.now().difference(runStartTime);
+    final rounds = elapsed.inSeconds / (8 * 3.6); // Time-based scaling
+>>>>>>> Stashed changes
 
     final remaining = factionManager.allFactions.where((f) =>
     !f.isSelected &&
@@ -62,6 +69,7 @@ class ConquestManager {
         !destroyedFactions.contains(f.id)
     ).length;
 
+<<<<<<< Updated upstream
     final multiplier = max(1, 6 - remaining + 1);
     final growth = min(5.0, 1.25 * multiplier);
 
@@ -74,6 +82,24 @@ class ConquestManager {
       !destroyedFactions.contains(f.id)
   ).map((f) => f.id).toList();
 
+=======
+    final difficultyTier = index + 1; // Tier starts from 1, 2, ..., N
+
+    // 👇 Per-faction exponential base increases with tier
+    final dynamicGrowthRate = 10 + (difficultyTier * 0.05); // e.g., 1.20, 1.25, 1.30, etc.
+    final growth = min(10.0, pow(dynamicGrowthRate, rounds)); // Optional cap
+
+    return base * growth.toDouble() * pow(10, conqueredFactions.length + destroyedFactions.length);
+  }
+
+
+  List<String> get conquerableFactions => factionManager.allFactions.where((f) =>
+  !f.isSelected &&
+      !conqueredFactions.contains(f.id) &&
+      !destroyedFactions.contains(f.id)
+  ).map((f) => f.id).toList();
+
+>>>>>>> Stashed changes
   bool tryConquer(String factionId) {
     if (!conquestUnlocked || conqueredFactions.contains(factionId) || !conquerableFactions.contains(factionId)) {
       return false;

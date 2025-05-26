@@ -5,7 +5,11 @@ typedef SpellEffect = void Function(GameState);
 class Spell {
   final String id;
   final String name;
+<<<<<<< Updated upstream
   final String description; // ✅ Add this line
+=======
+  final String description;
+>>>>>>> Stashed changes
   final Duration cooldown;
   final SpellEffect effect;
   final Map<String, double> costs;
@@ -14,9 +18,15 @@ class Spell {
   final String faction;
   bool unlocked;
   final Duration? duration;
+<<<<<<< Updated upstream
   DateTime? _lastCast;
   bool get isDivineAuraActive =>
       id == 'human_spell_5' && _lastCast != null && isOnCooldown;
+=======
+  DateTime? lastCast;
+  bool get isDivineAuraActive =>
+      id == 'human_spell_5' && lastCast != null && isOnCooldown;
+>>>>>>> Stashed changes
 
   Spell({
     required this.id,
@@ -32,25 +42,29 @@ class Spell {
     this.duration,
   });
 
+  void markCastTime() {
+    lastCast = DateTime.now();
+  }
+
   bool get isOnCooldown {
-    if (_lastCast == null) return false;
-    return DateTime.now().difference(_lastCast!) < cooldown;
+    if (lastCast == null) return false;
+    return DateTime.now().difference(lastCast!) < cooldown;
   }
 
   bool get isInDuration {
-    if (duration == null || _lastCast == null) return false;
-    return DateTime.now().difference(_lastCast!) < duration!;
+    if (duration == null || lastCast == null) return false;
+    return DateTime.now().difference(lastCast!) < duration!;
   }
 
   double get cooldownProgress {
-    if (!isOnCooldown || _lastCast == null) return 0.0;
-    final elapsed = DateTime.now().difference(_lastCast!).inMilliseconds;
+    if (!isOnCooldown || lastCast == null) return 0.0;
+    final elapsed = DateTime.now().difference(lastCast!).inMilliseconds;
     return (elapsed / cooldown.inMilliseconds).clamp(0.0, 1.0);
   }
 
   double get durationProgress {
-    if (!isInDuration || duration == null || _lastCast == null) return 0.0;
-    final elapsed = DateTime.now().difference(_lastCast!).inMilliseconds;
+    if (!isInDuration || duration == null || lastCast == null) return 0.0;
+    final elapsed = DateTime.now().difference(lastCast!).inMilliseconds;
     return (elapsed / duration!.inMilliseconds).clamp(0.0, 1.0);
   }
 
@@ -64,11 +78,34 @@ class Spell {
     for (final entry in costs.entries) {
       state.spendResource(entry.key, entry.value);
     }
-    _lastCast = DateTime.now();
+    lastCast = DateTime.now();
     effect(state);
     return true;
   }
+  double getFinalCost(String resource, GameState state) {
+    final base = costs[resource] ?? 0.0;
+    final costMult = state.resourceModifiers['spell_cost_multiplier'] ?? 1.0;
+    return base * costMult;
+  }
 
+  Duration getFinalCooldown(GameState state) {
+    final reduction = state.resourceModifiers['cooldown_reduction'] ?? 0.0;
+    final reductionFactor = (1.0 - reduction).clamp(0.0, 1.0);
+
+    final multiplier = state.resourceModifiers['spell_cooldown_mult'] ?? 1.0;
+
+    final totalFactor = (reductionFactor * multiplier).clamp(0.1, 1.0); // Min cap to prevent zero-CD
+    return Duration(milliseconds: (cooldown.inMilliseconds * totalFactor).round());
+  }
+
+
+  Duration getRemainingCooldown(GameState state) {
+    if (lastCast == null) return Duration.zero;
+    final elapsed = DateTime.now().difference(lastCast!);
+    final cooldown = getFinalCooldown(state);
+    final remaining = cooldown - elapsed;
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
   /// Deserialize from JSON
   factory Spell.fromJson(Map<String, dynamic> json, SpellEffect effect) {
     return Spell(

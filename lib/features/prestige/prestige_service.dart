@@ -4,7 +4,11 @@ import '../../core/game_state.dart';
 class PrestigeService {
   int prestigeLevel = 0;
   double lifetimeGold = 0;
+  double preservedLifetimeGold = 0;
   double _prestigedMultiplier = 1.0;
+  int costForNextSpellSlot() => pow(10, _spellSlotUpgrades).toInt();
+  int costForNextFactionSlot() => pow(10, _factionSlotUpgrades).toInt();
+  int costForNextSkillPoint() => pow(10, _extraSkillPointsBought).toInt();
 
   // Prestige currency
   int prestigePoints = 0;

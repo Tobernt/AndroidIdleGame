@@ -1,4 +1,42 @@
 class GameState {
+  Map<String, dynamic> toJson() {
+    return {
+      'resourceAmounts': resourceAmounts,
+      'resourceModifiers': resourceModifiers,
+      'resourceMax': resourceMax,
+      'metaValues': metaValues,
+      'tapPower': tapPower,
+      'prestigeLevel': prestigeLevel,
+      'heroesUnlocked': heroesUnlocked,
+      'conquestUnlocked': conquestUnlocked,
+      'conquestIntroShown': conquestIntroShown,
+      'lifetimeTaps': lifetimeTaps,
+      'currentRunTaps': currentRunTaps,
+      'totalPrestiges': totalPrestiges,
+      'lifetimeResources': lifetimeResources,
+      'conqueredFactions': conqueredFactions.toList(),
+    };
+  }
+
+  static GameState fromJson(Map<String, dynamic> json) {
+    final state = GameState();
+    state.resourceAmounts.addAll(Map<String, double>.from(json['resourceAmounts']));
+    state.resourceModifiers.addAll(Map<String, double>.from(json['resourceModifiers']));
+    state.resourceMax.addAll(Map<String, double>.from(json['resourceMax']));
+    state.metaValues.addAll(Map<String, dynamic>.from(json['metaValues']));
+    state.tapPower = json['tapPower'];
+    state.prestigeLevel = json['prestigeLevel'];
+    state.heroesUnlocked = json['heroesUnlocked'];
+    state.conquestUnlocked = json['conquestUnlocked'];
+    state.conquestIntroShown = json['conquestIntroShown'];
+    state.lifetimeTaps = json['lifetimeTaps'];
+    state.currentRunTaps = json['currentRunTaps'];
+    state.totalPrestiges = json['totalPrestiges'];
+    state.lifetimeResources.addAll(Map<String, double>.from(json['lifetimeResources']));
+    state.conqueredFactions.addAll(List<String>.from(json['conqueredFactions']));
+    return state;
+  }
+
   // Core resource tracking
   final Map<String, double> resourceAmounts = {
     'gold': 0.0,
@@ -106,7 +144,7 @@ class GameState {
   void reset() {
     resourceAmounts.updateAll((key, _) => 0.0);
     resourceModifiers.clear();
-    resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 0.0);
+    resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
     metaValues.clear();
     tapPower = 1.0;
     prestigeLevel = 0;

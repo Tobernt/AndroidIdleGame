@@ -3,8 +3,8 @@
     "id": "auto_skill_1",
     "faction": "automatons",
     "name": "Mechanical Precision",
-    "description": "Taps deal 15% more gold.",
-    "effect": "tap_power_15_percent",
+    "description": "Taps are 15% more effective.",
+    "effect": "auto_skill_1",
     "cost": 1,
     "tier": 1
   },
@@ -13,7 +13,7 @@
     "faction": "automatons",
     "name": "Spell Looping",
     "description": "Reduces spell cooldowns by 10%.",
-    "effect": "cooldown_reduce_10",
+    "effect": "auto_skill_2",
     "cost": 1,
     "tier": 2
   },
@@ -22,7 +22,7 @@
     "faction": "automatons",
     "name": "Auto-Calibration",
     "description": "Auto-taps are 25% more effective.",
-    "effect": "auto_tap_boost_25",
+    "effect": "auto_skill_3",
     "cost": 1,
     "tier": 3
   },
@@ -31,7 +31,7 @@
     "faction": "automatons",
     "name": "Overclock",
     "description": "Increases all mana regeneration by 10%.",
-    "effect": "mana_regen_10",
+    "effect": "auto_skill_4",
     "cost": 1,
     "tier": 4
   },
@@ -40,7 +40,7 @@
     "faction": "automatons",
     "name": "Nanoforge",
     "description": "Boosts all output by 10% if 3+ Auto buildings are active.",
-    "effect": "output_boost_if_auto",
+    "effect": "auto_skill_5",
     "cost": 1,
     "tier": 5
   }

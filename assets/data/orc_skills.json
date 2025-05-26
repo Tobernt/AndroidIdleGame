@@ -5,7 +5,7 @@
     "name": "Warrior’s Rhythm",
     "description": "Gain +1 tap power.",
     "cost": 1,
-    "effect": "tap_power_1",
+    "effect": "orc_skill_1",
     "tier": 1
   },
   {
@@ -14,7 +14,7 @@
     "name": "Battle Infrastructure",
     "description": "Buildings produce 10% more gold.",
     "cost": 1,
-    "effect": "building_output_10",
+    "effect": "orc_skill_2",
     "tier": 2
   },
   {
@@ -23,7 +23,7 @@
     "name": "Pillage Mastery",
     "description": "Increase all gold gain by 20%.",
     "cost": 1,
-    "effect": "gold_income_20",
+    "effect": "orc_skill_3",
     "tier": 3
   },
   {
@@ -32,7 +32,7 @@
     "name": "Crush Costs",
     "description": "Reduce building costs by 10%.",
     "cost": 1,
-    "effect": "building_cost_reduce_10",
+    "effect": "orc_skill_4",
     "tier": 4
   },
   {
@@ -41,7 +41,7 @@
     "name": "Conquest Frenzy",
     "description": "+1% gold production per 10 taps made in the last minute.",
     "cost": 1,
-    "effect": "gold_per_tap_frenzy",
+    "effect": "orc_skill_5",
     "tier": 5
   }
 ]

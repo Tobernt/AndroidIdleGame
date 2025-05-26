@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../features/factions/faction_service.dart';
+<<<<<<< Updated upstream
 import '../../features/prestige/prestige_service.dart';
 import '../../features/achievements/achievement_service.dart';
+=======
+>>>>>>> Stashed changes
 import 'hero_screen.dart';
 
 class FactionScreen extends StatefulWidget {
@@ -38,6 +41,19 @@ class _FactionScreenState extends State<FactionScreen> {
         title: const Text('🛡 Choose Your Faction'),
         backgroundColor: Colors.black,
         automaticallyImplyLeading: !widget.hideBack,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.lock_open, color: Colors.white),
+            tooltip: 'Unlock All',
+            onPressed: () {
+              setState(() {
+                for (final faction in widget.manager.allFactions) {
+                  faction.unlocked = true;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -119,7 +135,14 @@ class _FactionScreenState extends State<FactionScreen> {
                   widget.onConfirm?.call();
                 },
                 icon: const Icon(Icons.arrow_forward),
+<<<<<<< Updated upstream
                 label: const Text("Proceed", style: TextStyle(fontSize: 18)),
+=======
+                label: const Text(
+                  "Proceed",
+                  style: TextStyle(fontSize: 18),
+                ),
+>>>>>>> Stashed changes
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.black,

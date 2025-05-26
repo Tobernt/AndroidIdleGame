@@ -7,7 +7,11 @@ class Skill {
   final String name;
   final String description;
   final int cost;
+<<<<<<< Updated upstream
   final String effectId; // ✅ needed for tracking/debugging
+=======
+  final String effectId;
+>>>>>>> Stashed changes
   final SkillEffect effect;
   final int tier;
   final String faction;
@@ -21,7 +25,11 @@ class Skill {
     required this.name,
     required this.description,
     required this.cost,
+<<<<<<< Updated upstream
     required this.effectId, // ✅ ensure this is passed
+=======
+    required this.effectId,
+>>>>>>> Stashed changes
     required this.effect,
     required this.tier,
     required this.faction,

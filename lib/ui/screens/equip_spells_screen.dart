@@ -32,8 +32,7 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
     return AnimatedBuilder(
       animation: widget.gameManager.spellService,
       builder: (_, __) {
-        final selectedFactionIds =
-        widget.gameManager.factionManager.selected.map((f) => f.id).toSet();
+        final selectedFactionIds = widget.gameManager.factionManager.selected.map((f) => f.id).toSet();
 
         final availableSpells = widget.gameManager.spellService.allSpells.where((spell) {
           return spell.unlocked && selectedFactionIds.contains(spell.faction);
@@ -75,6 +74,19 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                           final isEquipped = equipped.contains(spell);
                           final canEquip = equipped.length < maxSpells || isEquipped;
 
+                          final state = widget.gameManager.state;
+                          final finalCooldown = spell.getFinalCooldown(state);
+                          final remaining = spell.getRemainingCooldown(state);
+
+                          final cooldownText = remaining > Duration.zero
+                              ? 'Cooldown: ${remaining.inMinutes}m ${remaining.inSeconds % 60}s'
+                              : 'CD: ${finalCooldown.inSeconds}s';
+
+                          final costText = spell.costs.entries.map((e) {
+                            final finalCost = spell.getFinalCost(e.key, state);
+                            return '${e.key}: ${finalCost.toStringAsFixed(0)}';
+                          }).join(', ');
+
                           return SizedBox(
                             width: MediaQuery.of(context).size.width / 3 - 32,
                             child: Card(
@@ -100,7 +112,11 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
+<<<<<<< Updated upstream
                                       'CD: ${spell.cooldown.inSeconds}s\n${spell.costs.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}').join(', ')}',
+=======
+                                      '$cooldownText\n$costText',
+>>>>>>> Stashed changes
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(color: Colors.white54, fontSize: 11),
                                     ),

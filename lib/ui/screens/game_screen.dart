@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../core/game_manager.dart';
 import '../../services/ads_service.dart';
@@ -11,7 +10,11 @@ import 'prestige_screen.dart';
 import 'achievement_screen.dart';
 import 'conquest_screen.dart';
 import 'hero_screen.dart';
+<<<<<<< Updated upstream
 import 'package:big_decimal/big_decimal.dart';
+=======
+import '../../main.dart';
+>>>>>>> Stashed changes
 
 class GameScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -155,19 +158,42 @@ class _GameScreenState extends State<GameScreen> {
       final income = modifiers['${id}_per_sec'] ?? 0.0;
 
       final emoji = _resourceEmoji(id);
+<<<<<<< Updated upstream
       final value = BigDecimal.parse((_smoothedValues[id] ?? 0.0).toStringAsFixed(1));
       final inc = BigDecimal.parse(income.toString());
 
       rows.add(
         Text(
           '$emoji ${id[0].toUpperCase()}${id.substring(1)}: ${formatBigDecimal(value)}  +${formatBigDecimal(inc)}/s',
+=======
+      final smoothed = _smoothedValues[id] ?? 0.0;
+
+      rows.add(
+        Text(
+          '$emoji ${id[0].toUpperCase()}${id.substring(1)}: ${formatNumber(smoothed)}  +${formatNumber(income)}/s',
+>>>>>>> Stashed changes
           style: const TextStyle(color: Colors.white),
         ),
       );
     });
 
     if (gm.goldBoostSecondsLeft > 0) {
+<<<<<<< Updated upstream
       rows.add(const Text('⏱️ 2× Gold Boost Active!', style: TextStyle(color: Colors.lightGreenAccent)));
+=======
+      final duration = Duration(seconds: gm.goldBoostSecondsLeft.round());
+      final minutes = duration.inMinutes % 60;
+      final hours = duration.inHours;
+      final seconds = duration.inSeconds % 60;
+      final remainingTime = '${hours}h ${minutes}m ${seconds}s';
+
+      rows.add(
+        Text(
+          '⏱️ 2× Gold Boost Active — $remainingTime left',
+          style: const TextStyle(color: Colors.lightGreenAccent),
+        ),
+      );
+>>>>>>> Stashed changes
     }
 
     return Container(
@@ -188,6 +214,7 @@ class _GameScreenState extends State<GameScreen> {
     'essence': '✨',
     'crystals': '🔮',
   }[key] ?? '';
+<<<<<<< Updated upstream
 
   String formatBigDecimal(BigDecimal number) {
     if (number.intVal == BigInt.zero) return '0';
@@ -213,6 +240,8 @@ class _GameScreenState extends State<GameScreen> {
 
     return '${scaled.toPlainString()}e$scale';
   }
+=======
+>>>>>>> Stashed changes
 
   Widget _buildTabContent() {
     switch (_selectedTab) {
@@ -287,8 +316,21 @@ class _GameScreenState extends State<GameScreen> {
           const SizedBox(height: 12),
           ...gm.spellService.equippedSpells.take(maxSpells).map((spell) {
             final isReady = spell.canCast(gm.state);
+<<<<<<< Updated upstream
             final costString = spell.costs.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}').join(', ');
             final cooldownProgress = spell.cooldownProgress;
+=======
+
+            final costString = spell.costs.entries.map((e) {
+              final reduced = spell.getFinalCost(e.key, gm.state);
+              return '${e.key}: ${reduced.toStringAsFixed(0)}';
+            }).join(', ');
+
+            final remaining = spell.getRemainingCooldown(gm.state);
+            final cooldownString = remaining == Duration.zero
+                ? 'CD: ${spell.getFinalCooldown(gm.state).inSeconds}s'
+                : 'Cooldown: ${remaining.inMinutes}m ${remaining.inSeconds % 60}s';
+>>>>>>> Stashed changes
 
             final isDivineAura = spell.id == 'human_spell_5';
             final isDivineAuraActive = isDivineAura && gm.state.metaValues['divine_aura_active'] == true;
@@ -298,19 +340,29 @@ class _GameScreenState extends State<GameScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Stack(
                 children: [
+<<<<<<< Updated upstream
                   // 🔵 Divine Aura full overlay (non-draining)
+=======
+>>>>>>> Stashed changes
                   if (isDivineAuraActive)
                     Positioned.fill(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           margin: const EdgeInsets.only(right: 120),
+<<<<<<< Updated upstream
                           color: Colors.blue.withValues(alpha: 125),
                         ),
                       ),
                     ),
 
                   // 🔵 Draining overlay for timed spells
+=======
+                          color: Colors.blue.withAlpha(125),
+                        ),
+                      ),
+                    ),
+>>>>>>> Stashed changes
                   if (!isDivineAura && spell.isInDuration)
                     Positioned.fill(
                       child: ClipRRect(
@@ -322,14 +374,21 @@ class _GameScreenState extends State<GameScreen> {
                             alignment: Alignment.centerLeft,
                             child: Container(
                               margin: const EdgeInsets.only(right: 120),
+<<<<<<< Updated upstream
                               color: Colors.blue.withValues(alpha: 125),
+=======
+                              color: Colors.blue.withAlpha(125),
+>>>>>>> Stashed changes
                             ),
                           ),
                         ),
                       ),
                     ),
+<<<<<<< Updated upstream
 
                   // 📄 Content + button
+=======
+>>>>>>> Stashed changes
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
@@ -340,13 +399,24 @@ class _GameScreenState extends State<GameScreen> {
                             children: [
                               Text(
                                 spell.name,
+<<<<<<< Updated upstream
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+=======
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+>>>>>>> Stashed changes
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 [
                                   if (costString.isNotEmpty) 'Cost: $costString',
+<<<<<<< Updated upstream
                                   if (!isReady) 'Cooldown: ${(100 * (1 - cooldownProgress)).toStringAsFixed(0)}%',
+=======
+                                  if (!isReady || remaining > Duration.zero) cooldownString,
+>>>>>>> Stashed changes
                                   if (spell.description.isNotEmpty) spell.description,
                                 ].join('\n'),
                                 style: const TextStyle(color: Colors.white70),
@@ -363,7 +433,13 @@ class _GameScreenState extends State<GameScreen> {
                           }
                               : null,
                           style: ElevatedButton.styleFrom(
+<<<<<<< Updated upstream
                             backgroundColor: (isDivineAuraActive || spell.isInDuration) ? Colors.blue : null,
+=======
+                            backgroundColor: (isDivineAuraActive || spell.isInDuration)
+                                ? Colors.blue
+                                : null,
+>>>>>>> Stashed changes
                           ),
                           child: Text(
                             isDivineAura

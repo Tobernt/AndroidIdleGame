@@ -5,10 +5,8 @@
     "name": "Tax Collection",
     "description": "Gain gold equal to 30 seconds of current gold income.",
     "cooldown": 60,
-    "costs": {
-      "mana": 0
-    },
-    "effect": "InstantGoldFromIncome(30)",
+    "costs": { "mana": 0 },
+    "effect": "human_spell_1",
     "tier": 1,
     "unlockRequirementId": "achieve_human_spell_1",
     "unlocked": false
@@ -19,11 +17,17 @@
     "name": "Royal Decree",
     "description": "Reduces all building gold costs by 50% for 10 seconds.",
     "cooldown": 120,
+<<<<<<< Updated upstream
     "duration": 15,
     "costs": {
       "mana": 20
     },
     "effect": "Modifier(building_cost_multiplier=0.5, duration=10)",
+=======
+    "duration": 10,
+    "costs": { "mana": 20 },
+    "effect": "human_spell_2",
+>>>>>>> Stashed changes
     "tier": 2,
     "unlockRequirementId": "achieve_human_spell_2",
     "unlocked": false
@@ -35,10 +39,15 @@
     "description": "Increases all gold production by 100% for 15 seconds.",
     "cooldown": 90,
     "duration": 15,
+<<<<<<< Updated upstream
     "costs": {
       "mana": 25
     },
     "effect": "Modifier(gold_income_multiplier=2.0, duration=15)",
+=======
+    "costs": { "mana": 25 },
+    "effect": "human_spell_3",
+>>>>>>> Stashed changes
     "tier": 3,
     "unlockRequirementId": "achieve_human_spell_3",
     "unlocked": false
@@ -50,10 +59,15 @@
     "description": "Increases all gold production by 20% for 60 seconds.",
     "cooldown": 180,
     "duration": 60,
+<<<<<<< Updated upstream
     "costs": {
       "mana": 30
     },
     "effect": "Modifier(gold_income_multiplier=1.2, duration=60)",
+=======
+    "costs": { "mana": 30 },
+    "effect": "human_spell_4",
+>>>>>>> Stashed changes
     "tier": 4,
     "unlockRequirementId": "achieve_human_spell_4",
     "unlocked": false
@@ -64,10 +78,15 @@
     "name": "Divine Aura",
     "description": "Toggle a divine aura: halves your max mana but doubles all other production.",
     "cooldown": 0,
+<<<<<<< Updated upstream
     "costs": {
       "mana": 0
     },
     "effect": "ToggleDivineAura",
+=======
+    "costs": { "mana": 0 },
+    "effect": "human_spell_5",
+>>>>>>> Stashed changes
     "tier": 5,
     "unlockRequirementId": "achieve_human_spell_5",
     "unlocked": false

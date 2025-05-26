@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/game_manager.dart';
 import '/features/prestige/prestige_service.dart';
+import '../../main.dart'; // formatNumber with AA-ZZ suffixes
 
 class PrestigeUpgradeScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -27,6 +28,8 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final availablePoints = prestige.availablePrestigePoints.toDouble();
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -41,7 +44,7 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
           child: Column(
             children: [
               Text(
-                'Available Prestige Points: ${prestige.availablePrestigePoints}',
+                'Available Prestige Points: ${formatNumber(availablePoints)}',
                 style: const TextStyle(color: Colors.amber, fontSize: 18),
               ),
               const SizedBox(height: 24),
@@ -49,20 +52,16 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                 title: '🪄 Extra Spell Slot',
                 current: prestige.spellUpgradeLevel,
                 max: PrestigeService.maxSpellSlotLimit - 1,
-                onTap: () {
-                  final success = prestige.buySpellSlot();
-                  if (success) setState(() {});
-                },
+                cost: prestige.costForNextSpellSlot().toDouble(),
+                onBuy: prestige.buySpellSlot,
               ),
               const SizedBox(height: 16),
               _buildUpgradeTile(
                 title: '🛡️ Extra Faction Slot',
                 current: prestige.factionUpgradeLevel,
                 max: PrestigeService.maxFactionSlotLimit - 1,
-                onTap: () {
-                  final success = prestige.buyFactionSlot();
-                  if (success) setState(() {});
-                },
+                cost: prestige.costForNextFactionSlot().toDouble(),
+                onBuy: prestige.buyFactionSlot,
               ),
               const SizedBox(height: 16),
               _buildUpgradeTile(
@@ -71,10 +70,15 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                 max: PrestigeService.maxTotalSkillPoints -
                     prestige.totalSkillPoints +
                     prestige.extraSkillPointsBought,
+<<<<<<< Updated upstream
                 onTap: () {
                   final success = prestige.buyExtraSkillPoint();
                   if (success) setState(() {});
                 },
+=======
+                cost: prestige.costForNextSkillPoint().toDouble(),
+                onBuy: prestige.buyExtraSkillPoint,
+>>>>>>> Stashed changes
               ),
               const Spacer(),
               ElevatedButton(
@@ -97,9 +101,12 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
     required String title,
     required int current,
     required int max,
-    required VoidCallback onTap,
+    required double cost,
+    required bool Function() onBuy,
   }) {
     final reachedMax = current >= max;
+    final canAfford = prestige.availablePrestigePoints.toDouble() >= cost;
+
     return ListTile(
       tileColor: Colors.grey[900],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -109,8 +116,13 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
         style: const TextStyle(color: Colors.white70),
       ),
       trailing: ElevatedButton(
-        onPressed: reachedMax ? null : onTap,
-        child: const Text('Upgrade'),
+        onPressed: (!reachedMax && canAfford)
+            ? () {
+          final success = onBuy();
+          if (success) setState(() {});
+        }
+            : null,
+        child: Text(reachedMax ? 'Maxed' : 'Cost: ${formatNumber(cost)}'),
       ),
     );
   }

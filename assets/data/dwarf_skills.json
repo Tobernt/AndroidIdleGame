@@ -4,7 +4,7 @@
     "faction": "dwarves",
     "name": "Sturdy Foundations",
     "description": "Reduces all building costs by 10%.",
-    "effect": "building_cost_reduce_10",
+    "effect": "dwarf_skill_1",
     "cost": 1,
     "tier": 1
   },
@@ -13,7 +13,7 @@
     "faction": "dwarves",
     "name": "Rune Knowledge",
     "description": "Increases gold and ore generation by 15%.",
-    "effect": "gold_and_ore_income_15",
+    "effect": "dwarf_skill_2",
     "cost": 1,
     "tier": 2
   },
@@ -22,7 +22,7 @@
     "faction": "dwarves",
     "name": "Enduring Craft",
     "description": "Passive boost to all resources by 5%.",
-    "effect": "all_income_5",
+    "effect": "dwarf_skill_3",
     "cost": 1,
     "tier": 3
   },
@@ -31,7 +31,7 @@
     "faction": "dwarves",
     "name": "Deep Excavation",
     "description": "+1 ore per Mining Shaft.",
-    "effect": "ore_per_building",
+    "effect": "dwarf_skill_4",
     "cost": 1,
     "tier": 4
   },
@@ -40,7 +40,7 @@
     "faction": "dwarves",
     "name": "Legacy of Stone",
     "description": "Unlocks exponential gold scaling based on ore owned.",
-    "effect": "gold_scaling_with_ore",
+    "effect": "dwarf_skill_5",
     "cost": 1,
     "tier": 5
   }

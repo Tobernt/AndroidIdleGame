@@ -2,7 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:big_decimal/big_decimal.dart';
 import '../../core/game_manager.dart';
+<<<<<<< Updated upstream
 import 'dart:math';
+=======
+import '../../main.dart'; // make sure formatNumber() is defined there
+>>>>>>> Stashed changes
 
 class ConquestScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -14,9 +18,14 @@ class ConquestScreen extends StatefulWidget {
 }
 
 class _ConquestScreenState extends State<ConquestScreen> {
+<<<<<<< Updated upstream
   late Duration timeUntilNextStruggle;
   Timer? _updateTimer;
   final Map<String, BigDecimal> requiredMightPerFaction = {};
+=======
+  Timer? _updateTimer;
+  final Map<String, double> requiredMightPerFaction = {};
+>>>>>>> Stashed changes
 
   @override
   void initState() {
@@ -27,6 +36,7 @@ class _ConquestScreenState extends State<ConquestScreen> {
   }
 
   void _updateTimers() {
+<<<<<<< Updated upstream
     final runStart = widget.gameManager.conquestManager.runStartTime;
     final now = DateTime.now();
     final elapsed = now.difference(runStart);
@@ -41,10 +51,18 @@ class _ConquestScreenState extends State<ConquestScreen> {
       for (var faction in conquest.factionManager.allFactions) {
         requiredMightPerFaction[faction.id] =
             BigDecimal.parse(conquest.mightRequiredForFaction(faction.id).toString());
+=======
+    final conquest = widget.gameManager.conquestManager;
+    setState(() {
+      for (var faction in conquest.factionManager.allFactions) {
+        requiredMightPerFaction[faction.id] =
+            conquest.mightRequiredForFaction(faction.id);
+>>>>>>> Stashed changes
       }
     });
   }
 
+<<<<<<< Updated upstream
   String formatDuration(Duration d) {
     final hours = d.inHours;
     final minutes = d.inMinutes % 60;
@@ -67,6 +85,8 @@ class _ConquestScreenState extends State<ConquestScreen> {
     }
   }
 
+=======
+>>>>>>> Stashed changes
   @override
   void dispose() {
     _updateTimer?.cancel();
@@ -76,8 +96,22 @@ class _ConquestScreenState extends State<ConquestScreen> {
   @override
   Widget build(BuildContext context) {
     final conquest = widget.gameManager.conquestManager;
+<<<<<<< Updated upstream
     final currentMight = BigDecimal.parse(conquest.currentMight.toString());
     final canConquer = conquest.conquestUnlocked;
+=======
+    final currentMight = conquest.currentMight;
+    final canConquer = conquest.conquestUnlocked;
+    final ownFactionId = conquest.factionManager.selectedFactionId;
+
+    final visibleFactions = conquest.factionManager.allFactions
+        .where((f) => f.id != ownFactionId)
+        .toList();
+
+    final allEliminated = visibleFactions.every((f) =>
+    conquest.conqueredFactions.contains(f.id) ||
+        conquest.destroyedFactions.contains(f.id));
+>>>>>>> Stashed changes
 
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +125,7 @@ class _ConquestScreenState extends State<ConquestScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
+<<<<<<< Updated upstream
               'Your Might: ${formatBigDecimal(currentMight)}',
               style: const TextStyle(color: Colors.amber, fontSize: 18),
             ),
@@ -99,24 +134,27 @@ class _ConquestScreenState extends State<ConquestScreen> {
               'Next power struggle in: ${formatDuration(timeUntilNextStruggle)}',
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
+=======
+              'Your Might: ${formatNumber(currentMight)}',
+              style: const TextStyle(color: Colors.amber, fontSize: 18),
+            ),
+>>>>>>> Stashed changes
             const SizedBox(height: 16),
-
             if (!canConquer)
               const Text(
                 '🔒 Conquest unlocks at prestige level 10.',
                 style: TextStyle(color: Colors.redAccent),
               ),
-
-            if (conquest.isGameCompleted)
+            if (allEliminated)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  '✅ All factions conquered. You have reached the endgame.',
+                  '🏆 Your faction reigns supreme. All others have fallen.',
                   style: TextStyle(color: Colors.greenAccent, fontSize: 16),
                 ),
               ),
-
             const SizedBox(height: 20),
+<<<<<<< Updated upstream
             const Text(
               'Factions in Play:',
               style: TextStyle(color: Colors.white, fontSize: 16),
@@ -215,8 +253,108 @@ class _ConquestScreenState extends State<ConquestScreen> {
                     ),
                   );
                 }).toList(),
+=======
+            if (!allEliminated) ...[
+              const Text(
+                'Factions in Play:',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+>>>>>>> Stashed changes
               ),
-            ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView(
+                  children: visibleFactions.map((faction) {
+                    final isConquered = conquest.conqueredFactions.contains(faction.id);
+                    final isDestroyed = conquest.destroyedFactions.contains(faction.id);
+                    final isEligible = conquest.conquerableFactions.contains(faction.id);
+                    final requiredMight = requiredMightPerFaction[faction.id] ?? 0.0;
+
+                    return Card(
+                      color: isConquered
+                          ? Colors.green[800]
+                          : isDestroyed
+                          ? Colors.red[900]
+                          : isEligible
+                          ? Colors.grey[850]
+                          : Colors.grey[900],
+                      child: ListTile(
+                        title: Text(
+                          faction.name,
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(faction.description, style: const TextStyle(color: Colors.white70)),
+                            if (!isConquered && !isDestroyed)
+                              Text(
+                                'Required Might: ${formatNumber(requiredMight)}',
+                                style: const TextStyle(color: Colors.amberAccent, fontSize: 12),
+                              ),
+                            if (isDestroyed)
+                              const Text(
+                                '❌ This faction was annihilated.',
+                                style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                              ),
+                          ],
+                        ),
+                        trailing: isConquered
+                            ? const Icon(Icons.check, color: Colors.lightGreenAccent)
+                            : isDestroyed
+                            ? null
+                            : isEligible
+                            ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton(
+                              onPressed: (canConquer &&
+                                  conquest.canAddMoreFactions() &&
+                                  currentMight >= requiredMight)
+                                  ? () {
+                                final success = conquest.tryConquer(faction.id);
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('${faction.name} conquered!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  setState(() {});
+                                  _updateTimers();
+                                }
+                              }
+                                  : null,
+                              child: const Text('Conquer'),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: (canConquer && currentMight >= requiredMight)
+                                  ? () {
+                                conquest.destroyedFactions.add(faction.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${faction.name} annihilated!'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                setState(() {});
+                                _updateTimers();
+                              }
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red[800],
+                              ),
+                              child: const Text('Annihilate'),
+                            ),
+                          ],
+                        )
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ]
           ],
         ),
       ),

@@ -3,7 +3,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
+<<<<<<< Updated upstream
 
+=======
+import 'package:shared_preferences/shared_preferences.dart';
+>>>>>>> Stashed changes
 import '../features/achievements/achievement.dart';
 import '../features/achievements/achievement_service.dart';
 import '../features/buildings/building.dart';
@@ -34,6 +38,8 @@ class GameManager with ChangeNotifier {
   late AchievementService achievementService;
   late HeroService heroService;
   late ConquestManager conquestManager;
+  final List<DateTime> _tapTimestamps = [];
+  double _autoTapAccumulator = 0.0;
 
   bool _initialized = false;
   bool get isInitialized => _initialized;
@@ -127,6 +133,7 @@ class GameManager with ChangeNotifier {
 
     _initialized = true;
   }
+<<<<<<< Updated upstream
 
   void tickResources(double deltaSeconds) {
     state.resourceAmounts.forEach((id, _) {
@@ -161,6 +168,86 @@ class GameManager with ChangeNotifier {
     heroService.applySelectedHeroes(state, lifetimeMultiplier);
 
     // ✅ Ensure conquest unlock is reapplied after claiming achievement
+=======
+
+  void tickResources(double deltaSeconds) {
+    applyFactionBonuses(); // Reapply skills and effects
+
+    // 🌱 Passive skill: Elf Skill 4 — max mana growth over time
+    if (skillManager.getUnlockedEffects().contains('elf_skill_4')) {
+      final key = 'elf_skill_4_mana_growth';
+      final prev = state.getMetaValue(key);
+      final growth = prev + (0.1 * deltaSeconds); // +0.1 per second
+      state.setMetaValue(key, growth);
+      state.setMax('mana', 100.0 + growth);
+    }
+
+    // 🧍 Passive skill: Human Skill 5 — global output from building count
+    if (skillManager.getUnlockedEffects().contains('human_skill_5')) {
+      final count = buildingService.allOwnedCount;
+      final bonus = 1.0 + (count ~/ 10) * 0.01;
+      state.resourceModifiers['global_from_buildings'] = bonus;
+    }
+
+    // 🔁 Recalculate income per second for each resource
+    for (final entry in state.resourceAmounts.entries) {
+      final id = entry.key;
+      double base = buildingService.totalOutputPerSecond(resource: id);
+
+      if (id == 'ore' && skillManager.getUnlockedEffects().contains('dwarf_skill_4')) {
+        final buildingCount = state.metaValues['buildings_owned'] ?? 0;
+        base += buildingCount.toDouble(); // +1 ore/sec per building
+      }
+
+      double baseIncome = 0.0;
+      if (id == 'mana') baseIncome = 1.0;
+      if (id == 'population' && skillManager.getUnlockedEffects().contains('undead_skill_1')) {
+        baseIncome += 0.5;
+      }
+
+      double multiplier = 1.0;
+
+      if (id == 'gold') {
+        multiplier *= (state.resourceModifiers['gold_income'] ?? 1.0);
+        multiplier *= modifierManager.getCombinedMultiplier('gold');
+        multiplier *= modifierManager.getCombinedMultiplier('gold_income_multiplier');
+        multiplier *= prestigeService.prestigeMultiplier;
+      } else if (id == 'mana') {
+        multiplier *= state.resourceModifiers['mana_regen'] ?? 1.0;
+      } else {
+        multiplier *= state.resourceModifiers['${id}_multiplier'] ?? 1.0;
+      }
+
+      // 🌐 Global modifiers
+      if (id != 'mana') {
+        multiplier *= (state.resourceModifiers['building_output'] ?? 1.0);
+        multiplier *= (state.resourceModifiers['global_output'] ?? 1.0);
+      }
+      multiplier *= (state.resourceModifiers['global_from_buildings'] ?? 1.0);
+
+      // Final calculation
+      final incomePerSecond = (base + baseIncome) * multiplier;
+      final delta = incomePerSecond * deltaSeconds;
+
+      state.addResource(id, delta);
+      state.resourceModifiers['${id}_per_sec'] = incomePerSecond;
+
+      // ✅ Apply to lifetimeGold if gold
+      if (id == 'gold') {
+        prestigeService.applyGold(delta);
+      }
+    }
+
+    // 👥 Hero scaling (e.g. lifetime bonus)
+    final lifetimeMult = 1 + (log(prestigeService.lifetimeGold + 1) / 100);
+    heroService.applySelectedHeroes(state, lifetimeMult);
+
+    // 🪄 Spell cost backup
+    state.resourceModifiers['spell_final_cost_multiplier'] =
+        state.resourceModifiers['spell_cost_multiplier'] ?? 1.0;
+
+    // ⚔️ Unlock conquest if needed
+>>>>>>> Stashed changes
     if (!state.conquestUnlocked) {
       final claimed = achievementService.all.any(
             (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
@@ -191,6 +278,11 @@ class GameManager with ChangeNotifier {
 
   void applyFactionBonuses() {
     state.resourceModifiers.clear();
+    state.tapPower = 1.0;
+    state.metaValues['buildings_owned'] = buildingService.allOwnedCount;
+    state.metaValues['auto_building_count'] = buildingService.buildings
+        .where((b) => b.tapPerSecond > 0 && b.level > 0)
+        .length;
 
     // 1. Faction resource boosts
     for (var faction in factionManager.selected) {
@@ -216,14 +308,50 @@ class GameManager with ChangeNotifier {
       state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
     }
 
+<<<<<<< Updated upstream
     // ✅ 4. Re-apply skill effects for unlocked & equipped skills
     for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
       skill.effect(state);
+=======
+    // 4. Re-apply skill effects (with dynamic conditions)
+    for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
+      switch (skill.effectId) {
+        case 'undead_skill_2':
+          if (state.getResource('population') > 50) {
+            state.resourceModifiers['building_cost_multiplier'] =
+                (state.resourceModifiers['building_cost_multiplier'] ?? 1.0) * 0.9;
+          }
+          break;
+
+        case 'undead_skill_4':
+          if (state.getResource('population') > 100) {
+            state.resourceModifiers['spell_cooldown_mult'] =
+                (state.resourceModifiers['spell_cooldown_mult'] ?? 1.0) * 0.9;
+          }
+          break;
+
+        case 'orc_skill_2':
+        // Battle Infrastructure: +10% building output
+          state.resourceModifiers['building_output'] =
+              (state.resourceModifiers['building_output'] ?? 1.0) * 1.10;
+          break;
+
+        case 'orc_skill_5':
+          final taps = state.getMetaValue('taps_last_60s') ?? 0;
+          final bonus = (taps ~/ 10) * 0.01;
+          state.resourceModifiers['gold_income'] =
+              (state.resourceModifiers['gold_income'] ?? 1.0) * (1.0 + bonus);
+          break;
+
+        default:
+          skill.effect(state);
+      }
+>>>>>>> Stashed changes
     }
   }
 
-  void startLoop() {
 
+  void startLoop() {
     _lastUpdate = DateTime.now();
     _loopTimer = Timer.periodic(const Duration(milliseconds: 200), (_) {
       final now = DateTime.now();
@@ -231,7 +359,10 @@ class GameManager with ChangeNotifier {
       _lastUpdate = now;
 
       modifierManager.cleanup();
+      applyFactionBonuses();
+      tickResources(delta);
 
+<<<<<<< Updated upstream
       final goldMultiplier =
           (state.resourceModifiers['gold_income'] ?? 1.0) *
               modifierManager.getCombinedMultiplier('gold') *
@@ -255,6 +386,19 @@ class GameManager with ChangeNotifier {
       state.addResource('gold', autoTapGain);
       prestigeService.applyGold(autoTapGain);
       tapCount += autoTaps.toInt(); // Optional if you want auto-taps to count
+=======
+      // ✅ Auto-taps trigger actual taps
+      final autoTapsPerSecond = buildingService.getAutomatedTapsPerSecond();
+      _autoTapAccumulator += autoTapsPerSecond * delta;
+      final autoTapCount = _autoTapAccumulator.floor();
+      _autoTapAccumulator -= autoTapCount;
+      final autoTapMultiplier = state.resourceModifiers['auto_tap'] ?? 1.0;
+      for (int i = 0; i < autoTapCount; i++) {
+        tapGold(isAuto: true, multiplier: autoTapMultiplier);
+      }
+
+
+>>>>>>> Stashed changes
       conquestManager.checkFactionAnnihilation();
       resourceService.tickIncome(delta);
       notifyListeners();
@@ -262,13 +406,18 @@ class GameManager with ChangeNotifier {
   }
 
   void resetForPrestige() {
+
     final preservedTotalPrestiges = state.totalPrestiges;
     final preservedLifetimeTaps = state.lifetimeTaps;
     final preservedLifetimeResources = Map<String, double>.from(state.lifetimeResources);
     final preservedConquestUnlocked = state.conquestUnlocked;
     final preservedConquestIntro = state.conquestIntroShown;
     final unlockedConquest = state.conquestUnlocked;
+<<<<<<< Updated upstream
 
+=======
+    prestigeService.preservedLifetimeGold = prestigeService.lifetimeGold;
+>>>>>>> Stashed changes
     state.totalPrestiges = preservedTotalPrestiges;
     state.conquestUnlocked = preservedConquestUnlocked;
     state.lifetimeTaps = preservedLifetimeTaps;
@@ -281,7 +430,7 @@ class GameManager with ChangeNotifier {
     state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
     state.tapPower = 1.0;
     state.currentRunTaps = 0;
-
+    prestigeService.lifetimeGold = 0;
     resourceManager.current.updateAll((key, _) => 0.0);
     resourceService = ResourceService(resourceManager);
     state.conqueredFactions.clear();
@@ -301,6 +450,7 @@ class GameManager with ChangeNotifier {
     checkForPassiveUnlocks();
   }
 
+<<<<<<< Updated upstream
   void tapGold() {
     final globalOutput = state.resourceModifiers['global_output'] ?? 1.0;
     final tapGain = state.tapPower * goldMultiplier * globalOutput;
@@ -308,18 +458,95 @@ class GameManager with ChangeNotifier {
     prestigeService.applyGold(tapGain);
 
     state.currentRunTaps++;
+=======
+  void tapGold({bool isAuto = false, double multiplier = 1.0}) {
+    // Count taps
+    if (!isAuto) {
+      state.currentRunTaps++;
+      _tapTimestamps.add(DateTime.now());
+    }
+>>>>>>> Stashed changes
     state.lifetimeTaps++;
     tapCount++;
+
+// 🕒 Prune old taps (older than 60 seconds)
+    final now = DateTime.now();
+    _tapTimestamps.removeWhere((ts) => now.difference(ts).inSeconds > 60);
+    state.setMetaValue('taps_last_60s', _tapTimestamps.length.toDouble());
+
+    final globalOutput =
+        (state.resourceModifiers['global_output'] ?? 1.0) *
+        (state.resourceModifiers['global_from_buildings'] ?? 1.0);
+    final tapBase = state.tapPower * goldMultiplier * globalOutput * multiplier;
+
+    // Base tap gold
+    state.addResource('gold', tapBase);
+    prestigeService.applyGold(tapBase);
+
+    // Bloodfury: extra tap bonus
+    if (modifierManager.hasModifier('bloodfury')) {
+      state.addResource('gold', tapBase);
+      prestigeService.applyGold(tapBase);
+    }
+
+    // Count taps
+    if (!isAuto) state.currentRunTaps++;
+    state.lifetimeTaps++;
+    tapCount++;
+
+    // Handle System Purge duration logic
+    if (state.metaValues['system_purge_active'] == true) {
+      final now = DateTime.now();
+      final maxDur = state.metaValues['system_purge_max_duration'] ?? 0.0;
+
+      if (maxDur > 1.0) {
+        final newDuration = (maxDur - 1.0).clamp(1.0, 999.0);
+        state.metaValues['system_purge_max_duration'] = newDuration;
+        state.metaValues['system_purge_start_time'] = now.toIso8601String();
+
+        modifierManager.addModifier(Modifier(
+          id: 'global_output',
+          multiplier: 1.25,
+          duration: Duration(seconds: newDuration.toInt()),
+        ));
+      } else {
+        state.metaValues['system_purge_active'] = false;
+      }
+    }
 
     _checkAchievements();
     notifyListeners();
   }
 
-
   void castSpell(Spell spell) {
+    // Special case: Elf Spell 5 casts all other equipped spells
+    if (spell.id == 'elf_spell_5') {
+      spell.markCastTime();
+
+      for (final s in spellService.equippedSpells) {
+        if (s.id != 'elf_spell_5' && s.unlocked) {
+          s.effect(state);
+          s.lastCast = null;
+        }
+      }
+
+      // 🔁 Inject equipped spells for any follow-up logic (not strictly needed here)
+      state.metaValues['equipped_spells'] = spellService.equippedSpells;
+      spell.effect(state);
+
+      notifyListeners();
+      _checkAchievements();
+      return;
+    }
+
+    // ✅ Inject equipped spells before casting
+    state.metaValues['equipped_spells'] = spellService.equippedSpells;
+
+    // Default casting logic
     spellService.cast(spell, state);
-    _checkAchievements();
+
     notifyListeners();
+    _checkAchievements();
   }
 
   void _checkAchievements() {
@@ -364,5 +591,30 @@ class GameManager with ChangeNotifier {
   void dispose() {
     _loopTimer?.cancel();
     super.dispose();
+  }
+  Future<void> saveGame() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('game_state', json.encode(state.toJson()));
+    prefs.setString('last_active', DateTime.now().toIso8601String());
+  }
+
+  Future<void> loadGame() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedJson = prefs.getString('game_state');
+    final lastActiveStr = prefs.getString('last_active');
+
+    if (savedJson != null) {
+      state = GameState.fromJson(json.decode(savedJson));
+
+      if (lastActiveStr != null) {
+        final lastActive = DateTime.tryParse(lastActiveStr);
+        if (lastActive != null) {
+          final now = DateTime.now();
+          final diffSeconds = now.difference(lastActive).inSeconds;
+          final cappedSeconds = diffSeconds.clamp(0, 8 * 3600); // Max 8 hours
+          tickResources(cappedSeconds.toDouble());
+        }
+      }
+    }
   }
 }

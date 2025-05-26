@@ -22,6 +22,9 @@ class ModifierManager {
       _modifiers.add(modifier);
     }
   }
+  bool hasModifier(String id) {
+    return _modifiers.any((m) => m.id == id && !m.isExpired);
+  }
 
   /// Returns combined multiplier for a given modifier ID.
   double getCombinedMultiplier(String id) {

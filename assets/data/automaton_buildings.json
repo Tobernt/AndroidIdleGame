@@ -8,6 +8,11 @@
       "gold": 100
     },
     "baseOutput": {},
+<<<<<<< Updated upstream
+=======
+    "modifier": {},
+    "tapPerSecond": 1.0,
+>>>>>>> Stashed changes
     "costGrowth": 1.15
   },
   {
@@ -21,6 +26,10 @@
     "baseOutput": {
       "mana": 0.3
     },
+<<<<<<< Updated upstream
+=======
+    "modifier": {},
+>>>>>>> Stashed changes
     "costGrowth": 1.2
   },
   {
@@ -34,6 +43,10 @@
     "baseOutput": {
       "ore": 0.4
     },
+<<<<<<< Updated upstream
+=======
+    "modifier": {},
+>>>>>>> Stashed changes
     "costGrowth": 1.25
   },
   {
@@ -46,6 +59,12 @@
       "mana": 50
     },
     "baseOutput": {},
+<<<<<<< Updated upstream
+=======
+    "modifier": {
+      "mana_regen": 0.10
+    },
+>>>>>>> Stashed changes
     "costGrowth": 1.3
   },
   {
@@ -58,6 +77,12 @@
       "ore": 10
     },
     "baseOutput": {},
+<<<<<<< Updated upstream
+=======
+    "modifier": {
+      "global_output": 0.02
+    },
+>>>>>>> Stashed changes
     "costGrowth": 1.3
   }
 ]

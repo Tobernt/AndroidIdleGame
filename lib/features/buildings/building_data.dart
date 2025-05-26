@@ -10,6 +10,10 @@ class BuildingData {
   final double costGrowth;
   final Map<String, dynamic> modifier;
   final String? unlockRequirementId;
+<<<<<<< Updated upstream
+=======
+  final double tapPerSecond;
+>>>>>>> Stashed changes
 
   BuildingData({
     required this.id,
@@ -19,6 +23,10 @@ class BuildingData {
     required this.baseCost,
     required this.baseOutput,
     this.costGrowth = 1.15,
+<<<<<<< Updated upstream
+=======
+    this.tapPerSecond = 0.0,
+>>>>>>> Stashed changes
     this.modifier = const {},
     this.unlockRequirementId,
   });
@@ -36,6 +44,11 @@ class BuildingData {
           : 1.15,
       modifier: Map<String, dynamic>.from(json['modifier'] ?? {}),
       unlockRequirementId: json['unlockRequirementId'],
+<<<<<<< Updated upstream
+=======
+      // 👇 ADD THIS LINE
+      tapPerSecond: (json['tapPerSecond'] ?? 0).toDouble(),
+>>>>>>> Stashed changes
     );
   }
 
@@ -51,6 +64,10 @@ class BuildingData {
       level: 0,
       modifier: modifier,
       unlockRequirementId: unlockRequirementId,
+<<<<<<< Updated upstream
+=======
+      tapPerSecond: tapPerSecond,
+>>>>>>> Stashed changes
     );
   }
 }
