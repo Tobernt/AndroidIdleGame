@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:big_decimal/big_decimal.dart';
 import '../../core/game_manager.dart';
 import '../../main.dart'; // contains formatNumber()
 
@@ -43,13 +42,7 @@ class BuildingScreen extends StatelessWidget {
               );
 
               final maxAffordable = calculateMaxAffordable(
-<<<<<<< Updated upstream
-                finalCost,
-                state.resourceAmounts,
-                b.level,
-=======
                 finalCost, state.resourceAmounts, b.level,
->>>>>>> Stashed changes
               );
 
               final oneCost = calculateTotalCost(finalCost, 1, b.level);
@@ -71,11 +64,7 @@ class BuildingScreen extends StatelessWidget {
               }
 
               final outputStr = b.outputPerSecond().entries
-<<<<<<< Updated upstream
-                  .map((e) => '${e.key}: ${formatBigDecimalSmart(BigDecimal.parse(e.value.toString()))}')
-=======
                   .map((e) => '${e.key}: ${formatNumber(e.value)}')
->>>>>>> Stashed changes
                   .join(', ');
 
               return Card(
@@ -152,13 +141,7 @@ class BuildingScreen extends StatelessWidget {
             (key, value) => MapEntry(key, value * pow(1.15, currentLevel + count)),
       );
 
-<<<<<<< Updated upstream
-      if (scaledCost.entries.any((e) => resources[e.key]! < e.value)) {
-        break;
-      }
-=======
       if (scaledCost.entries.any((e) => resources[e.key]! < e.value)) break;
->>>>>>> Stashed changes
 
       for (final entry in scaledCost.entries) {
         resources[entry.key] = resources[entry.key]! - entry.value;
@@ -184,30 +167,6 @@ class BuildingScreen extends StatelessWidget {
   }
 
   String formatCost(Map<String, double> cost) {
-<<<<<<< Updated upstream
-    return cost.entries
-        .map((e) =>
-    '${e.key}: ${formatBigDecimalSmart(BigDecimal.parse(e.value.toString()))}')
-        .join(', ');
-  }
-
-  String formatBigDecimalSmart(BigDecimal value) {
-    if (value.intVal == BigInt.zero) return '0';
-    final doubleVal = value.toDouble().abs();
-    if (doubleVal < 1000) {
-      return value.withScale(2, roundingMode: RoundingMode.HALF_UP).toPlainString();
-    }
-    final log10 = log(doubleVal);
-    final exponent = (log10 / log(10)).floor();
-    final scale = (exponent ~/ 3) * 3;
-    final scaled = value.divide(
-      BigDecimal.parse(pow(10, scale).toStringAsFixed(0)),
-      scale: 3,
-      roundingMode: RoundingMode.HALF_UP,
-    );
-    return '${scaled.toPlainString()}e$scale';
-=======
     return cost.entries.map((e) => '${e.key}: ${formatNumber(e.value)}').join(', ');
->>>>>>> Stashed changes
   }
 }

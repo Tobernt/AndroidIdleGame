@@ -112,11 +112,7 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-<<<<<<< Updated upstream
-                                      'CD: ${spell.cooldown.inSeconds}s\n${spell.costs.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(0)}').join(', ')}',
-=======
                                       '$cooldownText\n$costText',
->>>>>>> Stashed changes
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(color: Colors.white54, fontSize: 11),
                                     ),

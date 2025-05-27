@@ -3,11 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
-<<<<<<< Updated upstream
-
-=======
 import 'package:shared_preferences/shared_preferences.dart';
->>>>>>> Stashed changes
 import '../features/achievements/achievement.dart';
 import '../features/achievements/achievement_service.dart';
 import '../features/buildings/building.dart';
@@ -48,10 +44,15 @@ class GameManager with ChangeNotifier {
   Timer? _loopTimer;
   DateTime? _lastUpdate;
   int tapCount = 0;
-  Future<void> init() async {
+  Future<void> init({bool fromLoad = false}) async {
     if (_initialized) return;
 
-    // Base state
+    if (!fromLoad) {
+      state = GameState();
+      state.addResource('gold', 0);
+      state.addResource('mana', 0);
+    }
+
     state = GameState();
     state.addResource('gold', 0);
     state.addResource('mana', 0);
@@ -133,42 +134,6 @@ class GameManager with ChangeNotifier {
 
     _initialized = true;
   }
-<<<<<<< Updated upstream
-
-  void tickResources(double deltaSeconds) {
-    state.resourceAmounts.forEach((id, _) {
-      final base = buildingService.totalOutputPerSecond(resource: id);
-      final baseIncome = id == 'mana' ? 1.0 : 0.0;
-
-      double multiplier = 1.0;
-      if (id == 'gold') {
-        multiplier = (state.resourceModifiers['gold_income'] ?? 1.0) *
-            modifierManager.getCombinedMultiplier('gold') *
-            modifierManager.getCombinedMultiplier('gold_income_multiplier') *
-            prestigeService.prestigeMultiplier;
-      } else if (id == 'mana') {
-        multiplier = state.resourceModifiers['mana_regen'] ?? 1.0;
-      } else {
-        multiplier = state.resourceModifiers['${id}_multiplier'] ?? 1.0;
-      }
-
-      if (id != 'mana') {
-        multiplier *= (state.resourceModifiers['global_output'] ?? 1.0);
-      }
-
-      final incomePerSecond = (base + baseIncome) * multiplier;
-      final incomeDelta = incomePerSecond * deltaSeconds;
-
-      state.addResource(id, incomeDelta);
-      state.resourceModifiers['${id}_per_sec'] = incomePerSecond;
-    });
-
-    // ✅ Apply hero effects again (in case tickResources runs before applyFactionBonuses)
-    final lifetimeMultiplier = 1 + (log(prestigeService.lifetimeGold + 1) / 100);
-    heroService.applySelectedHeroes(state, lifetimeMultiplier);
-
-    // ✅ Ensure conquest unlock is reapplied after claiming achievement
-=======
 
   void tickResources(double deltaSeconds) {
     applyFactionBonuses(); // Reapply skills and effects
@@ -247,7 +212,6 @@ class GameManager with ChangeNotifier {
         state.resourceModifiers['spell_cost_multiplier'] ?? 1.0;
 
     // ⚔️ Unlock conquest if needed
->>>>>>> Stashed changes
     if (!state.conquestUnlocked) {
       final claimed = achievementService.all.any(
             (a) => a.reward?.type == 'unlock_conquest' && a.isClaimed,
@@ -308,11 +272,6 @@ class GameManager with ChangeNotifier {
       state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
     }
 
-<<<<<<< Updated upstream
-    // ✅ 4. Re-apply skill effects for unlocked & equipped skills
-    for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
-      skill.effect(state);
-=======
     // 4. Re-apply skill effects (with dynamic conditions)
     for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
       switch (skill.effectId) {
@@ -346,7 +305,6 @@ class GameManager with ChangeNotifier {
         default:
           skill.effect(state);
       }
->>>>>>> Stashed changes
     }
   }
 
@@ -362,31 +320,6 @@ class GameManager with ChangeNotifier {
       applyFactionBonuses();
       tickResources(delta);
 
-<<<<<<< Updated upstream
-      final goldMultiplier =
-          (state.resourceModifiers['gold_income'] ?? 1.0) *
-              modifierManager.getCombinedMultiplier('gold') *
-              modifierManager.getCombinedMultiplier('gold_income_multiplier') *
-              prestigeService.prestigeMultiplier;
-
-
-      final goldIncome = buildingService.totalOutputPerSecond(resource: 'gold');
-      final globalOutput = state.resourceModifiers['global_output'] ?? 1.0;
-      final goldGain = goldIncome * delta * goldMultiplier * globalOutput;
-      state.addResource('gold', goldGain);
-      prestigeService.applyGold(goldGain);
-
-      final manaMultiplier = state.resourceModifiers['mana_regen'] ?? 1.0;
-      final baseManaRegen = 1.0;
-      final manaIncome = baseManaRegen + buildingService.totalOutputPerSecond(resource: 'mana');
-      state.addResource('mana', manaIncome * delta * manaMultiplier);
-
-      final autoTaps = buildingService.getAutomatedTapsPerSecond();
-      final autoTapGain = autoTaps * state.tapPower * goldMultiplier * globalOutput * delta;
-      state.addResource('gold', autoTapGain);
-      prestigeService.applyGold(autoTapGain);
-      tapCount += autoTaps.toInt(); // Optional if you want auto-taps to count
-=======
       // ✅ Auto-taps trigger actual taps
       final autoTapsPerSecond = buildingService.getAutomatedTapsPerSecond();
       _autoTapAccumulator += autoTapsPerSecond * delta;
@@ -398,7 +331,6 @@ class GameManager with ChangeNotifier {
       }
 
 
->>>>>>> Stashed changes
       conquestManager.checkFactionAnnihilation();
       resourceService.tickIncome(delta);
       notifyListeners();
@@ -413,11 +345,7 @@ class GameManager with ChangeNotifier {
     final preservedConquestUnlocked = state.conquestUnlocked;
     final preservedConquestIntro = state.conquestIntroShown;
     final unlockedConquest = state.conquestUnlocked;
-<<<<<<< Updated upstream
-
-=======
     prestigeService.preservedLifetimeGold = prestigeService.lifetimeGold;
->>>>>>> Stashed changes
     state.totalPrestiges = preservedTotalPrestiges;
     state.conquestUnlocked = preservedConquestUnlocked;
     state.lifetimeTaps = preservedLifetimeTaps;
@@ -450,22 +378,12 @@ class GameManager with ChangeNotifier {
     checkForPassiveUnlocks();
   }
 
-<<<<<<< Updated upstream
-  void tapGold() {
-    final globalOutput = state.resourceModifiers['global_output'] ?? 1.0;
-    final tapGain = state.tapPower * goldMultiplier * globalOutput;
-    state.addResource('gold', tapGain);
-    prestigeService.applyGold(tapGain);
-
-    state.currentRunTaps++;
-=======
   void tapGold({bool isAuto = false, double multiplier = 1.0}) {
     // Count taps
     if (!isAuto) {
       state.currentRunTaps++;
       _tapTimestamps.add(DateTime.now());
     }
->>>>>>> Stashed changes
     state.lifetimeTaps++;
     tapCount++;
 
@@ -569,7 +487,7 @@ class GameManager with ChangeNotifier {
     modifierManager.addModifier(
       Modifier(
         id: 'gold',
-        multiplier: 1000000.0,
+        multiplier: 2.0,
         duration: const Duration(hours: 4),
       ),
     );

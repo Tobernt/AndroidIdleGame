@@ -15,51 +15,13 @@ class SkillManager {
   SkillManager({required this.prestigeService});
 
   final Map<String, SkillEffect> effectMap = {
-<<<<<<< Updated upstream
-    // 🔧 Flat max boosts
-    "max_mana_50": (state) {
-=======
     // 🧍 HUMAN SKILLS
 
     "human_skill_1": (state) {
->>>>>>> Stashed changes
       final currentMax = state.getMax('mana');
       state.setMax('mana', currentMax + 50);
     },
 
-<<<<<<< Updated upstream
-    // 🔧 Flat tap power increase
-    "tap_power_1": (state) => state.tapPower += 1,
-    "tap_power_5": (state) => state.tapPower += 5,
-
-    // 🔧 Income multipliers
-    "gold_income_20": (state) => _mult(state, 'gold_income', 1.2),
-    "mana_regen_10": (state) => _mult(state, 'mana_regen', 1.1),
-    "ore_multiplier_15": (state) => _mult(state, 'ore_multiplier', 1.15),
-
-    // 🔧 Cost reduction
-    "building_cost_reduce_10": (state) => _mult(state, 'building_cost_multiplier', 0.9),
-    "spell_cost_reduce_15": (state) => _mult(state, 'spell_cost_multiplier', 0.85),
-
-    // 🔧 Cooldown reduction
-    "cooldown_reduce_10": (state) => _mult(state, 'spell_cooldown_mult', 0.9),
-
-    // 🔧 Building-scaling effects
-    "gold_per_building": (state) {
-      final count = state.metaValues['buildings_owned'] ?? 0;
-      final bonus = 0.01 * count; // +1% per building
-      _mult(state, 'gold_income', 1.0 + bonus);
-    },
-
-    // 🔧 Unique behavior
-    "population_capless": (state) => state.setMax('population', double.infinity),
-    "population_growth_bonus_0.5": (state) {
-      state.resourceModifiers['population_growth'] =
-          (state.resourceModifiers['population_growth'] ?? 1.0) * 1.5;
-    },
-    "conditional_building_discount_10_if_pop_50": (state) {
-      if ((state.getResource('population')) >= 50) {
-=======
     "human_skill_2": (state) {
       state.resourceModifiers['building_cost_multiplier'] =
           (state.resourceModifiers['building_cost_multiplier'] ?? 1.0) * 0.9;
@@ -91,21 +53,10 @@ class SkillManager {
     "undead_skill_2": (state) {
       // Necrotic Efficiency: -10% building cost if population > 50
       if (state.getResource('population') > 50) {
->>>>>>> Stashed changes
         state.resourceModifiers['building_cost_multiplier'] =
             (state.resourceModifiers['building_cost_multiplier'] ?? 1.0) * 0.9;
       }
     },
-<<<<<<< Updated upstream
-    "gold_per_20_pop": (state) {
-      final pop = state.getResource('population');
-      final bonus = (pop ~/ 20) * 0.05;
-      state.resourceModifiers['gold_income'] =
-          (state.resourceModifiers['gold_income'] ?? 1.0) * (1 + bonus);
-    },
-    "cooldown_reduce_if_pop_100": (state) {
-      if (state.getResource('population') >= 100) {
-=======
     "undead_skill_3": (state) {
       // Flesh Economy: +5% gold income per 100 pop, or 1% per 20
       final pop = state.getResource('population');
@@ -116,77 +67,13 @@ class SkillManager {
     "undead_skill_4": (state) {
       // Soulbound Rituals: -10% spell cooldowns if pop > 100
       if (state.getResource('population') > 100) {
->>>>>>> Stashed changes
         state.resourceModifiers['spell_cooldown_mult'] =
             (state.resourceModifiers['spell_cooldown_mult'] ?? 1.0) * 0.9;
       }
     },
-<<<<<<< Updated upstream
-    "remove_population_cap": (state) => state.setMax('population', double.infinity),
-    "mana_regen_20": (state) {
-      state.resourceModifiers['mana_regen'] =
-          (state.resourceModifiers['mana_regen'] ?? 1.0) * 1.2;
-    },
-    "spell_recast_chance_15": (state) {
-      state.resourceModifiers['spell_recast_chance'] =
-          (state.resourceModifiers['spell_recast_chance'] ?? 0.0) + 0.15;
-    },
-    "flat_mana_per_second_1": (state) {
-      state.resourceModifiers['flat_mana_per_second'] =
-          (state.resourceModifiers['flat_mana_per_second'] ?? 0.0) + 1.0;
-    },
-    "spell_cost_reduce_25": (state) {
-      state.resourceModifiers['spell_cost_multiplier'] =
-          (state.resourceModifiers['spell_cost_multiplier'] ?? 1.0) * 0.75;
-    },
-    "building_output_10": (state) {
-      state.resourceModifiers['building_output'] =
-          (state.resourceModifiers['building_output'] ?? 1.0) * 1.10;
-    },
-    "gold_per_tap_frenzy": (state) {
-      state.resourceModifiers['gold_tap_frenzy'] =
-          (state.resourceModifiers['gold_tap_frenzy'] ?? 0.0) + 1.0;
-    },
-    "gold_and_ore_income_15": (state) {
-      state.resourceModifiers['gold_income'] =
-          (state.resourceModifiers['gold_income'] ?? 1.0) * 1.15;
-      state.resourceModifiers['ore_multiplier'] =
-          (state.resourceModifiers['ore_multiplier'] ?? 1.0) * 1.15;
-    },
-    "all_income_5": (state) {
-      for (var key in ['gold_income', 'mana_regen', 'ore_multiplier']) {
-        state.resourceModifiers[key] =
-            (state.resourceModifiers[key] ?? 1.0) * 1.05;
-      }
-    },
-    "ore_per_building": (state) {
-      final buildings = state.metaValues['buildings_owned'] ?? 0;
-      state.resourceModifiers['ore_multiplier'] =
-          (state.resourceModifiers['ore_multiplier'] ?? 1.0) * (1 + 0.01 * buildings);
-    },
-    "gold_scaling_with_ore": (state) {
-      final ore = state.getResource('ore');
-      final bonus = (ore / 100.0) * 0.05;
-      state.resourceModifiers['gold_income'] =
-          (state.resourceModifiers['gold_income'] ?? 1.0) * (1 + bonus);
-    },
-    "tap_power_15_percent": (state) {
-      state.tapPower *= 1.15;
-    },
-    "auto_tap_boost_25": (state) {
-      state.resourceModifiers['auto_tap'] =
-          (state.resourceModifiers['auto_tap'] ?? 1.0) * 1.25;
-    },
-    "output_boost_if_auto": (state) {
-      if ((state.resourceModifiers['auto_tap'] ?? 0.0) > 0) {
-        state.resourceModifiers['global_output'] =
-            (state.resourceModifiers['global_output'] ?? 1.0) * 1.2;
-      }
-=======
     "undead_skill_5": (state) {
       // Eternal March: no population cap
       state.setMax('population', double.infinity);
->>>>>>> Stashed changes
     },
     // 🧝 ELF SKILLS
 
@@ -317,13 +204,6 @@ class SkillManager {
     },
   };
 
-<<<<<<< Updated upstream
-  static void _mult(GameState state, String key, double multiplier) {
-    state.resourceModifiers[key] =
-        (state.resourceModifiers[key] ?? 1.0) * multiplier;
-  }
-=======
->>>>>>> Stashed changes
 
   /// Load multiple skill lists from asset paths
   Future<void> loadFactionSkills(List<String> factionPaths) async {

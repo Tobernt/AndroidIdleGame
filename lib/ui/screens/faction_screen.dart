@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../features/factions/faction_service.dart';
-<<<<<<< Updated upstream
-import '../../features/prestige/prestige_service.dart';
-import '../../features/achievements/achievement_service.dart';
-=======
->>>>>>> Stashed changes
 import 'hero_screen.dart';
 
 class FactionScreen extends StatefulWidget {
@@ -12,17 +7,11 @@ class FactionScreen extends StatefulWidget {
   final VoidCallback? onConfirm;
   final bool hideBack;
 
-  // Add optional services to enable debug unlocking
-  final PrestigeService? prestigeService;
-  final AchievementService? achievementService;
-
   const FactionScreen({
     super.key,
     required this.manager,
     this.onConfirm,
     this.hideBack = false,
-    this.prestigeService,
-    this.achievementService,
   });
 
   @override
@@ -126,23 +115,22 @@ class _FactionScreenState extends State<FactionScreen> {
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  await Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const HeroScreen(),
                     ),
                   );
-                  widget.onConfirm?.call();
+
+                  if (mounted && result == true) {
+                    Navigator.pop(context, true); // tell HomeScreen we're done
+                  }
                 },
                 icon: const Icon(Icons.arrow_forward),
-<<<<<<< Updated upstream
-                label: const Text("Proceed", style: TextStyle(fontSize: 18)),
-=======
                 label: const Text(
                   "Proceed",
                   style: TextStyle(fontSize: 18),
                 ),
->>>>>>> Stashed changes
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.black,
@@ -150,30 +138,8 @@ class _FactionScreenState extends State<FactionScreen> {
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: TextButton(
-              onPressed: () {
-                debugUnlockEverything();
-                setState(() {});
-              },
-              child: const Text(
-                "Debug: Unlock All",
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ),
         ],
       ),
     );
-  }
-
-  void debugUnlockEverything() {
-    widget.manager.unlockAllFactions();
-
-    widget.achievementService?.unlockAllAchievements();
-    widget.prestigeService?.maxAllSkills();
-
-    debugPrint("🧪 Debug: All factions, achievements, and prestige skills unlocked.");
   }
 }

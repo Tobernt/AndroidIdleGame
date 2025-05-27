@@ -1,7 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:big_decimal/big_decimal.dart';
-import 'dart:math';
 import '../../core/game_manager.dart';
 import 'game_screen.dart';
 import 'faction_screen.dart';
@@ -12,19 +10,6 @@ class PrestigeScreen extends StatelessWidget {
   final GameManager gameManager;
 
   const PrestigeScreen({super.key, required this.gameManager});
-
-  String formatBigDecimal(BigDecimal value) {
-    if (value.intVal == BigInt.zero) return '0';
-
-    final doubleVal = value.toDouble().abs();
-    final exponent = log(doubleVal) ~/ log(10);
-    if (exponent >= 3) {
-      final base = doubleVal / pow(10, exponent);
-      return '${base.toStringAsFixed(2)}e$exponent';
-    } else {
-      return value.toPlainString();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +37,7 @@ class PrestigeScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               Text(
-<<<<<<< Updated upstream
-                '🪙 Current Lifetime Gold: ${formatBigDecimal(BigDecimal.parse(prestige.lifetimeGold.toStringAsFixed(0)))}',
-=======
                 '🪙 Lifetime Gold: ${formatNumber(prestige.lifetimeGold)}',
->>>>>>> Stashed changes
                 style: const TextStyle(color: Colors.amber, fontSize: 20),
               ),
               const SizedBox(height: 8),
@@ -84,16 +65,9 @@ class PrestigeScreen extends StatelessWidget {
                   style: const TextStyle(color: Colors.amberAccent, fontSize: 16)),
               const SizedBox(height: 8),
               ...state.lifetimeResources.entries.map((e) {
-<<<<<<< Updated upstream
-                final value = BigDecimal.parse(e.value.toStringAsFixed(0));
-                final label = '${e.key[0].toUpperCase()}${e.key.substring(1)}';
-                return Text(
-                  '$label: ${formatBigDecimal(value)}',
-=======
                 final label = '${e.key[0].toUpperCase()}${e.key.substring(1)}';
                 return Text(
                   '$label: ${formatNumber(e.value)}',
->>>>>>> Stashed changes
                   style: const TextStyle(color: Colors.white),
                 );
               }),

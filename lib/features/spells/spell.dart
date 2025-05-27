@@ -5,11 +5,7 @@ typedef SpellEffect = void Function(GameState);
 class Spell {
   final String id;
   final String name;
-<<<<<<< Updated upstream
-  final String description; // ✅ Add this line
-=======
   final String description;
->>>>>>> Stashed changes
   final Duration cooldown;
   final SpellEffect effect;
   final Map<String, double> costs;
@@ -18,15 +14,9 @@ class Spell {
   final String faction;
   bool unlocked;
   final Duration? duration;
-<<<<<<< Updated upstream
-  DateTime? _lastCast;
-  bool get isDivineAuraActive =>
-      id == 'human_spell_5' && _lastCast != null && isOnCooldown;
-=======
   DateTime? lastCast;
   bool get isDivineAuraActive =>
       id == 'human_spell_5' && lastCast != null && isOnCooldown;
->>>>>>> Stashed changes
 
   Spell({
     required this.id,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/game_manager.dart';
 import 'faction_screen.dart';
 import 'game_screen.dart';
+import 'dart:async';
 
 class HomeScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -14,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool initialized = false;
-  bool inGameScreen = false;
+  Duration idleDuration = Duration.zero;
 
   @override
   void initState() {
@@ -23,24 +25,37 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeGame() async {
-    if (widget.gameManager.isInitialized) {
-      setState(() => initialized = true);
-    } else {
-      await widget.gameManager.init();
-      setState(() => initialized = true);
+    final prefs = await SharedPreferences.getInstance();
+    final lastActiveStr = prefs.getString('last_active');
+    if (lastActiveStr != null) {
+      final last = DateTime.tryParse(lastActiveStr);
+      if (last != null) {
+        final now = DateTime.now();
+        final diff = now.difference(last);
+        final clamped = diff < Duration.zero
+            ? Duration.zero
+            : (diff > const Duration(hours: 8) ? const Duration(hours: 8) : diff);
+
+        idleDuration = clamped;
+      }
     }
+
+    if (!widget.gameManager.isInitialized) {
+      await widget.gameManager.init();
+    }
+
+    setState(() => initialized = true);
   }
 
-  void _enterGameScreen() {
-    setState(() => inGameScreen = true);
+  void _saveLastActiveTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('last_active', DateTime.now().toIso8601String());
   }
 
-  void restartGame() {
-    widget.gameManager.init();
-    setState(() {
-      inGameScreen = true;
-      initialized = true;
-    });
+  @override
+  void dispose() {
+    _saveLastActiveTime();
+    super.dispose();
   }
 
   @override
@@ -48,24 +63,99 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!initialized) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: Colors.amber)),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Idle Realms',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
+              ),
+              SizedBox(height: 24),
+              CircularProgressIndicator(color: Colors.amber),
+            ],
+          ),
+        ),
       );
     }
 
-    if (inGameScreen) {
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {},
-        child: GameScreen(gameManager: widget.gameManager),
-      );
-    }
+    final idleText = idleDuration.inSeconds > 0
+        ? 'Welcome back!\nYou were away for ${idleDuration.inHours}h '
+        '${idleDuration.inMinutes % 60}m ${idleDuration.inSeconds % 60}s.'
+        : 'Welcome to Idle Realms!';
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: FactionScreen(
-        manager: widget.gameManager.factionManager,
-        onConfirm: _enterGameScreen,
-        hideBack: true,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Idle Realms',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                idleText,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () async {
+                  final hasFaction = widget.gameManager.hasSelectedFaction;
+
+                  if (hasFaction) {
+                    // Already selected, go directly to game screen
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GameScreen(gameManager: widget.gameManager),
+                      ),
+                    );
+                  } else {
+                    // Let user select faction, then continue from HeroScreen to GameScreen
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FactionScreen(
+                          manager: widget.gameManager.factionManager,
+                          hideBack: true,
+                        ),
+                      ),
+                    );
+
+                    if (mounted && result == true) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => GameScreen(gameManager: widget.gameManager),
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16, horizontal: 32),
+                ),
+                child: const Text('Enter Game'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

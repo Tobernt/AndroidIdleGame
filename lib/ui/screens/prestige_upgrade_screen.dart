@@ -70,15 +70,8 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                 max: PrestigeService.maxTotalSkillPoints -
                     prestige.totalSkillPoints +
                     prestige.extraSkillPointsBought,
-<<<<<<< Updated upstream
-                onTap: () {
-                  final success = prestige.buyExtraSkillPoint();
-                  if (success) setState(() {});
-                },
-=======
                 cost: prestige.costForNextSkillPoint().toDouble(),
                 onBuy: prestige.buyExtraSkillPoint,
->>>>>>> Stashed changes
               ),
               const Spacer(),
               ElevatedButton(

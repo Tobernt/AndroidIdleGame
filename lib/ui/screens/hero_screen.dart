@@ -41,10 +41,13 @@ class _HeroScreenState extends State<HeroScreen> {
     final unlocked = meta['unlocked_heroes'] as List<String>? ?? [];
     heroService.loadUnlockedFromMeta(unlocked);
 
+    if (!mounted) return;
+
     if (heroService.unlockedHeroes.isEmpty) {
       _shouldSkip = true;
-      // Skip to next screen immediately
-      Future.microtask(() => Navigator.pop(context));
+      Future.microtask(() {
+        if (mounted) Navigator.pop(context, true);
+      });
     } else {
       setState(() => _loading = false);
     }
@@ -133,7 +136,7 @@ class _HeroScreenState extends State<HeroScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pop(context);
+                    if (mounted) Navigator.pop(context, true);
                   },
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text("Continue"),

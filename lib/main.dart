@@ -4,27 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'core/game_state.dart';
 import 'core/game_manager.dart';
-<<<<<<< Updated upstream
-import 'ui/screens/home_screen.dart'; // Use HomeScreen if you have navigation
-import 'package:provider/provider.dart'; // Ensure this is at the top
-=======
 import 'ui/screens/home_screen.dart';
->>>>>>> Stashed changes
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final gameManager = GameManager();
 
-  // Load saved game state and simulate idle gain
-  await _loadGameWithIdleCatchUp(gameManager);
+  // Load from storage if available
+  final loaded = await _loadGameWithIdleCatchUp(gameManager);
 
-  await gameManager.init();
-  runApp(MyApp(gameManager: gameManager));
+  // If no saved state, initialize fresh
+  if (!loaded) {
+    await gameManager.init();
+  }
 
-  // Save on app pause or exit
+  // Save on app pause/detach
   SystemChannels.lifecycle.setMessageHandler((msg) async {
     if (msg == AppLifecycleState.paused.toString() ||
         msg == AppLifecycleState.detached.toString()) {
@@ -32,34 +30,43 @@ void main() async {
     }
     return null;
   });
+
+  runApp(MyApp(gameManager: gameManager));
 }
 
-/// Load saved state and simulate idle progress
-Future<void> _loadGameWithIdleCatchUp(GameManager gameManager) async {
+/// Load saved state and simulate idle resources
+Future<bool> _loadGameWithIdleCatchUp(GameManager gm) async {
   final prefs = await SharedPreferences.getInstance();
   final savedJson = prefs.getString('game_state');
   final lastActiveStr = prefs.getString('last_active');
 
   if (savedJson != null) {
-    gameManager.state = GameState.fromJson(json.decode(savedJson));
-    if (lastActiveStr != null) {
-      final last = DateTime.tryParse(lastActiveStr);
-      final now = DateTime.now();
-      if (last != null) {
-        final seconds = now.difference(last).inSeconds.clamp(0, 8 * 3600);
-        gameManager.tickResources(seconds.toDouble());
+    try {
+      gm.state = GameState.fromJson(json.decode(savedJson));
+      await gm.init(fromLoad: true); // skip new state creation
+      if (lastActiveStr != null) {
+        final last = DateTime.tryParse(lastActiveStr);
+        if (last != null) {
+          final seconds = DateTime.now().difference(last).inSeconds.clamp(0, 8 * 3600);
+          gm.tickResources(seconds.toDouble());
+        }
       }
+      return true;
+    } catch (e) {
+      debugPrint('❌ Failed to load save: $e');
     }
   }
+  return false;
 }
 
 /// Save current state and last active time
-Future<void> _saveGame(GameManager gameManager) async {
+Future<void> _saveGame(GameManager gm) async {
   final prefs = await SharedPreferences.getInstance();
-  prefs.setString('game_state', json.encode(gameManager.state.toJson()));
+  prefs.setString('game_state', json.encode(gm.state.toJson()));
   prefs.setString('last_active', DateTime.now().toIso8601String());
 }
 
+/// App Root
 class MyApp extends StatelessWidget {
   final GameManager gameManager;
 
@@ -79,25 +86,25 @@ class MyApp extends StatelessWidget {
   }
 }
 
-String formatNumber(double value, {int precision = 2}) {
+/// Format numbers like 1.2AB, 3.5K, etc.
+String formatNumber(double value, {int precision = 1}) {
   if (value == 0) return '0';
 
   final abs = value.abs();
   final suffixes = _generateSuffixes();
-  final tier = (log(abs) / log(1000)).floor();
+  final tier = max(0, (log(abs) / log(1000)).floor());
 
   final scaled = value / pow(1000, tier);
   final fixed = scaled.toStringAsFixed(precision).replaceFirst(RegExp(r'\.?0+$'), '');
+
+  if (tier == 0) return fixed;
+  if (tier == 1) return '${fixed}K';
+
   final index = (tier - 2).clamp(0, suffixes.length - 1);
-
-  if (tier < 2) {
-    return '$fixed${tier == 1 ? 'K' : ''}';
-  }
-
   return '$fixed${suffixes[index]}';
 }
 
-/// Generate aa, ab, ..., zz (max 26*26 = 676)
+/// aa–zz suffixes
 List<String> _generateSuffixes() {
   const chars = 'abcdefghijklmnopqrstuvwxyz';
   final suffixes = <String>[];
