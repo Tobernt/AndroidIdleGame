@@ -20,6 +20,7 @@ class FactionScreen extends StatefulWidget {
 
 class _FactionScreenState extends State<FactionScreen> {
   @override
+
   Widget build(BuildContext context) {
     final factions = widget.manager.allFactions.where((f) => f.unlocked).toList();
     final hasSelected = widget.manager.selected.isNotEmpty;

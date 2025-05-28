@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeGame() async {
     final prefs = await SharedPreferences.getInstance();
     final lastActiveStr = prefs.getString('last_active');
+
     if (lastActiveStr != null) {
       final last = DateTime.tryParse(lastActiveStr);
       if (last != null) {
@@ -34,8 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
         final diff = now.difference(last);
         final clamped = diff < Duration.zero
             ? Duration.zero
-            : (diff > const Duration(hours: 8) ? const Duration(hours: 8) : diff);
-
+            : (diff > const Duration(hours: 8)
+            ? const Duration(hours: 8)
+            : diff);
         idleDuration = clamped;
       }
     }
@@ -44,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await widget.gameManager.init();
     }
 
+    // ✅ Stay on HomeScreen regardless of faction
     setState(() => initialized = true);
   }
 

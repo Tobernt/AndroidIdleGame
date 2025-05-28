@@ -32,6 +32,7 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     gm = widget.gameManager;
+    gm.isGameplayActive = true;
 
     _initializeResourceSmoothing();
     _startTickLoop();
@@ -109,6 +110,7 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
+    gm.isGameplayActive = false;
     _updateTimer.cancel();
     _smoothTimer.cancel();
     super.dispose();
@@ -152,7 +154,6 @@ class _GameScreenState extends State<GameScreen> {
 
     resources.forEach((id, value) {
       final income = modifiers['${id}_per_sec'] ?? 0.0;
-
       final emoji = _resourceEmoji(id);
       final smoothed = _smoothedValues[id] ?? 0.0;
 
@@ -164,19 +165,23 @@ class _GameScreenState extends State<GameScreen> {
       );
     });
 
-    if (gm.goldBoostSecondsLeft > 0) {
-      final duration = Duration(seconds: gm.goldBoostSecondsLeft.round());
-      final minutes = duration.inMinutes % 60;
-      final hours = duration.inHours;
-      final seconds = duration.inSeconds % 60;
-      final remainingTime = '${hours}h ${minutes}m ${seconds}s';
+    final endStr = gm.state.metaValues['gold_ad_bonus_ends'];
+    if (endStr is String) {
+      final endTime = DateTime.tryParse(endStr);
+      if (endTime != null && endTime.isAfter(DateTime.now())) {
+        final duration = endTime.difference(DateTime.now());
+        final minutes = duration.inMinutes % 60;
+        final hours = duration.inHours;
+        final seconds = duration.inSeconds % 60;
+        final remainingTime = '${hours}h ${minutes}m ${seconds}s';
 
-      rows.add(
-        Text(
-          '⏱️ 2× Gold Boost Active — $remainingTime left',
-          style: const TextStyle(color: Colors.lightGreenAccent),
-        ),
-      );
+        rows.add(
+          Text(
+            '⏱️ 2× Gold Boost Active — $remainingTime left',
+            style: const TextStyle(color: Colors.lightGreenAccent),
+          ),
+        );
+      }
     }
 
     return Container(
@@ -194,8 +199,6 @@ class _GameScreenState extends State<GameScreen> {
     'mana': '💧',
     'ore': '⛏️',
     'population': '🧟',
-    'essence': '✨',
-    'crystals': '🔮',
   }[key] ?? '';
 
   Widget _buildTabContent() {

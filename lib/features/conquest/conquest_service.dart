@@ -71,6 +71,18 @@ class ConquestManager {
     return base * growth.toDouble() * pow(10, conqueredFactions.length + destroyedFactions.length);
   }
 
+  void setConquered(Set<String> ids) {
+    conqueredFactions
+      ..clear()
+      ..addAll(ids);
+  }
+
+  void setDestroyed(Set<String> ids) {
+    destroyedFactions
+      ..clear()
+      ..addAll(ids);
+  }
+
 
   List<String> get conquerableFactions => factionManager.allFactions.where((f) =>
   !f.isSelected &&

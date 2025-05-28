@@ -337,4 +337,13 @@ class SpellService extends ChangeNotifier {
   }
 
   void tickCooldowns() {}
+  void setEquipped(List<String> spellIds) {
+    equippedSpells.clear();
+    for (final id in spellIds) {
+      final match = allSpells.firstWhere((s) => s.id == id,);
+      if (match != null) {
+        equippedSpells.add(match);
+      }
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:androididlegame/core/game_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +16,6 @@ class HeroScreen extends StatefulWidget {
 class _HeroScreenState extends State<HeroScreen> {
   bool _loading = true;
   bool _shouldSkip = false;
-
   @override
   void initState() {
     super.initState();
@@ -24,11 +24,9 @@ class _HeroScreenState extends State<HeroScreen> {
 
   Future<void> _initHeroService() async {
     final heroService = Provider.of<HeroService>(context, listen: false);
-
     final raw = await rootBundle.loadString('assets/data/hero_list.json');
     final List<dynamic> jsonList = json.decode(raw);
     final effectMap = heroService.effectMap;
-
     heroService.clearAll();
     for (var e in jsonList) {
       final id = e['id'];
@@ -66,6 +64,7 @@ class _HeroScreenState extends State<HeroScreen> {
       builder: (context, heroService, _) {
         final visible = heroService.unlockedHeroes;
         final selected = heroService.selectedHeroes;
+
 
         return Scaffold(
           backgroundColor: Colors.black,

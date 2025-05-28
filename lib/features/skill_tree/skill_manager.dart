@@ -13,6 +13,12 @@ class SkillManager {
   final PrestigeService prestigeService;
 
   SkillManager({required this.prestigeService});
+  void clearAll() {
+    for (final skill in allSkills) {
+      skill.unlocked = false;
+      skill.equipped = false;
+    }
+  }
 
   final Map<String, SkillEffect> effectMap = {
     // 🧍 HUMAN SKILLS
@@ -234,6 +240,13 @@ class SkillManager {
       skill.available = false;
       skill.unlocked = false;
       skill.equipped = false;
+    }
+  }
+  List<Skill> get equippedSkills => unlocked.where((s) => s.equipped).toList();
+
+  void setEquipped(List<String> skillIds) {
+    for (final skill in allSkills) {
+      skill.equipped = skillIds.contains(skill.id);
     }
   }
 

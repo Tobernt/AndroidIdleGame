@@ -21,6 +21,19 @@ class BuildingService {
       }
     }
   }
+  Map<String, int> get buildingCounts {
+    final map = <String, int>{};
+    for (final b in buildings) {
+      map[b.id] = b.level;
+    }
+    return map;
+  }
+
+  void setBuildingCounts(Map<String, int> counts) {
+    for (final b in buildings) {
+      b.level = counts[b.id] ?? 0;
+    }
+  }
 
   List<Building> get buildings => List.unmodifiable(_buildings);
 

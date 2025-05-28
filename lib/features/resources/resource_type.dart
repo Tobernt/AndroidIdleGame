@@ -2,8 +2,6 @@ enum ResourceType {
   gold,
   mana,
   ore,
-  crystals,
-  essence,
   population,
   might,
 }

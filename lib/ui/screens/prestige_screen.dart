@@ -14,7 +14,6 @@ class PrestigeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prestige = gameManager.prestigeService;
-    final state = gameManager.state;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -28,16 +27,16 @@ class PrestigeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('🏆 Total Prestiges: ${state.totalPrestiges}',
+              Text('🏆 Total Prestiges: ${gameManager.state.totalPrestiges}',
                   style: const TextStyle(color: Colors.orangeAccent, fontSize: 20)),
-              Text('🎯 Current Run Taps: ${state.currentRunTaps}',
+              Text('🎯 Current Run Taps: ${gameManager.state.currentRunTaps}',
                   style: const TextStyle(color: Colors.lightBlueAccent)),
-              Text('🖱️ Lifetime Taps: ${state.lifetimeTaps}',
+              Text('🖱️ Lifetime Taps: ${gameManager.state.lifetimeTaps}',
                   style: const TextStyle(color: Colors.lightBlueAccent)),
               const SizedBox(height: 12),
 
               Text(
-                '🪙 Lifetime Gold: ${formatNumber(prestige.lifetimeGold)}',
+                '🪙 Current Run Gold: ${formatNumber(prestige.lifetimeGold)}',
                 style: const TextStyle(color: Colors.amber, fontSize: 20),
               ),
               const SizedBox(height: 8),
@@ -64,7 +63,7 @@ class PrestigeScreen extends StatelessWidget {
               Text('📊 Lifetime Resources:',
                   style: const TextStyle(color: Colors.amberAccent, fontSize: 16)),
               const SizedBox(height: 8),
-              ...state.lifetimeResources.entries.map((e) {
+              ...gameManager.state.lifetimeResources.entries.map((e) {
                 final label = '${e.key[0].toUpperCase()}${e.key.substring(1)}';
                 return Text(
                   '$label: ${formatNumber(e.value)}',
@@ -120,11 +119,11 @@ class PrestigeScreen extends StatelessWidget {
 
                   if (!context.mounted || confirmed != true) return;
 
-                  prestige.prestige(state);
+                  prestige.prestige(gameManager.state);
                   gameManager.resetForPrestige();
 
                   gameManager.achievementService.evaluate(
-                    state: state,
+                    state: gameManager.state,
                     lifetimeGold: prestige.preservedLifetimeGold,
                     buildingsOwned: gameManager.buildingService.allOwnedCount,
                     tapCount: gameManager.tapCount,

@@ -29,6 +29,31 @@ class AchievementService {
       ..clear()
       ..addAll(initialData);
   }
+  Set<Achievement> getUnlocked() =>
+      all.where((a) => a.isUnlocked).toSet();
+
+  Set<Achievement> getClaimed() =>
+      all.where((a) => a.isClaimed).toSet();
+
+  void setUnlocked(Set<String> unlockedIds) {
+    for (int i = 0; i < _achievements.length; i++) {
+      final a = _achievements[i];
+      if (unlockedIds.contains(a.id) && !a.isUnlocked) {
+        _achievements[i] = a.copyWith(isUnlocked: true);
+      }
+    }
+  }
+
+
+  void setClaimed(Set<String> claimedIds) {
+    for (int i = 0; i < _achievements.length; i++) {
+      final a = _achievements[i];
+      if (claimedIds.contains(a.id) && !a.isClaimed) {
+        _achievements[i] = a.copyWith(isClaimed: true);
+      }
+    }
+  }
+
 
   void unlock(String id, {bool force = false}) {
     final index = _achievements.indexWhere((a) => a.id == id);
@@ -168,8 +193,7 @@ class AchievementService {
           break;
 
         default:
-          debugPrint("\u{26A0}\u{FE0F} Unknown requirement type: \${r.type}");
-          break;
+         break;
       }
 
       final heroAchievements = [

@@ -36,6 +36,7 @@ class GameManager with ChangeNotifier {
   late ConquestManager conquestManager;
   final List<DateTime> _tapTimestamps = [];
   double _autoTapAccumulator = 0.0;
+  bool isGameplayActive = false;
 
   bool _initialized = false;
   bool get isInitialized => _initialized;
@@ -48,14 +49,11 @@ class GameManager with ChangeNotifier {
     if (_initialized) return;
 
     if (!fromLoad) {
+      // Only replace if state is actually uninitialized
       state = GameState();
       state.addResource('gold', 0);
       state.addResource('mana', 0);
     }
-
-    state = GameState();
-    state.addResource('gold', 0);
-    state.addResource('mana', 0);
 
     // Core managers
     prestigeService = PrestigeService();
@@ -129,6 +127,23 @@ class GameManager with ChangeNotifier {
     final unlocked = state.metaValues['unlocked_heroes'] as List<String>? ?? [];
     heroService.attachState(state);
     heroService.loadUnlockedFromMeta(unlocked);
+// ✅ Restore gold ad modifier if still active
+    final adEndStr = state.metaValues['gold_ad_bonus_ends'];
+    if (adEndStr is String) {
+      final adEndTime = DateTime.tryParse(adEndStr);
+      if (adEndTime != null) {
+        final now = DateTime.now();
+        if (adEndTime.isAfter(now)) {
+          modifierManager.addModifier(
+            Modifier(
+              id: 'gold',
+              multiplier: 2.0,
+              duration: adEndTime.difference(now),
+            ),
+          );
+        }
+      }
+    }
 
     startLoop();
 
@@ -315,10 +330,10 @@ class GameManager with ChangeNotifier {
       final now = DateTime.now();
       final delta = now.difference(_lastUpdate!).inMilliseconds / 1000.0;
       _lastUpdate = now;
-
       modifierManager.cleanup();
       applyFactionBonuses();
       tickResources(delta);
+      saveGame();
 
       // ✅ Auto-taps trigger actual taps
       final autoTapsPerSecond = buildingService.getAutomatedTapsPerSecond();
@@ -338,44 +353,77 @@ class GameManager with ChangeNotifier {
   }
 
   void resetForPrestige() {
+    final old = state;
 
-    final preservedTotalPrestiges = state.totalPrestiges;
-    final preservedLifetimeTaps = state.lifetimeTaps;
-    final preservedLifetimeResources = Map<String, double>.from(state.lifetimeResources);
-    final preservedConquestUnlocked = state.conquestUnlocked;
-    final preservedConquestIntro = state.conquestIntroShown;
-    final unlockedConquest = state.conquestUnlocked;
-    prestigeService.preservedLifetimeGold = prestigeService.lifetimeGold;
-    state.totalPrestiges = preservedTotalPrestiges;
-    state.conquestUnlocked = preservedConquestUnlocked;
-    state.lifetimeTaps = preservedLifetimeTaps;
-    state.lifetimeResources.addAll(preservedLifetimeResources);
-    achievementService.applyClaimedRewards(state);
-    state.conquestUnlocked = unlockedConquest; // restore conquestUnlocked
-    state.conquestIntroShown = preservedConquestIntro;
-    state.resourceAmounts.updateAll((key, _) => 0.0);
-    state.resourceModifiers.clear();
-    state.resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
-    state.tapPower = 1.0;
-    state.currentRunTaps = 0;
-    prestigeService.lifetimeGold = 0;
-    resourceManager.current.updateAll((key, _) => 0.0);
-    resourceService = ResourceService(resourceManager);
-    state.conqueredFactions.clear();
-    conquestManager.reset();  // clears ConquestManager.conqueredFactions and state
+    // ✅ Apply remaining gold to lifetimeGold before wipe
+    final goldBeforeReset = old.getResource('gold');
+    prestigeService.applyGold(goldBeforeReset);
+
+    // ✅ Preserve lifetimeGold
+    final preservedLifetimeGold = prestigeService.lifetimeGold;
+
+    final newState = GameState();
+    state = newState;
+
+    // ✅ Restore preserved lifetimeGold
+    prestigeService.lifetimeGold = preservedLifetimeGold;
+
+    // Preserve meta progression
+    state.totalPrestiges = old.totalPrestiges;
+    state.lifetimeTaps = old.lifetimeTaps;
+    state.currentRunTaps = old.currentRunTaps;
+    state.prestigePoints = old.prestigePoints;
+    state.conquestUnlocked = old.conquestUnlocked;
+    state.conquestIntroShown = old.conquestIntroShown;
+
+    state.lifetimeResources
+      ..clear()
+      ..addAll(old.lifetimeResources);
+
+    state.achievementsUnlocked
+      ..clear()
+      ..addAll(old.achievementsUnlocked);
+
+    state.achievementsClaimed
+      ..clear()
+      ..addAll(old.achievementsClaimed);
+
+    state.prestigeSkills
+      ..clear()
+      ..addAll(old.prestigeSkills);
+
+    state.metaValues
+      ..clear()
+      ..addAll(old.metaValues);
+
+    state.conqueredFactions
+      ..clear()
+      ..addAll(old.conqueredFactions);
+
+    state.destroyedFactions
+      ..clear()
+      ..addAll(old.destroyedFactions);
+
+    // Reset services
+    modifierManager = ModifierManager();
     buildingService.reset();
     spellService.equippedSpells.clear();
     heroService.clearSelectedHeroes();
-
-    for (final skill in skillManager.allSkills) {
-      skill.unlocked = false;
-      skill.equipped = false;
-    }
-
+    skillManager.unlocked.forEach((s) {
+      s.unlocked = false;
+      s.equipped = false;
+    });
     conquestManager.reset();
     factionManager.clearSelection();
+
+    // Rebind
+    heroService.attachState(state);
+    heroService.loadUnlockedFromMeta(
+      state.metaValues['unlocked_heroes'] as List<String>? ?? [],
+    );
+
+    applyFactionBonuses();
     notifyListeners();
-    checkForPassiveUnlocks();
   }
 
   void tapGold({bool isAuto = false, double multiplier = 1.0}) {
@@ -394,7 +442,7 @@ class GameManager with ChangeNotifier {
 
     final globalOutput =
         (state.resourceModifiers['global_output'] ?? 1.0) *
-        (state.resourceModifiers['global_from_buildings'] ?? 1.0);
+            (state.resourceModifiers['global_from_buildings'] ?? 1.0);
     final tapBase = state.tapPower * goldMultiplier * globalOutput * multiplier;
 
     // Base tap gold
@@ -475,6 +523,86 @@ class GameManager with ChangeNotifier {
       tapCount: tapCount,
     );
   }
+  void prepareStateForSave() {
+    final state = this.state;
+    if (factionManager.selected.isNotEmpty) {
+      state.metaValues['selected_faction_id'] = factionManager.selected.first.id;
+    }
+    state.metaValues['lifetime_gold'] = prestigeService.lifetimeGold;
+    // ✅ Spells
+    state.equippedSpells
+      ..clear()
+      ..addAll(spellService.equippedSpells.map((s) => s.id));
+
+    // ✅ Skills
+    state.equippedSkills
+      ..clear()
+      ..addAll(skillManager.equippedSkills.map((s) => s.id));
+
+    // ✅ Prestige
+    state.prestigeSkills
+      ..clear()
+      ..addAll(prestigeService.getAllocatedSkills());
+    state.prestigePoints = prestigeService.availablePoints;
+
+    // ✅ Buildings
+    state.buildingCounts
+      ..clear()
+      ..addAll(buildingService.buildingCounts); // Map<String, int>
+
+    // ✅ Achievements
+    state.achievementsUnlocked
+      ..clear()
+      ..addAll(achievementService.getUnlocked().map((a) => a.id));
+    state.achievementsClaimed
+      ..clear()
+      ..addAll(achievementService.getClaimed().map((a) => a.id));
+
+    // ✅ Factions
+    state.conqueredFactions
+      ..clear()
+      ..addAll(conquestManager.conqueredFactions);
+    state.destroyedFactions
+      ..clear()
+      ..addAll(conquestManager.destroyedFactions);
+  }
+
+  void restoreFromState() {
+    final state = this.state;
+    final savedGold = state.metaValues['lifetime_gold'];
+    if (savedGold is num) {
+      prestigeService.lifetimeGold = savedGold.toDouble();
+    }
+    // ✅ Spells
+    spellService.setEquipped(state.equippedSpells);
+
+    // ✅ Skills
+    skillManager.setEquipped(state.equippedSkills);
+    final selectedId = state.metaValues['selected_faction_id'] as String?;
+    if (selectedId != null) {
+      final match = factionManager.allFactions.firstWhere(
+            (f) => f.id == selectedId,
+      );
+      if (match != null) {
+        factionManager.selectOnly(match.id); // ✅
+      }
+    }
+
+    // ✅ Prestige
+    prestigeService.setAllocated(state.prestigeSkills);
+    prestigeService.setAvailablePoints(state.prestigePoints);
+
+    // ✅ Buildings
+    buildingService.setBuildingCounts(state.buildingCounts);
+
+    // ✅ Achievements
+    achievementService.setUnlocked(state.achievementsUnlocked);
+    achievementService.setClaimed(state.achievementsClaimed);
+
+    // ✅ Factions
+    conquestManager.setConquered(state.conqueredFactions);
+    conquestManager.setDestroyed(state.destroyedFactions);
+  }
 
   void buyBuilding(Building building) {
     buildingService.buy(building, state, modifierManager);
@@ -484,13 +612,27 @@ class GameManager with ChangeNotifier {
   }
 
   void addGoldAdModifier() {
+    final now = DateTime.now();
+    final endTimeKey = 'gold_ad_bonus_ends';
+
+    // Restore or extend duration
+    final existingEndStr = state.metaValues[endTimeKey] as String?;
+    DateTime existingEnd = existingEndStr != null ? DateTime.tryParse(existingEndStr) ?? now : now;
+    if (existingEnd.isBefore(now)) existingEnd = now;
+
+    final newEnd = existingEnd.add(const Duration(hours: 4));
+    state.metaValues[endTimeKey] = newEnd.toIso8601String();
+
+    final duration = newEnd.difference(now);
+
     modifierManager.addModifier(
       Modifier(
         id: 'gold',
         multiplier: 2.0,
-        duration: const Duration(hours: 4),
+        duration: duration,
       ),
     );
+
     notifyListeners();
   }
 
@@ -511,6 +653,7 @@ class GameManager with ChangeNotifier {
     super.dispose();
   }
   Future<void> saveGame() async {
+    prepareStateForSave();
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('game_state', json.encode(state.toJson()));
     prefs.setString('last_active', DateTime.now().toIso8601String());

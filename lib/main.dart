@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'features/modifiers/modifier.dart';
 import 'core/game_state.dart';
 import 'core/game_manager.dart';
 import 'ui/screens/home_screen.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   final gameManager = GameManager();
@@ -43,12 +44,29 @@ Future<bool> _loadGameWithIdleCatchUp(GameManager gm) async {
   if (savedJson != null) {
     try {
       gm.state = GameState.fromJson(json.decode(savedJson));
-      await gm.init(fromLoad: true); // skip new state creation
+      await gm.init(fromLoad: true); // initialize all services
+      gm.restoreFromState();         // now safe to restore from state
       if (lastActiveStr != null) {
         final last = DateTime.tryParse(lastActiveStr);
         if (last != null) {
           final seconds = DateTime.now().difference(last).inSeconds.clamp(0, 8 * 3600);
           gm.tickResources(seconds.toDouble());
+          if (gm.state.adGoldBoostActive) {
+            gm.state.adGoldBoostRemainingSeconds -= seconds;
+            if (gm.state.adGoldBoostRemainingSeconds <= 0) {
+              gm.state.adGoldBoostActive = false;
+              gm.state.adGoldBoostRemainingSeconds = 0;
+            } else {
+              gm.modifierManager.addModifier(
+                Modifier(
+                  id: 'gold',
+                  multiplier: 2.0,
+                  duration: Duration(seconds: gm.state.adGoldBoostRemainingSeconds),
+                ),
+              );
+            }
+          }
+          debugPrint("✅ Game state loaded with ${gm.state} gold");
         }
       }
       return true;
@@ -59,12 +77,20 @@ Future<bool> _loadGameWithIdleCatchUp(GameManager gm) async {
   return false;
 }
 
-/// Save current state and last active time
 Future<void> _saveGame(GameManager gm) async {
+  if (!gm.isGameplayActive) {
+    debugPrint("⚠️ Not saving — game is not in active state.");
+    return;
+  }
+
+  gm.prepareStateForSave();
   final prefs = await SharedPreferences.getInstance();
   prefs.setString('game_state', json.encode(gm.state.toJson()));
   prefs.setString('last_active', DateTime.now().toIso8601String());
+  debugPrint("✅ Game saved to SharedPreferences");
 }
+
+
 
 /// App Root
 class MyApp extends StatelessWidget {

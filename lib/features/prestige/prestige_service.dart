@@ -41,6 +41,20 @@ class PrestigeService {
 
   int get maxEquippedSpells => 1 + _spellSlotUpgrades;
   int get maxFactions => 1 + _factionSlotUpgrades;
+  final Set<String> allocatedSkillIds = {};
+  int availablePoints = 0;
+
+  Set<String> getAllocatedSkills() => allocatedSkillIds;
+
+  void setAllocated(Set<String> ids) {
+    allocatedSkillIds
+      ..clear()
+      ..addAll(ids);
+  }
+
+  void setAvailablePoints(int points) {
+    availablePoints = points;
+  }
 
   void applyGold(double amount) {
     lifetimeGold += amount;
