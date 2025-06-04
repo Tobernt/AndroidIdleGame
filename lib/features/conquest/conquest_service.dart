@@ -30,11 +30,11 @@ class ConquestManager {
     conqueredFactions.addAll(state.conqueredFactions);
 
     final rawTime = state.metaValues['run_start_time'];
-    runStartTime = rawTime is String
-        ? DateTime.tryParse(rawTime) ?? DateTime.now()
-        : DateTime.now();
-
-    state.metaValues['run_start_time'] = runStartTime.toIso8601String();
+    if (rawTime is String) {
+      runStartTime = DateTime.tryParse(rawTime) ?? DateTime.now();
+    } else {
+      runStartTime = DateTime.now();
+    }
   }
 
   double get currentMight {
@@ -43,10 +43,8 @@ class ConquestManager {
       'mana',
       'ore',
       'population',
-      'essence',
-      'crystals',
     ].map((r) => state.getResource(r)).reduce((a, b) => a + b);
-    return pow(sum / 6, 1.25).toDouble();
+    return pow(sum / 4, 1.25).toDouble();
   }
 
   double mightRequiredForFaction(String factionId) {
@@ -54,7 +52,11 @@ class ConquestManager {
     final base = 1000 + index * 750;
 
     final elapsed = DateTime.now().difference(runStartTime);
-    final rounds = elapsed.inSeconds / (8 * 3.6); // Time-based scaling
+    final idleSeconds = (state.metaValues['idle_seconds'] as int?) ?? 0;
+    final totalSeconds = elapsed.inSeconds + idleSeconds;
+
+// Time-based scaling factor — 1 round = 8 seconds * 3.6
+    final rounds = totalSeconds / (8 * 3.6);
 
     final remaining = factionManager.allFactions.where((f) =>
     !f.isSelected &&
@@ -65,8 +67,8 @@ class ConquestManager {
     final difficultyTier = index + 1; // Tier starts from 1, 2, ..., N
 
     // 👇 Per-faction exponential base increases with tier
-    final dynamicGrowthRate = 10 + (difficultyTier * 0.05); // e.g., 1.20, 1.25, 1.30, etc.
-    final growth = min(10.0, pow(dynamicGrowthRate, rounds)); // Optional cap
+    final dynamicGrowthRate = 100 + (difficultyTier * 0.05); // e.g., 1.20, 1.25, 1.30, etc.
+    final growth = min(1000000.0, pow(dynamicGrowthRate, rounds)); // Optional cap
 
     return base * growth.toDouble() * pow(10, conqueredFactions.length + destroyedFactions.length);
   }

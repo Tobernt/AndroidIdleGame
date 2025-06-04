@@ -29,6 +29,7 @@ class PrestigeService {
   static const int maxTotalSkillPoints = 15;
 
   double get prestigeMultiplier => _prestigedMultiplier;
+  set prestigeMultiplier(double value) => _prestigedMultiplier = value;
 
   int get _baseSkillPoints =>
       min(maxTotalSkillPoints, (log(1 + lifetimeGold) / 15).floor());
@@ -61,8 +62,6 @@ class PrestigeService {
   }
 
   void prestige(GameState state) {
-    prestigeLevel++;
-    state.totalPrestiges++;
 
     // 🎯 1 point per 100k active gold
     final earnedPoints = (state.getResource('gold') / 100000).floor();

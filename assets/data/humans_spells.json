@@ -15,7 +15,7 @@
     "id": "human_spell_2",
     "faction": "humans",
     "name": "Royal Decree",
-    "description": "Reduces all building gold costs by 50% for 10 seconds.",
+    "description": "Reduces all building costs by 50% for 10 seconds.",
     "cooldown": 120,
     "duration": 10,
     "costs": { "mana": 20 },

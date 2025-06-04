@@ -1,10 +1,10 @@
 class AchievementRequirement {
-  final String type; // e.g. 'gold_total', 'tap_gold', etc.
+  final String type;
   final double amount;
   final String? extra;
-
   final String? selectedFaction;
   final List<String> conqueredFactions;
+  final int? durationSeconds;
 
   const AchievementRequirement({
     required this.type,
@@ -12,6 +12,7 @@ class AchievementRequirement {
     this.extra,
     this.selectedFaction,
     this.conqueredFactions = const [],
+    this.durationSeconds,
   });
 
   factory AchievementRequirement.fromJson(Map<String, dynamic> json) {
@@ -24,6 +25,7 @@ class AchievementRequirement {
           ?.map((e) => e as String)
           .toList() ??
           [],
+      durationSeconds: json['durationSeconds'] as int?,
     );
   }
 
@@ -34,6 +36,7 @@ class AchievementRequirement {
     if (selectedFaction != null) 'selectedFaction': selectedFaction,
     if (conqueredFactions.isNotEmpty)
       'conqueredFactions': conqueredFactions,
+    if (durationSeconds != null) 'durationSeconds': durationSeconds,
   };
 }
 
@@ -67,7 +70,7 @@ class Achievement {
   final bool isUnlocked;
   final bool isClaimed;
   final AchievementReward? reward;
-  final AchievementRequirement? requirement;
+  final List<AchievementRequirement> requirements;
 
   const Achievement({
     required this.id,
@@ -77,14 +80,14 @@ class Achievement {
     this.isUnlocked = false,
     this.isClaimed = false,
     this.reward,
-    this.requirement,
+    this.requirements = const [],
   });
 
   Achievement copyWith({
     bool? isUnlocked,
     bool? isClaimed,
     AchievementReward? reward,
-    AchievementRequirement? requirement,
+    List<AchievementRequirement>? requirements,
   }) {
     return Achievement(
       id: id,
@@ -94,11 +97,14 @@ class Achievement {
       isUnlocked: isUnlocked ?? this.isUnlocked,
       isClaimed: isClaimed ?? this.isClaimed,
       reward: reward ?? this.reward,
-      requirement: requirement ?? this.requirement,
+      requirements: requirements ?? this.requirements,
     );
   }
 
   factory Achievement.fromJson(Map<String, dynamic> json) {
+    final rawRequirements = json['requirements'] ??
+        (json['requirement'] != null ? [json['requirement']] : []);
+
     return Achievement(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
@@ -107,11 +113,13 @@ class Achievement {
       isUnlocked: json['isUnlocked'] ?? false,
       isClaimed: json['isClaimed'] ?? false,
       reward: json['reward'] != null
-          ? AchievementReward.fromJson(Map<String, dynamic>.from(json['reward']))
+          ? AchievementReward.fromJson(
+          Map<String, dynamic>.from(json['reward']))
           : null,
-      requirement: json['requirement'] != null
-          ? AchievementRequirement.fromJson(Map<String, dynamic>.from(json['requirement']))
-          : null,
+      requirements: (rawRequirements as List)
+          .map((r) => AchievementRequirement.fromJson(
+          Map<String, dynamic>.from(r)))
+          .toList(),
     );
   }
 
@@ -123,6 +131,7 @@ class Achievement {
     'isUnlocked': isUnlocked,
     'isClaimed': isClaimed,
     if (reward != null) 'reward': reward!.toJson(),
-    if (requirement != null) 'requirement': requirement!.toJson(),
+    if (requirements.isNotEmpty)
+      'requirements': requirements.map((r) => r.toJson()).toList(),
   };
 }

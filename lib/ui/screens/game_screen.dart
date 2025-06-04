@@ -177,7 +177,7 @@ class _GameScreenState extends State<GameScreen> {
 
         rows.add(
           Text(
-            '⏱️ 2× Gold Boost Active — $remainingTime left',
+            '⏱️ 2× Boost Active — $remainingTime left',
             style: const TextStyle(color: Colors.lightGreenAccent),
           ),
         );
@@ -379,25 +379,49 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildBottomNav() {
+    final hasUnclaimedAchievements = gm.achievementService.all.any(
+          (a) => a.isUnlocked && !a.isClaimed,
+    );
+
     final tabs = <BottomNavigationBarItem>[
       const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Main"),
       const BottomNavigationBarItem(icon: Icon(Icons.business), label: "Buildings"),
       const BottomNavigationBarItem(icon: Icon(Icons.psychology), label: "Skills"),
       const BottomNavigationBarItem(icon: Icon(Icons.auto_awesome), label: "Spells"),
       const BottomNavigationBarItem(icon: Icon(Icons.stars), label: "Prestige"),
-      const BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: "Achievements"),
-      const BottomNavigationBarItem(icon: Icon(Icons.military_tech), label: "Conquest"), // Always shown
+
+      BottomNavigationBarItem(
+        icon: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(Icons.emoji_events),
+            if (hasUnclaimedAchievements)
+              const Positioned(
+                top: -6,
+                right: -4,
+                child: Text(
+                  '!',
+                  style: TextStyle(
+                    color: Colors.yellow,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        label: "Achievements",
+      ),
+
+      const BottomNavigationBarItem(icon: Icon(Icons.military_tech), label: "Conquest"),
     ];
 
     return BottomNavigationBar(
       currentIndex: _selectedTab,
       onTap: (i) {
-        // 🔒 Intercept Conquest Tab (index 6)
         if (i == 6) {
-
           final conquestAchievement = gm.achievementService.all
               .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
-
           final isClaimed = conquestAchievement?.isClaimed ?? false;
 
           if (!isClaimed) {
@@ -418,26 +442,6 @@ class _GameScreenState extends State<GameScreen> {
             );
             return;
           }
-        }
-
-        // 🔓 Intercept Heroes Tab (index 7)
-        if (i == 7 && !gm.state.heroesUnlocked) {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text('🔒 Heroes Locked'),
-              content: const Text(
-                'Unlock the “Chosen Champions” achievement to access Heroes.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-          return;
         }
 
         setState(() => _selectedTab = i);

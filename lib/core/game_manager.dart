@@ -45,7 +45,7 @@ class GameManager with ChangeNotifier {
   Timer? _loopTimer;
   DateTime? _lastUpdate;
   int tapCount = 0;
-  Future<void> init({bool fromLoad = false}) async {
+  Future<void> init({bool fromLoad = false, Duration idleDuration = Duration.zero}) async {
     if (_initialized) return;
 
     if (!fromLoad) {
@@ -53,6 +53,10 @@ class GameManager with ChangeNotifier {
       state = GameState();
       state.addResource('gold', 0);
       state.addResource('mana', 0);
+    }
+    state.sessionStartTime = DateTime.now();
+    if (idleDuration != null) {
+      state.metaValues['idle_seconds'] = idleDuration.inSeconds;
     }
 
     // Core managers
@@ -106,17 +110,30 @@ class GameManager with ChangeNotifier {
     await heroService.loadFromJsonAsset('assets/data/hero_list.json');
 
     final rawJson = await rootBundle.loadString('assets/data/achievements.json');
-    final List<dynamic> decoded = json.decode(rawJson);
-    final achievements = decoded
-        .map((e) => Achievement.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    final decoded = json.decode(rawJson);
+
+// Ensure decoded is a list of maps
+    if (decoded is List) {
+      final achievements = decoded
+          .whereType<Map<String, dynamic>>()
+          .map((e) => Achievement.fromJson(e))
+          .toList();
+
+      achievementService.init(
+        spellService: spellService,
+        skillManager: skillManager,
+        factionManager: factionManager,
+      );
+      achievementService.load(achievements);
+    } else {
+      throw FormatException('Achievements JSON must be a list of objects');
+    }
 
     achievementService.init(
       spellService: spellService,
       skillManager: skillManager,
       factionManager: factionManager,
     );
-    achievementService.load(achievements);
 
     factionManager.clearSelection();
     applyFactionBonuses();
@@ -152,6 +169,7 @@ class GameManager with ChangeNotifier {
 
   void tickResources(double deltaSeconds) {
     applyFactionBonuses(); // Reapply skills and effects
+    state.timedAchievementStartTimes['achieve_id'] = DateTime.now();
 
     // 🌱 Passive skill: Elf Skill 4 — max mana growth over time
     if (skillManager.getUnlockedEffects().contains('elf_skill_4')) {
@@ -191,12 +209,15 @@ class GameManager with ChangeNotifier {
         multiplier *= (state.resourceModifiers['gold_income'] ?? 1.0);
         multiplier *= modifierManager.getCombinedMultiplier('gold');
         multiplier *= modifierManager.getCombinedMultiplier('gold_income_multiplier');
-        multiplier *= prestigeService.prestigeMultiplier;
       } else if (id == 'mana') {
         multiplier *= state.resourceModifiers['mana_regen'] ?? 1.0;
       } else {
         multiplier *= state.resourceModifiers['${id}_multiplier'] ?? 1.0;
       }
+
+// 🌟 Apply prestige multiplier to all resources
+      multiplier *= prestigeService.prestigeMultiplier;
+
 
       // 🌐 Global modifiers
       if (id != 'mana') {
@@ -286,7 +307,14 @@ class GameManager with ChangeNotifier {
     if (state.resourceModifiers.containsKey('max_mana_bonus')) {
       state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
     }
-
+    if (state.metaValues['divine_aura_active'] == true) {
+      state.resourceModifiers['global_output'] = 2.0;
+      state.resourceMax['mana'] = 50.0;
+      final mana = state.getResource('mana');
+      if (mana > 50.0) {
+        state.resourceAmounts['mana'] = 50.0;
+      }
+    }
     // 4. Re-apply skill effects (with dynamic conditions)
     for (final skill in skillManager.unlocked.where((s) => s.equipped)) {
       switch (skill.effectId) {
@@ -330,9 +358,16 @@ class GameManager with ChangeNotifier {
       final now = DateTime.now();
       final delta = now.difference(_lastUpdate!).inMilliseconds / 1000.0;
       _lastUpdate = now;
+
+      // ⏱ Update runtime timers
+      final elapsedMillis = (delta * 1000).round();
+      state.currentRunTime += Duration(milliseconds: elapsedMillis);
+      state.totalPlayTime += Duration(milliseconds: elapsedMillis);
+
       modifierManager.cleanup();
       applyFactionBonuses();
       tickResources(delta);
+
       saveGame();
 
       // ✅ Auto-taps trigger actual taps
@@ -345,15 +380,19 @@ class GameManager with ChangeNotifier {
         tapGold(isAuto: true, multiplier: autoTapMultiplier);
       }
 
-
       conquestManager.checkFactionAnnihilation();
       resourceService.tickIncome(delta);
+
       notifyListeners();
     });
   }
 
   void resetForPrestige() {
     final old = state;
+
+    // ✅ Save ad boost state
+    final oldAdBoostActive = old.adGoldBoostActive;
+    final oldAdBoostRemaining = old.adGoldBoostRemainingSeconds;
 
     // ✅ Apply remaining gold to lifetimeGold before wipe
     final goldBeforeReset = old.getResource('gold');
@@ -365,54 +404,47 @@ class GameManager with ChangeNotifier {
     final newState = GameState();
     state = newState;
 
-    // ✅ Restore preserved lifetimeGold
+    // ✅ Restore preserved values
     prestigeService.lifetimeGold = preservedLifetimeGold;
+    state.totalPrestiges = old.totalPrestiges + 1;
 
-    // Preserve meta progression
-    state.totalPrestiges = old.totalPrestiges;
     state.lifetimeTaps = old.lifetimeTaps;
-    state.currentRunTaps = old.currentRunTaps;
+    state.totalPlayTime = old.totalPlayTime;
+
     state.prestigePoints = old.prestigePoints;
+    state.prestigeSkills.addAll(old.prestigeSkills);
+    state.metaValues.addAll(old.metaValues);
+
+    state.lifetimeResources.addAll(old.lifetimeResources);
+    state.achievementsUnlocked.addAll(old.achievementsUnlocked);
+    state.achievementsClaimed.addAll(old.achievementsClaimed);
+
     state.conquestUnlocked = old.conquestUnlocked;
     state.conquestIntroShown = old.conquestIntroShown;
 
-    state.lifetimeResources
-      ..clear()
-      ..addAll(old.lifetimeResources);
+    state.conqueredFactions.addAll(old.conqueredFactions);
+    state.destroyedFactions.addAll(old.destroyedFactions);
 
-    state.achievementsUnlocked
-      ..clear()
-      ..addAll(old.achievementsUnlocked);
+    // ✅ Restore ad boost
+    state.adGoldBoostActive = oldAdBoostActive;
+    state.adGoldBoostRemainingSeconds = oldAdBoostRemaining;
 
-    state.achievementsClaimed
-      ..clear()
-      ..addAll(old.achievementsClaimed);
+    // Reset run-specific values
+    state.currentRunTaps = 0;
+    state.currentRunTime = Duration.zero;
+    state.currentRunStart = DateTime.now();
 
-    state.prestigeSkills
-      ..clear()
-      ..addAll(old.prestigeSkills);
-
-    state.metaValues
-      ..clear()
-      ..addAll(old.metaValues);
-
-    state.conqueredFactions
-      ..clear()
-      ..addAll(old.conqueredFactions);
-
-    state.destroyedFactions
-      ..clear()
-      ..addAll(old.destroyedFactions);
-
-    // Reset services
+    // Reset systems
     modifierManager = ModifierManager();
     buildingService.reset();
     spellService.equippedSpells.clear();
     heroService.clearSelectedHeroes();
+
     skillManager.unlocked.forEach((s) {
       s.unlocked = false;
       s.equipped = false;
     });
+
     conquestManager.reset();
     factionManager.clearSelection();
 
@@ -423,17 +455,35 @@ class GameManager with ChangeNotifier {
     );
 
     applyFactionBonuses();
+    final adEndStr = state.metaValues['gold_ad_bonus_ends'];
+    if (adEndStr is String) {
+      final adEndTime = DateTime.tryParse(adEndStr);
+      if (adEndTime != null && adEndTime.isAfter(DateTime.now())) {
+        modifierManager.addModifier(
+          Modifier(
+            id: 'gold',
+            multiplier: 2.0,
+            duration: adEndTime.difference(DateTime.now()),
+          ),
+        );
+      }
+    }
     notifyListeners();
   }
 
   void tapGold({bool isAuto = false, double multiplier = 1.0}) {
     // Count taps
     if (!isAuto) {
-      state.currentRunTaps++;
+      state.currentRunTaps += 1;
+      state.lifetimeTaps += 1;
+      tapCount += 1;
       _tapTimestamps.add(DateTime.now());
     }
-    state.lifetimeTaps++;
-    tapCount++;
+    if (state.metaValues['first_tap_time'] == null) {
+      state.metaValues['first_tap_time'] = DateTime.now().toIso8601String();
+      state.metaValues['taps_after_first'] = 0;
+    }
+    state.incrementMetaValue('taps_after_first', 1);
 
 // 🕒 Prune old taps (older than 60 seconds)
     final now = DateTime.now();
@@ -455,11 +505,6 @@ class GameManager with ChangeNotifier {
       prestigeService.applyGold(tapBase);
     }
 
-    // Count taps
-    if (!isAuto) state.currentRunTaps++;
-    state.lifetimeTaps++;
-    tapCount++;
-
     // Handle System Purge duration logic
     if (state.metaValues['system_purge_active'] == true) {
       final now = DateTime.now();
@@ -479,7 +524,16 @@ class GameManager with ChangeNotifier {
         state.metaValues['system_purge_active'] = false;
       }
     }
+    _tapTimestamps.add(DateTime.now());
 
+    _tapTimestamps.removeWhere((ts) => now.difference(ts).inSeconds > 60);
+    state.setMetaValue('taps_last_60s', _tapTimestamps.length.toDouble());
+
+// New: add support for shorter windows
+    for (var window in [5, 10, 30]) {
+      final count = _tapTimestamps.where((ts) => now.difference(ts).inSeconds <= window).length;
+      state.setMetaValue('taps_last_${window}s', count.toDouble());
+    }
     _checkAchievements();
     notifyListeners();
   }
@@ -494,6 +548,14 @@ class GameManager with ChangeNotifier {
           s.effect(state);
           s.lastCast = null;
         }
+      }
+      final now = DateTime.now();
+      state.recentSpellCastTimestamps.add(now);
+      if (state.recentSpellCastTimestamps.length > 50) {
+        state.recentSpellCastTimestamps.removeAt(0);
+      }
+      if (state.metaValues['first_spell_cast_time'] == null) {
+        state.metaValues['first_spell_cast_time'] = now.toIso8601String();
       }
 
       // 🔁 Inject equipped spells for any follow-up logic (not strictly needed here)
@@ -525,6 +587,9 @@ class GameManager with ChangeNotifier {
   }
   void prepareStateForSave() {
     final state = this.state;
+    state.metaValues['prestigeMultiplier'] = prestigeService.prestigeMultiplier;
+    state.metaValues['run_start_time'] = conquestManager.runStartTime.toIso8601String();
+
     if (factionManager.selected.isNotEmpty) {
       state.metaValues['selected_faction_id'] = factionManager.selected.first.id;
     }
@@ -586,6 +651,10 @@ class GameManager with ChangeNotifier {
       if (match != null) {
         factionManager.selectOnly(match.id); // ✅
       }
+    }
+    final multiplier = state.metaValues['prestigeMultiplier'];
+    if (multiplier is num) {
+      prestigeService.prestigeMultiplier = multiplier.toDouble();
     }
 
     // ✅ Prestige

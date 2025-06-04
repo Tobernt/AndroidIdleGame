@@ -78,11 +78,6 @@ Future<bool> _loadGameWithIdleCatchUp(GameManager gm) async {
 }
 
 Future<void> _saveGame(GameManager gm) async {
-  if (!gm.isGameplayActive) {
-    debugPrint("⚠️ Not saving — game is not in active state.");
-    return;
-  }
-
   gm.prepareStateForSave();
   final prefs = await SharedPreferences.getInstance();
   prefs.setString('game_state', json.encode(gm.state.toJson()));

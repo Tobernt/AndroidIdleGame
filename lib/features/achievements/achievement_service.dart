@@ -4,6 +4,7 @@ import '../../features/spells/spell_service.dart';
 import '../../features/skill_tree/skill_manager.dart';
 import '../../features/factions/faction_service.dart';
 import 'package:flutter/foundation.dart';
+import 'challenge_logic.dart';
 
 class AchievementService {
   final List<Achievement> _achievements = [];
@@ -87,7 +88,7 @@ class AchievementService {
 
     _applyReward(achievement.reward, state);
   }
-  
+
   void forceUnlockById(String id) {
     final index = _achievements.indexWhere((a) => a.id == id);
     if (index != -1) {
@@ -123,7 +124,7 @@ class AchievementService {
           debugPrint("🦸 Hero unlocked: ${reward.targetId}");
         }
         break;
-      default:
+        default:
         debugPrint("⚠️ Unknown reward type: ${reward.type}");
         break;
     }
@@ -137,7 +138,6 @@ class AchievementService {
     }
   }
 
-// Updated AchievementService.evaluate()
   void evaluate({
     required GameState state,
     required double lifetimeGold,
@@ -151,70 +151,84 @@ class AchievementService {
 
     for (int i = 0; i < _achievements.length; i++) {
       final a = _achievements[i];
-      if (a.isUnlocked || a.requirement == null) continue;
+      if (a.isUnlocked) continue;
 
-      final r = a.requirement!;
-      bool fulfilled = false;
+      bool fulfilled = true;
 
-      switch (r.type) {
-        case 'gold_total':
-          fulfilled = lifetimeGold >= r.amount;
+      for (final r in a.requirements) {
+        bool reqMet = false;
+
+        switch (r.type) {
+          case 'gold_total':
+            reqMet = lifetimeGold >= r.amount;
+            break;
+          case 'mana_threshold':
+            reqMet = state.getResource('mana') >= r.amount;
+            break;
+          case 'tap_gold':
+            reqMet = tapCount >= r.amount;
+            break;
+          case 'tap_lifetime':
+            reqMet = state.lifetimeTaps >= r.amount;
+            break;
+          case 'buildings_owned':
+            reqMet = buildingsOwned >= r.amount;
+            break;
+          case 'prestige_level':
+            reqMet = state.totalPrestiges >= r.amount;
+            break;
+          case 'resource_lifetime':
+            final resource = r.extra ?? 'gold';
+            reqMet = (state.lifetimeResources[resource] ?? 0) >= r.amount;
+            break;
+          case 'faction_conquest':
+            final requiredFaction = r.selectedFaction;
+            final requiredConquered = r.conqueredFactions.toSet();
+            final isPlayingRequired = requiredFaction != null && selectedFactions.contains(requiredFaction);
+            reqMet = isPlayingRequired && requiredConquered.every((f) => clearedFactions.contains(f));
+            break;
+          case 'custom_logic':
+            if (r.extra != null) {
+              reqMet = ChallengeLogic.evaluate(
+                id: r.extra!,
+                state: state,
+                lifetimeGold: lifetimeGold,
+                buildingsOwned: buildingsOwned,
+                tapCount: tapCount,
+              );
+            }
+            break;
+          default:
+            reqMet = false;
+            break;
+        }
+
+        if (!reqMet) {
+          fulfilled = false;
           break;
-        case 'mana_threshold':
-          fulfilled = state.getResource('mana') >= r.amount;
-          break;
-        case 'tap_gold':
-          fulfilled = tapCount >= r.amount;
-          break;
-        case 'tap_lifetime':
-          fulfilled = state.lifetimeTaps >= r.amount;
-          break;
-        case 'buildings_owned':
-          fulfilled = buildingsOwned >= r.amount;
-          break;
-        case 'prestige_total':
-          fulfilled = state.totalPrestiges >= r.amount;
-          break;
-        case 'resource_lifetime':
-          final resource = r.extra ?? 'gold';
-          fulfilled = (state.lifetimeResources[resource] ?? 0) >= r.amount;
-          break;
-
-        case 'faction_conquest':
-          final requiredFaction = r.selectedFaction;
-          final requiredConquered = r.conqueredFactions.toSet();
-
-          final isPlayingRequired =
-              requiredFaction != null && selectedFactions.contains(requiredFaction);
-
-
-          fulfilled = isPlayingRequired &&
-              requiredConquered.every((f) => clearedFactions.contains(f));
-          break;
-
-        default:
-         break;
-      }
-
-      final heroAchievements = [
-        'achieve_hero_human',
-        'achieve_hero_elf',
-        'achieve_hero_orc',
-        'achieve_hero_dwarf',
-        'achieve_hero_undead',
-        'achieve_hero_automaton',
-      ];
-
-      if (!state.heroesUnlocked &&
-          _achievements.any((a) => heroAchievements.contains(a.id) && a.isUnlocked)) {
-        state.heroesUnlocked = true;
-        debugPrint("🦸 Heroes system unlocked via achievement!");
+        }
       }
 
       if (fulfilled) {
         _achievements[i] = a.copyWith(isUnlocked: true);
-        debugPrint("\u{2705} Achievement \${a.id} unlocked!");
+        debugPrint("✅ Achievement ${a.id} unlocked!");
       }
     }
+
+    final heroAchievements = [
+      'achieve_hero_human',
+      'achieve_hero_elf',
+      'achieve_hero_orc',
+      'achieve_hero_dwarf',
+      'achieve_hero_undead',
+      'achieve_hero_automaton',
+    ];
+
+    if (!state.heroesUnlocked &&
+        _achievements.any((a) => heroAchievements.contains(a.id) && a.isUnlocked)) {
+      state.heroesUnlocked = true;
+      debugPrint("🦸 Heroes system unlocked via achievement!");
+    }
   }
+
 }

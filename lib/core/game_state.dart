@@ -19,6 +19,9 @@ class GameState {
     'mana': 100.0,
     'population': 0.0,
   };
+  double getManaRegenPerSecond() {
+    return resourceModifiers['mana_per_sec'] ?? 0.0;
+  }
 
   final Map<String, dynamic> metaValues = {};
 
@@ -29,7 +32,9 @@ class GameState {
   final Set<String> prestigeSkills = {};
   bool adGoldBoostActive = false;
   int adGoldBoostRemainingSeconds = 0;
-
+  List<DateTime> recentSpellCastTimestamps = [];
+  int totalSpellsCast = 0;
+  int highestSpellChain = 0;
   // Features and flags
   bool heroesUnlocked = false;
   bool conquestUnlocked = false;
@@ -39,6 +44,9 @@ class GameState {
   int lifetimeTaps = 0;
   int currentRunTaps = 0;
   int totalPrestiges = 0;
+  Duration currentRunTime = Duration.zero;
+  Duration totalPlayTime = Duration.zero;
+  DateTime currentRunStart = DateTime.now();
 
   // Player progress and unlocks
   final Set<String> conqueredFactions = {};
@@ -50,7 +58,17 @@ class GameState {
   final Map<String, int> buildingCounts = {};
   final List<String> equippedSpells = [];
   final List<String> equippedSkills = [];
+  DateTime sessionStartTime = DateTime.now();
+  DateTime lastPrestigeTime = DateTime.now();
 
+  Map<String, DateTime> timedAchievementStartTimes = {};
+
+  // You can update this in your `reset`, `newGame`, or `prestige` logic:
+  void resetTimers() {
+    sessionStartTime = DateTime.now();
+    lastPrestigeTime = DateTime.now();
+    timedAchievementStartTimes.clear();
+  }
   // ====== Serialization ======
 
   Map<String, dynamic> toJson() {
@@ -59,10 +77,21 @@ class GameState {
       'lifetimeResources': lifetimeResources,
       'resourceModifiers': resourceModifiers,
       'resourceMax': resourceMax,
-      'metaValues': metaValues,
+      'metaValues': metaValues.map((k, v) {
+        if (v is num || v is String || v is bool || v == null) {
+          return MapEntry(k, v);
+        } else if (v is DateTime) {
+          return MapEntry(k, v.toIso8601String());
+        } else if (v is Duration) {
+          return MapEntry(k, v.inSeconds);
+        } else {
+          return MapEntry(k, null);
+        }
+      }),
       'tapPower': tapPower,
       'adGoldBoostActive': adGoldBoostActive,
       'adGoldBoostRemainingSeconds': adGoldBoostRemainingSeconds,
+      'prestigeMultiplier': metaValues['prestigeMultiplier'] ?? 1.0,
       'prestigeLevel': prestigeLevel,
       'prestigePoints': prestigePoints,
       'prestigeSkills': prestigeSkills.toList(),
@@ -79,6 +108,9 @@ class GameState {
       'buildingCounts': buildingCounts,
       'equippedSpells': equippedSpells,
       'equippedSkills': equippedSkills,
+      'currentRunTime': currentRunTime.inSeconds,
+      'totalPlayTime': totalPlayTime.inSeconds,
+      'currentRunStart': currentRunStart.toIso8601String(),
     };
   }
 
@@ -91,6 +123,11 @@ class GameState {
     state.resourceModifiers.addAll(Map<String, double>.from(json['resourceModifiers'] ?? {}));
     state.resourceMax.addAll(Map<String, double>.from(json['resourceMax'] ?? {}));
     state.metaValues.addAll(Map<String, dynamic>.from(json['metaValues'] ?? {}));
+    state.currentRunTime = Duration(seconds: json['currentRunTime'] ?? 0);
+    state.totalPlayTime = Duration(seconds: json['totalPlayTime'] ?? 0);
+    state.currentRunStart = DateTime.tryParse(json['currentRunStart'] ?? '') ?? DateTime.now();
+    final multiplier = (json['prestigeMultiplier'] ?? 1.0) as num;
+    state.metaValues['prestigeMultiplier'] = multiplier.toDouble();
 
     state.tapPower = (json['tapPower'] ?? 1.0).toDouble();
     state.prestigeLevel = (json['prestigeLevel'] ?? 0) as int;
@@ -186,7 +223,12 @@ class GameState {
     resourceMax[id] = max;
   }
 
-  double getMetaValue(String key) => metaValues[key] ?? 0.0;
+  double getMetaValue(String key) {
+    final value = metaValues[key];
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return 0.0;
+  }
 
   void setMetaValue(String key, double value) {
     metaValues[key] = value;
@@ -219,20 +261,5 @@ class GameState {
     equippedSpells.clear();
     equippedSkills.clear();
     prestigeSkills.clear();
-  }
-
-  void resetForPrestige() {
-    resourceAmounts.updateAll((key, _) => 0.0);
-    resourceModifiers.clear();
-    resourceMax.updateAll((key, _) => key == 'mana' ? 100.0 : 100.0);
-    metaValues.clear();
-    tapPower = 1.0;
-    currentRunTaps = 0;
-
-    // Keep some values, clear others
-    conqueredFactions.clear();
-    buildingCounts.clear();
-    equippedSpells.clear();
-    equippedSkills.clear();
   }
 }

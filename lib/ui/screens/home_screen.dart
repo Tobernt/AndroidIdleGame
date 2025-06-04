@@ -4,6 +4,7 @@ import '../../core/game_manager.dart';
 import 'faction_screen.dart';
 import 'game_screen.dart';
 import 'dart:async';
+import '../../core/game_state.dart';
 
 class HomeScreen extends StatefulWidget {
   final GameManager gameManager;
@@ -43,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (!widget.gameManager.isInitialized) {
-      await widget.gameManager.init();
+      await widget.gameManager.init(idleDuration: idleDuration);
     }
 
     // ✅ Stay on HomeScreen regardless of faction
@@ -155,6 +156,54 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 16, horizontal: 32),
                 ),
                 child: const Text('Enter Game'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Reset Game?"),
+                      content: const Text("This will erase all progress and reset the game completely. Are you sure?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text("Reset", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+
+                    // 🚫 Dispose of the old manager
+                    widget.gameManager.dispose();
+
+                    // ✅ Create a fresh one
+                    final newManager = GameManager();
+                    await newManager.init();
+
+                    // ✅ Rebuild the HomeScreen with the new instance
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HomeScreen(gameManager: newManager),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
+                ),
+                child: const Text('Full Reset'),
               ),
             ],
           ),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../core/game_manager.dart';
 import 'game_screen.dart';
@@ -14,6 +13,14 @@ class PrestigeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final prestige = gameManager.prestigeService;
+    final state = gameManager.state;
+
+    String formatDuration(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      final s = d.inSeconds.remainder(60);
+      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -27,49 +34,93 @@ class PrestigeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('🏆 Total Prestiges: ${gameManager.state.totalPrestiges}',
-                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 20)),
-              Text('🎯 Current Run Taps: ${gameManager.state.currentRunTaps}',
-                  style: const TextStyle(color: Colors.lightBlueAccent)),
-              Text('🖱️ Lifetime Taps: ${gameManager.state.lifetimeTaps}',
-                  style: const TextStyle(color: Colors.lightBlueAccent)),
-              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _infoRow('🏆 Total Prestiges', '${state.totalPrestiges}', Colors.orangeAccent),
+                    _infoRow('🎖 Prestige Points', '${prestige.availablePrestigePoints}', Colors.amberAccent),
+                    _infoRow('🎯 Current Run Taps', '${state.currentRunTaps}', Colors.lightBlueAccent),
+                    _infoRow('🖱️ Lifetime Taps', '${state.lifetimeTaps}', Colors.lightBlueAccent),
+                    _infoRow('📈 Multiplier', 'x${prestige.prestigeMultiplier.toStringAsFixed(2)}', Colors.lightGreenAccent),
+                    _infoRow('⏱ Run Time / 🕰 Total', '${formatDuration(state.currentRunTime)} / ${formatDuration(state.totalPlayTime)}', Colors.cyanAccent),
+                    const SizedBox(height: 16),
+                    const Divider(color: Colors.white24),
+                    const SizedBox(height: 12),
+                    Text('📊 Resources', style: TextStyle(color: Colors.amberAccent, fontSize: 16)),
+                    const SizedBox(height: 12),
 
-              Text(
-                '🪙 Current Run Gold: ${formatNumber(prestige.lifetimeGold)}',
-                style: const TextStyle(color: Colors.amber, fontSize: 20),
+// Table Headers
+                    Row(
+                      children: const [
+                        Expanded(
+                          flex: 3,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Resource', style: TextStyle(color: Colors.white54)),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text('Current', style: TextStyle(color: Colors.white54)),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text('Lifetime', style: TextStyle(color: Colors.white54)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(color: Colors.white24),
+
+                    ...state.resourceAmounts.keys.map((key) {
+                      final current = formatNumber(state.resourceAmounts[key] ?? 0);
+                      final lifetime = formatNumber(state.lifetimeResources[key] ?? 0);
+                      final label = '${key[0].toUpperCase()}${key.substring(1)}';
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(label, style: const TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(current, style: const TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(lifetime, style: const TextStyle(color: Colors.white54)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              Text('📈 Multiplier after Prestige:',
-                  style: const TextStyle(color: Colors.white70)),
-              Text('x${prestige.prestigeMultiplier.toStringAsFixed(2)}',
-                  style: const TextStyle(color: Colors.lightGreenAccent, fontSize: 22)),
-
-              const SizedBox(height: 24),
-              Text('🎖 Prestige Points: ${prestige.availablePrestigePoints}',
-                  style: const TextStyle(color: Colors.amberAccent, fontSize: 18)),
-              const SizedBox(height: 8),
-              Text('🧠 Skill Points: ${prestige.availableSkillPoints} / 15',
-                  style: const TextStyle(color: Colors.white70)),
-              Text('🪄 Spell Slots: ${prestige.maxEquippedSpells} / 5',
-                  style: const TextStyle(color: Colors.white70)),
-              Text('🛡️ Faction Slots: ${prestige.maxFactions} / 3',
-                  style: const TextStyle(color: Colors.white70)),
-
-              const SizedBox(height: 28),
-              const Divider(color: Colors.white30),
-              const SizedBox(height: 12),
-
-              Text('📊 Lifetime Resources:',
-                  style: const TextStyle(color: Colors.amberAccent, fontSize: 16)),
-              const SizedBox(height: 8),
-              ...gameManager.state.lifetimeResources.entries.map((e) {
-                final label = '${e.key[0].toUpperCase()}${e.key.substring(1)}';
-                return Text(
-                  '$label: ${formatNumber(e.value)}',
-                  style: const TextStyle(color: Colors.white),
-                );
-              }),
 
               const SizedBox(height: 32),
               ElevatedButton.icon(
@@ -105,14 +156,8 @@ class PrestigeScreen extends StatelessWidget {
                         'This will reset most progress in exchange for permanent upgrades.\n\nProceed?',
                       ),
                       actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Prestige'),
-                        ),
+                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Prestige')),
                       ],
                     ),
                   );
@@ -163,6 +208,19 @@ class PrestigeScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: color)),
+          Text(value, style: TextStyle(color: color)),
+        ],
       ),
     );
   }
