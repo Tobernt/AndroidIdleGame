@@ -54,6 +54,7 @@ class GameState {
   bool conquestUnlocked = false;
   bool conquestIntroShown = false;
   bool tutorialShown = false;
+  bool firstPrestigeGuideDone = false;
 
   // Stats
   int lifetimeTaps = 0;
@@ -130,6 +131,7 @@ class GameState {
       'conquestUnlocked': conquestUnlocked,
       'conquestIntroShown': conquestIntroShown,
       'tutorialShown': tutorialShown,
+      'firstPrestigeGuideDone': firstPrestigeGuideDone,
       'lifetimeTaps': lifetimeTaps,
       'currentRunTaps': currentRunTaps,
       'totalPrestiges': totalPrestiges,
@@ -187,6 +189,7 @@ class GameState {
     state.conquestUnlocked = json['conquestUnlocked'] ?? false;
     state.conquestIntroShown = json['conquestIntroShown'] ?? false;
     state.tutorialShown = json['tutorialShown'] ?? false;
+    state.firstPrestigeGuideDone = json['firstPrestigeGuideDone'] ?? false;
 
     state.lifetimeTaps = json['lifetimeTaps'] ?? 0;
     state.currentRunTaps = json['currentRunTaps'] ?? 0;
@@ -283,6 +286,7 @@ class GameState {
     conquestUnlocked = old.conquestUnlocked;
     conquestIntroShown = old.conquestIntroShown;
     tutorialShown = old.tutorialShown;
+    firstPrestigeGuideDone = old.firstPrestigeGuideDone;
   }
 
   void setMax(String id, double max) {
@@ -334,6 +338,7 @@ class GameState {
     conquestUnlocked = false;
     conquestIntroShown = false;
     tutorialShown = false;
+    firstPrestigeGuideDone = false;
     conqueredFactions.clear();
     destroyedFactions.clear();
     achievementsUnlocked.clear();
