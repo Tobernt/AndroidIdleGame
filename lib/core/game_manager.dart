@@ -303,6 +303,36 @@ class GameManager with ChangeNotifier {
           (state.resourceModifiers[key] ?? 0.0) + value;
     }
 
+    // 2b. Prestige bonuses
+    state.resourceModifiers['gold_income'] =
+        (state.resourceModifiers['gold_income'] ?? 1.0) *
+        (1 + 0.05 * prestigeService.goldBonusLevel);
+    state.resourceModifiers['mana_regen'] =
+        (state.resourceModifiers['mana_regen'] ?? 1.0) *
+        (1 + 0.05 * prestigeService.manaBonusLevel);
+    state.resourceModifiers['ore_multiplier'] =
+        (state.resourceModifiers['ore_multiplier'] ?? 1.0) *
+        (1 + 0.05 * prestigeService.oreBonusLevel);
+    state.resourceModifiers['building_cost_multiplier'] =
+        (state.resourceModifiers['building_cost_multiplier'] ?? 1.0) *
+        pow(0.95, prestigeService.buildingDiscountLevel);
+    state.tapPower += 0.5 * prestigeService.tapPowerLevel;
+    state.resourceModifiers['spell_cooldown_mult'] =
+        (state.resourceModifiers['spell_cooldown_mult'] ?? 1.0) *
+        pow(0.95, prestigeService.cooldownReductionLevel);
+    state.resourceModifiers['population_growth'] =
+        (state.resourceModifiers['population_growth'] ?? 1.0) *
+        (1 + 0.05 * prestigeService.populationGrowthLevel);
+    state.resourceModifiers['auto_tap'] =
+        (state.resourceModifiers['auto_tap'] ?? 1.0) *
+        (1 + 0.1 * prestigeService.autoTapLevel);
+    state.resourceModifiers['global_output'] =
+        (state.resourceModifiers['global_output'] ?? 1.0) *
+        (1 + 0.05 * prestigeService.globalOutputLevel);
+    state.resourceModifiers['spell_cost_multiplier'] =
+        (state.resourceModifiers['spell_cost_multiplier'] ?? 1.0) *
+        pow(0.95, prestigeService.spellCostReductionLevel);
+
     // 3. Mana cap from buildings
     if (state.resourceModifiers.containsKey('max_mana_bonus')) {
       state.resourceMax['mana'] = 100.0 + state.resourceModifiers['max_mana_bonus']!;
