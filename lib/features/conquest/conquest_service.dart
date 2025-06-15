@@ -49,7 +49,7 @@ class ConquestManager {
 
   double mightRequiredForFaction(String factionId) {
     final index = factionManager.allFactions.indexWhere((f) => f.id == factionId);
-    final base = 1000 + index * 750;
+    final base = 1000 * index * 750;
 
     final elapsed = DateTime.now().difference(runStartTime);
     final idleSeconds = (state.metaValues['idle_seconds'] as int?) ?? 0;

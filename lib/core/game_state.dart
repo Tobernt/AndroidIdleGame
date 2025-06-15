@@ -1,7 +1,7 @@
 class GameState {
   // Core resource tracking
   final Map<String, double> resourceAmounts = {
-    'gold': 0.0,
+    'gold': 100.0,
     'mana': 100.0,
     'ore': 0.0,
     'population': 0.0,

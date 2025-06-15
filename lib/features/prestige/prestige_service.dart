@@ -57,11 +57,8 @@ class PrestigeService {
   double get prestigeMultiplier => _prestigedMultiplier;
   set prestigeMultiplier(double value) => _prestigedMultiplier = value;
 
-  int get _baseSkillPoints =>
-      min(maxTotalSkillPoints, (log(1 + lifetimeGold) / 15).floor());
-
   int get totalSkillPoints =>
-      min(maxTotalSkillPoints, _baseSkillPoints + _extraSkillPointsBought);
+      min(maxTotalSkillPoints, _extraSkillPointsBought);
 
   int get availableSkillPoints => totalSkillPoints - _spentSkillPoints;
   int get availablePrestigePoints => prestigePoints - _usedPrestigePoints;

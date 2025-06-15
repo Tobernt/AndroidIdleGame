@@ -3,9 +3,9 @@
     "id": "achieve_human_spell_1",
     "name": "Initiate of Gold",
     "description": "Unlock the 'Tax Collection' spell.",
-    "hint": "Own 100 buildings while playing Humans.",
-    "isUnlocked": false,
-    "isClaimed": false,
+    "hint": "Capitalism!.",
+    "isUnlocked": true,
+    "isClaimed": true,
     "reward": { "type": "unlock_spell", "targetId": "human_spell_1" },
     "requirements": [
       { "type": "buildings_owned", "amount": 100 },
