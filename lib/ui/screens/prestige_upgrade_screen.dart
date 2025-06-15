@@ -41,8 +41,9 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
         backgroundColor: Colors.black,
         body: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
               Text(
                 'Available Prestige Points: ${formatNumber(availablePoints)}',
                 style: const TextStyle(color: Colors.amber, fontSize: 18),
@@ -73,7 +74,87 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                 cost: prestige.costForNextSkillPoint().toDouble(),
                 onBuy: prestige.buyExtraSkillPoint,
               ),
-              const Spacer(),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '💰 Gold Income Boost',
+                current: prestige.goldBonusLevel,
+                max: 10,
+                cost: prestige.costForNextGoldBonus().toDouble(),
+                onBuy: prestige.buyGoldBonus,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '🔮 Mana Regen Boost',
+                current: prestige.manaBonusLevel,
+                max: 10,
+                cost: prestige.costForNextManaBonus().toDouble(),
+                onBuy: prestige.buyManaBonus,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '⛏️ Ore Production Boost',
+                current: prestige.oreBonusLevel,
+                max: 10,
+                cost: prestige.costForNextOreBonus().toDouble(),
+                onBuy: prestige.buyOreBonus,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '🏗️ Building Discount',
+                current: prestige.buildingDiscountLevel,
+                max: 10,
+                cost: prestige.costForNextBuildingDiscount().toDouble(),
+                onBuy: prestige.buyBuildingDiscount,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '✋ Tap Power',
+                current: prestige.tapPowerLevel,
+                max: 10,
+                cost: prestige.costForNextTapPower().toDouble(),
+                onBuy: prestige.buyTapPower,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '⏱ Spell Cooldown',
+                current: prestige.cooldownReductionLevel,
+                max: 10,
+                cost: prestige.costForNextCooldownBonus().toDouble(),
+                onBuy: prestige.buyCooldownBonus,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '🌱 Population Growth',
+                current: prestige.populationGrowthLevel,
+                max: 10,
+                cost: prestige.costForNextPopulationBonus().toDouble(),
+                onBuy: prestige.buyPopulationBonus,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '🤖 Auto Tap Power',
+                current: prestige.autoTapLevel,
+                max: 10,
+                cost: prestige.costForNextAutoTap().toDouble(),
+                onBuy: prestige.buyAutoTap,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '🌐 Global Output',
+                current: prestige.globalOutputLevel,
+                max: 10,
+                cost: prestige.costForNextGlobalOutput().toDouble(),
+                onBuy: prestige.buyGlobalOutput,
+              ),
+              const SizedBox(height: 16),
+              _buildUpgradeTile(
+                title: '📖 Spell Cost Reduction',
+                current: prestige.spellCostReductionLevel,
+                max: 10,
+                cost: prestige.costForNextSpellCostReduction().toDouble(),
+                onBuy: prestige.buySpellCostReduction,
+              ),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: widget.onDone ?? () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
