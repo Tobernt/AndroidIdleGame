@@ -451,6 +451,7 @@ class GameManager with ChangeNotifier {
 
     state.conquestUnlocked = old.conquestUnlocked;
     state.conquestIntroShown = old.conquestIntroShown;
+    state.tutorialShown = old.tutorialShown;
 
     state.conqueredFactions.addAll(old.conqueredFactions);
     state.destroyedFactions.addAll(old.destroyedFactions);

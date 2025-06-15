@@ -41,8 +41,9 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
         backgroundColor: Colors.black,
         body: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
               Text(
                 'Available Prestige Points: ${formatNumber(availablePoints)}',
                 style: const TextStyle(color: Colors.amber, fontSize: 18),
@@ -153,7 +154,7 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
                 cost: prestige.costForNextSpellCostReduction().toDouble(),
                 onBuy: prestige.buySpellCostReduction,
               ),
-              const Spacer(),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: widget.onDone ?? () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(

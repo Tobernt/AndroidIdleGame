@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/game_manager.dart';
 import 'faction_screen.dart';
 import 'game_screen.dart';
+import 'info_screen.dart';
 import 'dart:async';
 import '../../core/game_state.dart';
 
@@ -156,6 +157,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 16, horizontal: 32),
                 ),
                 child: const Text('Enter Game'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const InfoScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
+                ),
+                child: const Text('How to Play'),
               ),
               const SizedBox(height: 16),
               ElevatedButton(

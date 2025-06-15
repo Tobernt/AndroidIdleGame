@@ -73,16 +73,44 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _checkFactionSelection() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!gm.hasSelectedFaction) {
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => FactionScreen(manager: gm.factionManager),
           ),
         );
       }
+      if (mounted) _maybeShowTutorial();
     });
+  }
+
+  void _maybeShowTutorial() {
+    if (gm.state.tutorialShown) return;
+    gm.state.tutorialShown = true;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'Welcome to Idle Realms!',
+          style: TextStyle(color: Colors.amber),
+        ),
+        content: const Text(
+          'Tap the screen to earn gold and construct buildings.\n\n'
+          'Unlock heroes, spells and skills to grow stronger.\n'
+          'Prestige for permanent bonuses and conquer all factions!',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showConquestIntro() {
