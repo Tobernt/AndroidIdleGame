@@ -148,6 +148,22 @@ class PrestigeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 ),
                 onPressed: () async {
+                  final currentGold = gameManager.state.getResource('gold');
+                  if (currentGold < 100000) {
+                    await showDialog<void>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Insufficient Gold'),
+                        content: const Text('You need at least 100k gold to prestige.'),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK')),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
