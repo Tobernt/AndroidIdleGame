@@ -53,6 +53,8 @@ class GameState {
   final Set<String> destroyedFactions = {};
   final Set<String> achievementsUnlocked = {};
   final Set<String> achievementsClaimed = {};
+  final Set<String> unlockedSpells = {};
+  final Set<String> unlockedSkills = {};
 
   // Gameplay state
   final Map<String, int> buildingCounts = {};
@@ -105,6 +107,8 @@ class GameState {
       'destroyedFactions': destroyedFactions.toList(),
       'achievementsUnlocked': achievementsUnlocked.toList(),
       'achievementsClaimed': achievementsClaimed.toList(),
+      'unlockedSpells': unlockedSpells.toList(),
+      'unlockedSkills': unlockedSkills.toList(),
       'buildingCounts': buildingCounts,
       'equippedSpells': equippedSpells,
       'equippedSkills': equippedSkills,
@@ -147,6 +151,8 @@ class GameState {
     state.destroyedFactions.addAll(List<String>.from(json['destroyedFactions'] ?? []));
     state.achievementsUnlocked.addAll(List<String>.from(json['achievementsUnlocked'] ?? []));
     state.achievementsClaimed.addAll(List<String>.from(json['achievementsClaimed'] ?? []));
+    state.unlockedSpells.addAll(List<String>.from(json['unlockedSpells'] ?? []));
+    state.unlockedSkills.addAll(List<String>.from(json['unlockedSkills'] ?? []));
 
     state.buildingCounts.addAll(Map<String, int>.from(json['buildingCounts'] ?? {}));
     state.equippedSpells.addAll(List<String>.from(json['equippedSpells'] ?? []));

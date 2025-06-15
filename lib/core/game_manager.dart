@@ -598,11 +598,17 @@ class GameManager with ChangeNotifier {
     state.equippedSpells
       ..clear()
       ..addAll(spellService.equippedSpells.map((s) => s.id));
+    state.unlockedSpells
+      ..clear()
+      ..addAll(spellService.allSpells.where((s) => s.unlocked).map((s) => s.id));
 
     // ✅ Skills
     state.equippedSkills
       ..clear()
       ..addAll(skillManager.equippedSkills.map((s) => s.id));
+    state.unlockedSkills
+      ..clear()
+      ..addAll(skillManager.allSkills.where((s) => s.unlocked).map((s) => s.id));
 
     // ✅ Prestige
     state.prestigeSkills
@@ -639,9 +645,15 @@ class GameManager with ChangeNotifier {
       prestigeService.lifetimeGold = savedGold.toDouble();
     }
     // ✅ Spells
+    for (final spell in spellService.allSpells) {
+      spell.unlocked = state.unlockedSpells.contains(spell.id);
+    }
     spellService.setEquipped(state.equippedSpells);
 
     // ✅ Skills
+    for (final skill in skillManager.allSkills) {
+      skill.unlocked = state.unlockedSkills.contains(skill.id);
+    }
     skillManager.setEquipped(state.equippedSkills);
     final selectedId = state.metaValues['selected_faction_id'] as String?;
     if (selectedId != null) {
@@ -667,6 +679,7 @@ class GameManager with ChangeNotifier {
     // ✅ Achievements
     achievementService.setUnlocked(state.achievementsUnlocked);
     achievementService.setClaimed(state.achievementsClaimed);
+    achievementService.applyClaimedRewards(state);
 
     // ✅ Factions
     conquestManager.setConquered(state.conqueredFactions);

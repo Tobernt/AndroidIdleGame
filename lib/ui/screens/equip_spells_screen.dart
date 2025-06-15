@@ -100,9 +100,9 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                                     ? () => _confirmEquip(spell)
                                     : null,
                                 splashColor:
-                                    Colors.greenAccent.withAlpha((0.3 * 255).toInt()),
+                                Colors.greenAccent.withAlpha((0.3 * 255).toInt()),
                                 highlightColor:
-                                    Colors.white.withAlpha((0.05 * 255).toInt()),
+                                Colors.white.withAlpha((0.05 * 255).toInt()),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8),
                                   child: Column(

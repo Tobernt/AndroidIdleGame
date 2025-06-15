@@ -263,12 +263,12 @@
     "id": "achieve_orc_spell_1",
     "name": "Unlock War Cry",
     "description": "Unlock the spell 'War Cry'.",
-    "hint": "Tap gold 20 times to awaken your rage.",
+    "hint": "Amass 100 buildings under Orc command.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "orc_spell_1" },
     "requirements": [
-      { "type": "tap_gold", "amount": 20 },
+      { "type": "buildings_owned", "amount": 100 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -276,12 +276,12 @@
     "id": "achieve_orc_spell_2",
     "name": "Unlock Blood Hunt",
     "description": "Unlock the spell 'Blood Hunt'.",
-    "hint": "Build up your forces — own 4 buildings.",
+    "hint": "Dominate with 1,000 Orc structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "orc_spell_2" },
     "requirements": [
-      { "type": "buildings_owned", "amount": 4 },
+      { "type": "buildings_owned", "amount": 1000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -289,12 +289,12 @@
     "id": "achieve_orc_spell_3",
     "name": "Unlock Frenzy",
     "description": "Unlock the spell 'Frenzy'.",
-    "hint": "Let your gold rise above 1500.",
+    "hint": "Lead 10,000 Orc buildings into battle.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "orc_spell_3" },
     "requirements": [
-      { "type": "gold_total", "amount": 1500 },
+      { "type": "buildings_owned", "amount": 10000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -307,6 +307,7 @@
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "orc_spell_4" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -314,11 +315,12 @@
     "id": "achieve_orc_spell_5",
     "name": "Unlock Berserker's Rage",
     "description": "Unlock the spell 'Berserker's Rage'.",
-    "hint": "Master all other Orc spells first.",
+    "hint": "Control one million Orc structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "orc_spell_5" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -326,12 +328,12 @@
     "id": "achieve_orc_skill_1",
     "name": "Unlock Brutality",
     "description": "Unlock the skill 'Brutality'.",
-    "hint": "Tap gold 30 times with force.",
+    "hint": "Gather 100,000 gold as Orcs.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "orc_skill_1" },
     "requirements": [
-      { "type": "tap_gold", "amount": 30 },
+      { "type": "gold_total", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -339,12 +341,12 @@
     "id": "achieve_orc_skill_2",
     "name": "Unlock Warborn",
     "description": "Unlock the skill 'Warborn'.",
-    "hint": "Reach 5 buildings. Strength comes in numbers.",
+    "hint": "Accumulate 1,000,000 gold as Orcs.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "orc_skill_2" },
     "requirements": [
-      { "type": "buildings_owned", "amount": 5 },
+      { "type": "gold_total", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -352,11 +354,12 @@
     "id": "achieve_orc_skill_3",
     "name": "Unlock Blood Price",
     "description": "Unlock the skill 'Blood Price'.",
-    "hint": "Sacrifice efficiency for raw gain.",
+    "hint": "Hold 10,000,000 gold as Orcs.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "orc_skill_3" },
     "requirements": [
+      { "type": "gold_total", "amount": 10000000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -364,11 +367,12 @@
     "id": "achieve_orc_skill_4",
     "name": "Unlock Domination",
     "description": "Unlock the skill 'Domination'.",
-    "hint": "Let your gold speak for your might.",
+    "hint": "Command 100,000,000 gold as Orcs.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "orc_skill_4" },
     "requirements": [
+      { "type": "gold_total", "amount": 100000000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -376,11 +380,12 @@
     "id": "achieve_orc_skill_5",
     "name": "Unlock Eternal War",
     "description": "Unlock the skill 'Eternal War'.",
-    "hint": "Conquer all other Orc skills.",
+    "hint": "Wield one billion gold as Orcs.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "orc_skill_5" },
     "requirements": [
+      { "type": "gold_total", "amount": 1000000000 },
       { "type": "faction_conquest", "selectedFaction": "orcs", "conqueredFactions": [] }
     ]
   },
@@ -388,12 +393,12 @@
     "id": "achieve_dwarf_spell_1",
     "name": "Unlock Gold Infusion",
     "description": "Unlock the spell 'Gold Infusion'.",
-    "hint": "Mine 1000 gold from any source.",
+    "hint": "Construct 100 Dwarven buildings.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "dwarf_spell_1" },
     "requirements": [
-      { "type": "gold_total", "amount": 1000 },
+      { "type": "buildings_owned", "amount": 100 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -401,12 +406,12 @@
     "id": "achieve_dwarf_spell_2",
     "name": "Unlock Rune of Productivity",
     "description": "Unlock the spell 'Rune of Productivity'.",
-    "hint": "Own at least 4 buildings.",
+    "hint": "Establish 1,000 Dwarven structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "dwarf_spell_2" },
     "requirements": [
-      { "type": "buildings_owned", "amount": 4 },
+      { "type": "buildings_owned", "amount": 1000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -414,12 +419,12 @@
     "id": "achieve_dwarf_spell_3",
     "name": "Unlock Stone Pact",
     "description": "Unlock the spell 'Stone Pact'.",
-    "hint": "Accumulate 300 ore.",
+    "hint": "Forge 10,000 Dwarven buildings.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "dwarf_spell_3" },
     "requirements": [
-      { "type": "gold_total", "amount": 1500 },
+      { "type": "buildings_owned", "amount": 10000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -427,11 +432,12 @@
     "id": "achieve_dwarf_spell_4",
     "name": "Unlock Forgemaster's Call",
     "description": "Unlock the spell 'Forgemaster's Call'.",
-    "hint": "Upgrade your industry to a mighty level.",
+    "hint": "Expand to 100,000 Dwarven buildings.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "dwarf_spell_4" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -439,11 +445,12 @@
     "id": "achieve_dwarf_spell_5",
     "name": "Unlock Deep Vault",
     "description": "Unlock the spell 'Deep Vault'.",
-    "hint": "True wealth awaits the patient miner.",
+    "hint": "Secure one million Dwarven buildings.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "dwarf_spell_5" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -451,12 +458,12 @@
     "id": "achieve_dwarf_skill_1",
     "name": "Unlock Metallurgy",
     "description": "Unlock the skill 'Metallurgy'.",
-    "hint": "Gather at least 100 ore.",
+    "hint": "Gather 100,000 gold as Dwarves.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "dwarf_skill_1" },
     "requirements": [
-      { "type": "gold_total", "amount": 800 },
+      { "type": "gold_total", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -464,12 +471,12 @@
     "id": "achieve_dwarf_skill_2",
     "name": "Unlock Stonework",
     "description": "Unlock the skill 'Stonework'.",
-    "hint": "Construct 3 buildings.",
+    "hint": "Accumulate 1,000,000 gold as Dwarves.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "dwarf_skill_2" },
     "requirements": [
-      { "type": "buildings_owned", "amount": 3 },
+      { "type": "gold_total", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -477,11 +484,12 @@
     "id": "achieve_dwarf_skill_3",
     "name": "Unlock Runeforge",
     "description": "Unlock the skill 'Runeforge'.",
-    "hint": "Imbue your taps with power.",
+    "hint": "Hold 10,000,000 gold as Dwarves.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "dwarf_skill_3" },
     "requirements": [
+      { "type": "gold_total", "amount": 10000000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -489,11 +497,12 @@
     "id": "achieve_dwarf_skill_4",
     "name": "Unlock Resource Mastery",
     "description": "Unlock the skill 'Resource Mastery'.",
-    "hint": "Master both ore and gold.",
+    "hint": "Command 100,000,000 gold as Dwarves.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "dwarf_skill_4" },
     "requirements": [
+      { "type": "gold_total", "amount": 100000000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -501,11 +510,12 @@
     "id": "achieve_dwarf_skill_5",
     "name": "Unlock Deep Mining",
     "description": "Unlock the skill 'Deep Mining'.",
-    "hint": "Unlock all other Dwarf skills.",
+    "hint": "Amass one billion gold as Dwarves.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "dwarf_skill_5" },
     "requirements": [
+      { "type": "gold_total", "amount": 1000000000 },
       { "type": "faction_conquest", "selectedFaction": "dwarves", "conqueredFactions": [] }
     ]
   },
@@ -513,48 +523,66 @@
     "id": "achieve_undead_spell_1",
     "name": "Unlock Raise Dead",
     "description": "Unlock the spell 'Raise Dead'.",
-    "hint": "Reach a population of at least 10.",
+    "hint": "Command 100 Undead structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "undead_spell_1" },
-    "requirement": { "type": "buildings_owned", "amount": 2 }
+    "requirements": [
+      { "type": "buildings_owned", "amount": 100 },
+      { "type": "faction_conquest", "selectedFaction": "undead", "conqueredFactions": [] }
+    ]
   },
   {
     "id": "achieve_undead_spell_2",
     "name": "Unlock Ritual of Power",
     "description": "Unlock the spell 'Ritual of Power'.",
-    "hint": "Accumulate enough mana to fuel a ritual.",
+    "hint": "Command 1,000 Undead structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "undead_spell_2" },
-    "requirement": { "type": "mana_threshold", "amount": 50 }
+    "requirements": [
+      { "type": "buildings_owned", "amount": 1000 },
+      { "type": "faction_conquest", "selectedFaction": "undead", "conqueredFactions": [] }
+    ]
   },
   {
     "id": "achieve_undead_spell_3",
     "name": "Unlock Necrotic Surge",
     "description": "Unlock the spell 'Necrotic Surge'.",
-    "hint": "Harness the power of the grave.",
+    "hint": "Lead 10,000 undead constructions.",
     "isUnlocked": false,
     "isClaimed": false,
-    "reward": { "type": "unlock_spell", "targetId": "undead_spell_3" }
+    "reward": { "type": "unlock_spell", "targetId": "undead_spell_3" },
+    "requirements": [
+      { "type": "buildings_owned", "amount": 10000 },
+      { "type": "faction_conquest", "selectedFaction": "undead", "conqueredFactions": [] }
+    ]
   },
   {
     "id": "achieve_undead_spell_4",
     "name": "Unlock Eternal Hunger",
     "description": "Unlock the spell 'Eternal Hunger'.",
-    "hint": "Feed your undead army.",
+    "hint": "Raise 100,000 undead buildings.",
     "isUnlocked": false,
     "isClaimed": false,
-    "reward": { "type": "unlock_spell", "targetId": "undead_spell_4" }
+    "reward": { "type": "unlock_spell", "targetId": "undead_spell_4" },
+    "requirements": [
+      { "type": "buildings_owned", "amount": 100000 },
+      { "type": "faction_conquest", "selectedFaction": "undead", "conqueredFactions": [] }
+    ]
   },
   {
     "id": "achieve_undead_spell_5",
     "name": "Unlock Dark Ascension",
     "description": "Unlock the spell 'Dark Ascension'.",
-    "hint": "Only the most powerful necromancer can ascend.",
+    "hint": "Command one million undead buildings.",
     "isUnlocked": false,
     "isClaimed": false,
-    "reward": { "type": "unlock_spell", "targetId": "undead_spell_5" }
+    "reward": { "type": "unlock_spell", "targetId": "undead_spell_5" },
+    "requirements": [
+      { "type": "buildings_owned", "amount": 1000000 },
+      { "type": "faction_conquest", "selectedFaction": "undead", "conqueredFactions": [] }
+    ]
   },
   {
     "id": "achieve_undead_skill_1",
@@ -625,12 +653,12 @@
     "id": "achieve_automaton_spell_1",
     "name": "Unlock Auto-Tap Protocol",
     "description": "Unlock the spell 'Auto-Tap Protocol'.",
-    "hint": "Let machines do the tapping. Own 3 buildings.",
+    "hint": "Deploy 100 automated structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "auto_spell_1" },
     "requirements": [
-      { "type": "buildings_owned", "amount": 3 },
+      { "type": "buildings_owned", "amount": 100 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -638,11 +666,12 @@
     "id": "achieve_automaton_spell_2",
     "name": "Unlock Overclock",
     "description": "Unlock the spell 'Overclock'.",
-    "hint": "Push your systems to their limits.",
+    "hint": "Operate 1,000 automated structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "auto_spell_2" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 1000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -650,11 +679,12 @@
     "id": "achieve_automaton_spell_3",
     "name": "Unlock Dual Core Directive",
     "description": "Unlock the spell 'Dual Core Directive'.",
-    "hint": "Balance gold and mana to operate efficiently.",
+    "hint": "Sync 10,000 automated structures.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "auto_spell_3" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 10000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -662,11 +692,12 @@
     "id": "achieve_automaton_spell_4",
     "name": "Unlock Quantum Sync",
     "description": "Unlock the spell 'Quantum Sync'.",
-    "hint": "Harness the quantum fields of production.",
+    "hint": "Synchronize 100,000 machines.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "auto_spell_4" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -674,11 +705,12 @@
     "id": "achieve_automaton_spell_5",
     "name": "Unlock System Override",
     "description": "Unlock the spell 'System Override'.",
-    "hint": "Only advanced AI can trigger this failsafe.",
+    "hint": "Override with one million machines.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_spell", "targetId": "auto_spell_5" },
     "requirements": [
+      { "type": "buildings_owned", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -686,12 +718,12 @@
     "id": "achieve_automaton_skill_1",
     "name": "Unlock Core Optimization",
     "description": "Unlock the skill 'Core Optimization'.",
-    "hint": "Reach 25 total ore.",
+    "hint": "Accumulate 100,000 gold with machines.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "auto_skill_1" },
     "requirements": [
-      { "type": "gold_total", "amount": 250 },
+      { "type": "gold_total", "amount": 100000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -699,12 +731,12 @@
     "id": "achieve_automaton_skill_2",
     "name": "Unlock Energy Loop",
     "description": "Unlock the skill 'Energy Loop'.",
-    "hint": "Recharge your systems with mana.",
+    "hint": "Store 1,000,000 gold in your circuits.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "auto_skill_2" },
     "requirements": [
-      { "type": "mana_threshold", "amount": 40 },
+      { "type": "gold_total", "amount": 1000000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -712,11 +744,12 @@
     "id": "achieve_automaton_skill_3",
     "name": "Unlock Modular Efficiency",
     "description": "Unlock the skill 'Modular Efficiency'.",
-    "hint": "Improve your infrastructure design.",
+    "hint": "Engineer 10,000,000 gold in output.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "auto_skill_3" },
     "requirements": [
+      { "type": "gold_total", "amount": 10000000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -724,11 +757,12 @@
     "id": "achieve_automaton_skill_4",
     "name": "Unlock Tap-to-Protocol",
     "description": "Unlock the skill 'Tap-to-Protocol'.",
-    "hint": "Tapping is still useful. Use it wisely.",
+    "hint": "Process 100,000,000 gold autonomously.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "auto_skill_4" },
     "requirements": [
+      { "type": "gold_total", "amount": 100000000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
@@ -736,11 +770,12 @@
     "id": "achieve_automaton_skill_5",
     "name": "Unlock Autonomous Matrix",
     "description": "Unlock the skill 'Autonomous Matrix'.",
-    "hint": "Activate the final protocol.",
+    "hint": "Channel one billion gold to the mainframe.",
     "isUnlocked": false,
     "isClaimed": false,
     "reward": { "type": "unlock_skill", "targetId": "auto_skill_5" },
     "requirements": [
+      { "type": "gold_total", "amount": 1000000000 },
       { "type": "faction_conquest", "selectedFaction": "automatons", "conqueredFactions": [] }
     ]
   },
