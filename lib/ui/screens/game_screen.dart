@@ -87,30 +87,67 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _maybeShowTutorial() {
-    if (gm.state.tutorialShown) return;
-    gm.state.tutorialShown = true;
+    if (gm.state.firstPrestigeGuideDone || gm.state.totalPrestiges > 0) return;
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: const Text(
-          'Welcome to Idle Realms!',
+          'Path to Prestige',
           style: TextStyle(color: Colors.amber),
         ),
         content: const Text(
-          'Tap the screen to earn gold and construct buildings.\n\n'
-          'Unlock heroes, spells and skills to grow stronger.\n'
-          'Prestige for permanent bonuses and conquer all factions!',
+          'Would you like guidance on forging your first legend? ',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            onPressed: () {
+              Navigator.pop(context);
+              gm.state.firstPrestigeGuideDone = true;
+            },
+            child: const Text('Skip'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _runPrestigeGuide();
+            },
+            child: const Text('Begin'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _runPrestigeGuide() async {
+    final steps = [
+      '1. Construct your first building to lay the foundation of your realm.',
+      '2. Tap the screen to collect tribute from your subjects.',
+      '3. Open the Spells tab and wield a new arcane power.',
+      '4. Return here and unleash your spell upon the world.',
+      '5. Amass 100k gold, claim the achievement, then ascend via Prestige.',
+    ];
+
+    for (final step in steps) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          content: Text(step, style: const TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Next'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    setState(() => _selectedTab = 4);
+    gm.state.firstPrestigeGuideDone = true;
   }
 
   void _showConquestIntro() {
@@ -118,12 +155,12 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text('⚔️ Conquest Unlocked!', style: TextStyle(color: Colors.amber)),
+        title: const Text('⚔️ Conquest Awaits', style: TextStyle(color: Colors.amber)),
         content: const Text(
-          "As your legend grows, rival factions grow wary.\n\n"
-              "You may now challenge and **conquer** other factions.\n"
-              "Each conquest grants you permanent bonuses, new spells, skills, or even the ability to assimilate them into your own empire.\n\n"
-              "**Only the strongest may unify the world.**",
+          "Rival realms sense your power.\n\n"
+          "March forth to challenge them and expand your dominion.\n"
+          "Each victory grants permanent boons, new spells and skills, or even lets you absorb their strength.\n\n"
+          "**Only a true warlord can unite these lands.**",
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -297,9 +334,12 @@ class _GameScreenState extends State<GameScreen> {
           const Text('💥 Tap anywhere to gain gold 💰', style: TextStyle(fontSize: 16, color: Colors.white70)),
           const SizedBox(height: 24),
           const Divider(color: Colors.white30),
-          const SizedBox(height: 12),
-          Text('🎯 Equipped Spells (Max $maxSpells)', style: const TextStyle(fontSize: 18, color: Colors.amber)),
-          const SizedBox(height: 12),
+          if (gm.spellService.equippedSpells.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('🎯 Equipped Spells (Max $maxSpells)',
+                style: const TextStyle(fontSize: 18, color: Colors.amber)),
+            const SizedBox(height: 12),
+          ],
           ...gm.spellService.equippedSpells.take(maxSpells).map((spell) {
             final isReady = spell.canCast(gm.state);
 
