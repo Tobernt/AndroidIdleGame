@@ -262,6 +262,38 @@ class PrestigeService {
     _spellCostReductionUpgrades = 0;
   }
 
+  void restoreUpgrades({
+    required int usedPoints,
+    required int spellSlots,
+    required int factionSlots,
+    required int extraSkillPoints,
+    required int goldBonus,
+    required int manaBonus,
+    required int oreBonus,
+    required int buildingDiscount,
+    required int tapPower,
+    required int cooldown,
+    required int population,
+    required int autoTap,
+    required int globalOutput,
+    required int spellCostReduction,
+  }) {
+    _usedPrestigePoints = usedPoints;
+    _spellSlotUpgrades = spellSlots;
+    _factionSlotUpgrades = factionSlots;
+    _extraSkillPointsBought = extraSkillPoints;
+    _goldBonusUpgrades = goldBonus;
+    _manaBonusUpgrades = manaBonus;
+    _oreBonusUpgrades = oreBonus;
+    _buildingDiscountUpgrades = buildingDiscount;
+    _tapPowerUpgrades = tapPower;
+    _cooldownUpgrades = cooldown;
+    _populationUpgrades = population;
+    _autoTapUpgrades = autoTap;
+    _globalOutputUpgrades = globalOutput;
+    _spellCostReductionUpgrades = spellCostReduction;
+  }
+
   int get usedPrestigePoints => _usedPrestigePoints;
   int get spellUpgradeLevel => _spellSlotUpgrades;
   int get factionUpgradeLevel => _factionSlotUpgrades;

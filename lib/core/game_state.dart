@@ -29,6 +29,20 @@ class GameState {
   double tapPower = 1.0;
   int prestigeLevel = 0;
   int prestigePoints = 0;
+  int usedPrestigePoints = 0;
+  int spellUpgradeLevel = 0;
+  int factionUpgradeLevel = 0;
+  int extraSkillPointsBought = 0;
+  int goldBonusLevel = 0;
+  int manaBonusLevel = 0;
+  int oreBonusLevel = 0;
+  int buildingDiscountLevel = 0;
+  int tapPowerLevel = 0;
+  int cooldownReductionLevel = 0;
+  int populationGrowthLevel = 0;
+  int autoTapLevel = 0;
+  int globalOutputLevel = 0;
+  int spellCostReductionLevel = 0;
   final Set<String> prestigeSkills = {};
   bool adGoldBoostActive = false;
   int adGoldBoostRemainingSeconds = 0;
@@ -97,6 +111,20 @@ class GameState {
       'prestigeMultiplier': metaValues['prestigeMultiplier'] ?? 1.0,
       'prestigeLevel': prestigeLevel,
       'prestigePoints': prestigePoints,
+      'usedPrestigePoints': usedPrestigePoints,
+      'spellUpgradeLevel': spellUpgradeLevel,
+      'factionUpgradeLevel': factionUpgradeLevel,
+      'extraSkillPointsBought': extraSkillPointsBought,
+      'goldBonusLevel': goldBonusLevel,
+      'manaBonusLevel': manaBonusLevel,
+      'oreBonusLevel': oreBonusLevel,
+      'buildingDiscountLevel': buildingDiscountLevel,
+      'tapPowerLevel': tapPowerLevel,
+      'cooldownReductionLevel': cooldownReductionLevel,
+      'populationGrowthLevel': populationGrowthLevel,
+      'autoTapLevel': autoTapLevel,
+      'globalOutputLevel': globalOutputLevel,
+      'spellCostReductionLevel': spellCostReductionLevel,
       'prestigeSkills': prestigeSkills.toList(),
       'heroesUnlocked': heroesUnlocked,
       'conquestUnlocked': conquestUnlocked,
@@ -138,6 +166,20 @@ class GameState {
     state.tapPower = (json['tapPower'] ?? 1.0).toDouble();
     state.prestigeLevel = (json['prestigeLevel'] ?? 0) as int;
     state.prestigePoints = (json['prestigePoints'] ?? 0) as int;
+    state.usedPrestigePoints = (json['usedPrestigePoints'] ?? 0) as int;
+    state.spellUpgradeLevel = (json['spellUpgradeLevel'] ?? 0) as int;
+    state.factionUpgradeLevel = (json['factionUpgradeLevel'] ?? 0) as int;
+    state.extraSkillPointsBought = (json['extraSkillPointsBought'] ?? 0) as int;
+    state.goldBonusLevel = (json['goldBonusLevel'] ?? 0) as int;
+    state.manaBonusLevel = (json['manaBonusLevel'] ?? 0) as int;
+    state.oreBonusLevel = (json['oreBonusLevel'] ?? 0) as int;
+    state.buildingDiscountLevel = (json['buildingDiscountLevel'] ?? 0) as int;
+    state.tapPowerLevel = (json['tapPowerLevel'] ?? 0) as int;
+    state.cooldownReductionLevel = (json['cooldownReductionLevel'] ?? 0) as int;
+    state.populationGrowthLevel = (json['populationGrowthLevel'] ?? 0) as int;
+    state.autoTapLevel = (json['autoTapLevel'] ?? 0) as int;
+    state.globalOutputLevel = (json['globalOutputLevel'] ?? 0) as int;
+    state.spellCostReductionLevel = (json['spellCostReductionLevel'] ?? 0) as int;
 
     state.prestigeSkills.addAll(List<String>.from(json['prestigeSkills'] ?? []));
 
@@ -219,6 +261,20 @@ class GameState {
       ..addAll(old.prestigeSkills);
 
     prestigePoints = old.prestigePoints;
+    usedPrestigePoints = old.usedPrestigePoints;
+    spellUpgradeLevel = old.spellUpgradeLevel;
+    factionUpgradeLevel = old.factionUpgradeLevel;
+    extraSkillPointsBought = old.extraSkillPointsBought;
+    goldBonusLevel = old.goldBonusLevel;
+    manaBonusLevel = old.manaBonusLevel;
+    oreBonusLevel = old.oreBonusLevel;
+    buildingDiscountLevel = old.buildingDiscountLevel;
+    tapPowerLevel = old.tapPowerLevel;
+    cooldownReductionLevel = old.cooldownReductionLevel;
+    populationGrowthLevel = old.populationGrowthLevel;
+    autoTapLevel = old.autoTapLevel;
+    globalOutputLevel = old.globalOutputLevel;
+    spellCostReductionLevel = old.spellCostReductionLevel;
 
     metaValues
       ..clear()
@@ -258,6 +314,20 @@ class GameState {
     tapPower = 1.0;
     prestigeLevel = 0;
     prestigePoints = 0;
+    usedPrestigePoints = 0;
+    spellUpgradeLevel = 0;
+    factionUpgradeLevel = 0;
+    extraSkillPointsBought = 0;
+    goldBonusLevel = 0;
+    manaBonusLevel = 0;
+    oreBonusLevel = 0;
+    buildingDiscountLevel = 0;
+    tapPowerLevel = 0;
+    cooldownReductionLevel = 0;
+    populationGrowthLevel = 0;
+    autoTapLevel = 0;
+    globalOutputLevel = 0;
+    spellCostReductionLevel = 0;
     currentRunTaps = 0;
     totalPrestiges = 0;
     heroesUnlocked = false;
