@@ -89,56 +89,67 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
 
                           return SizedBox(
                             width: MediaQuery.of(context).size.width / 3 - 32,
-                            child: Card(
-                              color: isEquipped ? Colors.blueGrey[700] : Colors.grey[850],
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      spell.name,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                            child: Material(
+                              color: isEquipped
+                                  ? Colors.green.shade700
+                                  : Colors.grey.shade900,
+                              borderRadius: BorderRadius.circular(8),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(8),
+                                onTap: (!isEquipped && canEquip)
+                                    ? () => _confirmEquip(spell)
+                                    : null,
+                                splashColor:
+                                    Colors.greenAccent.withAlpha((0.3 * 255).toInt()),
+                                highlightColor:
+                                    Colors.white.withAlpha((0.05 * 255).toInt()),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            spell.name,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (isEquipped)
+                                            const Padding(
+                                              padding: EdgeInsets.only(left: 4),
+                                              child: Icon(
+                                                Icons.check_circle,
+                                                color: Colors.lightGreenAccent,
+                                                size: 16,
+                                              ),
+                                            ),
+                                        ],
                                       ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      spell.description,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '$cooldownText\n$costText',
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(color: Colors.white54, fontSize: 11),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    isEquipped
-                                        ? IconButton(
-                                      icon: const Icon(Icons.remove_circle, color: Colors.redAccent),
-                                      onPressed: () {
-                                        setState(() {
-                                          equipped.remove(spell);
-                                          _updateEquippedSpells();
-                                        });
-                                      },
-                                    )
-                                        : canEquip
-                                        ? IconButton(
-                                      icon: const Icon(Icons.add_circle, color: Colors.greenAccent),
-                                      onPressed: () {
-                                        setState(() {
-                                          equipped.add(spell);
-                                          _updateEquippedSpells();
-                                        });
-                                      },
-                                    )
-                                        : const Text('Full', style: TextStyle(color: Colors.grey)),
-                                  ],
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        spell.description,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: Colors.white70, fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '$cooldownText\n$costText',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: Colors.white54, fontSize: 11),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      if (!isEquipped && !canEquip)
+                                        const Text('Full',
+                                            style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -154,6 +165,37 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _confirmEquip(Spell spell) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text('Equip Spell?', style: TextStyle(color: Colors.amber)),
+        content: Text(
+          'Equip ${spell.name}? This cannot be changed until you prestige.',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                equipped.add(spell);
+                _updateEquippedSpells();
+              });
+            },
+            child: const Text('Equip',
+                style: TextStyle(color: Colors.lightGreenAccent)),
+          ),
+        ],
+      ),
     );
   }
 }
