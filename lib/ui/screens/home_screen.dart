@@ -160,22 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const InfoScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
-                ),
-                child: const Text('How to Play'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
