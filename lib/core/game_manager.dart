@@ -645,7 +645,21 @@ class GameManager with ChangeNotifier {
     state.prestigeSkills
       ..clear()
       ..addAll(prestigeService.getAllocatedSkills());
-    state.prestigePoints = prestigeService.availablePoints;
+    state.prestigePoints = prestigeService.prestigePoints;
+    state.usedPrestigePoints = prestigeService.usedPrestigePoints;
+    state.spellUpgradeLevel = prestigeService.spellUpgradeLevel;
+    state.factionUpgradeLevel = prestigeService.factionUpgradeLevel;
+    state.extraSkillPointsBought = prestigeService.extraSkillPointsBought;
+    state.goldBonusLevel = prestigeService.goldBonusLevel;
+    state.manaBonusLevel = prestigeService.manaBonusLevel;
+    state.oreBonusLevel = prestigeService.oreBonusLevel;
+    state.buildingDiscountLevel = prestigeService.buildingDiscountLevel;
+    state.tapPowerLevel = prestigeService.tapPowerLevel;
+    state.cooldownReductionLevel = prestigeService.cooldownReductionLevel;
+    state.populationGrowthLevel = prestigeService.populationGrowthLevel;
+    state.autoTapLevel = prestigeService.autoTapLevel;
+    state.globalOutputLevel = prestigeService.globalOutputLevel;
+    state.spellCostReductionLevel = prestigeService.spellCostReductionLevel;
 
     // ✅ Buildings
     state.buildingCounts
@@ -702,7 +716,24 @@ class GameManager with ChangeNotifier {
 
     // ✅ Prestige
     prestigeService.setAllocated(state.prestigeSkills);
+    prestigeService.prestigePoints = state.prestigePoints;
     prestigeService.setAvailablePoints(state.prestigePoints);
+    prestigeService.restoreUpgrades(
+      usedPoints: state.usedPrestigePoints,
+      spellSlots: state.spellUpgradeLevel,
+      factionSlots: state.factionUpgradeLevel,
+      extraSkillPoints: state.extraSkillPointsBought,
+      goldBonus: state.goldBonusLevel,
+      manaBonus: state.manaBonusLevel,
+      oreBonus: state.oreBonusLevel,
+      buildingDiscount: state.buildingDiscountLevel,
+      tapPower: state.tapPowerLevel,
+      cooldown: state.cooldownReductionLevel,
+      population: state.populationGrowthLevel,
+      autoTap: state.autoTapLevel,
+      globalOutput: state.globalOutputLevel,
+      spellCostReduction: state.spellCostReductionLevel,
+    );
 
     // ✅ Buildings
     buildingService.setBuildingCounts(state.buildingCounts);
