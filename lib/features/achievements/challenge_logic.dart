@@ -76,6 +76,10 @@ class ChallengeLogic {
         return elapsed <= Duration(seconds: 60) && defeatedUndead;
 
       default:
+        if (id.startsWith('mana_regen_')) {
+          final value = double.tryParse(id.split('_').last) ?? 0.0;
+          return state.getManaRegenPerSecond() >= value;
+        }
         return false;
     }
   }
