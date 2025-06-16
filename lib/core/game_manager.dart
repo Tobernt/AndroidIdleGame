@@ -786,7 +786,8 @@ class GameManager with ChangeNotifier {
       (state.resourceModifiers['gold_income'] ?? 1.0) *
           modifierManager.getCombinedMultiplier('gold') *
           modifierManager.getCombinedMultiplier('gold_income_multiplier') *
-          prestigeService.prestigeMultiplier;
+          prestigeService.prestigeMultiplier *
+          (state.metaValues['permanent_gold_bonus'] == true ? 2.0 : 1.0);
 
   double get goldBoostSecondsLeft =>
       modifierManager.getRemainingTimeFor("gold");
