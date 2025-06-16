@@ -515,19 +515,23 @@ class _GameScreenState extends State<GameScreen> {
     return Container(
       color: Colors.black,
       height: kBottomNavigationBarHeight,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: List.generate(tabs.length, (index) {
-            final tab = tabs[index];
-            final selected = index == _selectedTab;
-            return GestureDetector(
-              onTap: () {
-                if (index == 7) {
-                  final conquestAchievement = gm.achievementService.all
-                      .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
-                  final isClaimed = conquestAchievement?.isClaimed ?? false;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const minTabWidth = 100.0;
+          final availableWidth = constraints.maxWidth;
+          final tabWidth = availableWidth / tabs.length;
+          final needsScroll = tabWidth < minTabWidth;
+
+          final row = Row(
+            children: List.generate(tabs.length, (index) {
+              final tab = tabs[index];
+              final selected = index == _selectedTab;
+              return GestureDetector(
+                onTap: () {
+                  if (index == 7) {
+                    final conquestAchievement = gm.achievementService.all
+                        .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
+                    final isClaimed = conquestAchievement?.isClaimed ?? false;
 
                   if (!isClaimed) {
                     showDialog(
@@ -556,7 +560,7 @@ class _GameScreenState extends State<GameScreen> {
                 );
               },
               child: Container(
-                width: 100,
+                width: needsScroll ? minTabWidth : tabWidth,
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 color: Colors.black,
                 child: Column(
@@ -574,8 +578,19 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             );
-          }),
-        ),
+            }),
+          );
+
+          if (needsScroll) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: row,
+            );
+          }
+
+          return row;
+        },
       ),
     );
   }
