@@ -8,8 +8,8 @@ import 'building_screen.dart';
 import 'equip_spells_screen.dart';
 import 'prestige_screen.dart';
 import 'achievement_screen.dart';
+import 'purchase_screen.dart';
 import 'conquest_screen.dart';
-import 'hero_screen.dart';
 import '../../main.dart';
 
 class GameScreen extends StatefulWidget {
@@ -310,6 +310,8 @@ class _GameScreenState extends State<GameScreen> {
         onConquestUnlocked: () => setState(() {}),
       );
       case 6:
+        return PurchaseScreen(gameManager: gm);
+      case 7:
         return gm.conquestManager.conquestUnlocked
             ? ConquestScreen(gameManager: gm)
             : Center(
@@ -317,19 +319,6 @@ class _GameScreenState extends State<GameScreen> {
             padding: const EdgeInsets.all(32),
             child: Text(
               '⚔️ Conquest will unlock after reaching Prestige 10 and claiming the achievement.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          ),
-        );
-      case 7:
-        return gm.state.heroesUnlocked
-            ? const HeroScreen()
-            : Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Text(
-              '👥 Heroes will unlock through gameplay achievements.',
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
@@ -511,13 +500,15 @@ class _GameScreenState extends State<GameScreen> {
         label: "Achievements",
       ),
 
+      const BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Support"),
+
       const BottomNavigationBarItem(icon: Icon(Icons.military_tech), label: "Conquest"),
     ];
 
     return BottomNavigationBar(
       currentIndex: _selectedTab,
       onTap: (i) {
-        if (i == 6) {
+        if (i == 7) {
           final conquestAchievement = gm.achievementService.all
               .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
           final isClaimed = conquestAchievement?.isClaimed ?? false;

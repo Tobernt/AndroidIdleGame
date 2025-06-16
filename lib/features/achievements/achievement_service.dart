@@ -153,7 +153,7 @@ class AchievementService {
       final a = _achievements[i];
       if (a.isUnlocked) continue;
 
-      bool fulfilled = true;
+      bool fulfilled = a.requirements.isNotEmpty;
 
       for (final r in a.requirements) {
         bool reqMet = false;

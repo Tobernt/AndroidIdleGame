@@ -20,7 +20,12 @@ class PurchaseService {
   PurchaseService({required this.onPurchase});
 
   Future<void> init() async {
-    _available = await _iap.isAvailable();
+    try {
+      _available = await _iap.isAvailable();
+    } catch (e) {
+      debugPrint('In-app purchase unavailable: $e');
+      _available = false;
+    }
     if (!_available) return;
 
     final purchaseUpdated = _iap.purchaseStream;
