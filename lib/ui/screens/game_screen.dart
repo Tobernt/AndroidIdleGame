@@ -122,12 +122,34 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _runPrestigeGuide() async {
-    final steps = [
-      '1. Construct your first building to lay the foundation of your realm.',
-      '2. Tap the screen to collect tribute from your subjects.',
-      '3. Open the Spells tab and wield a new arcane power.',
-      '4. Return here and unleash your spell upon the world.',
-      '5. Amass 100k gold, claim the achievement, then ascend via Prestige.',
+    final steps = <_GuideStep>[
+      _GuideStep(
+        message:
+            '1. Construct your first building to lay the foundation of your realm.',
+        requirement: () =>
+            gm.buildingService.buildings.any((b) => b.level > 0),
+      ),
+      _GuideStep(
+        message:
+            '2. Tap the screen to collect tribute from your subjects.',
+        requirement: () => gm.state.lifetimeTaps >= 10,
+      ),
+      _GuideStep(
+        message:
+            '3. Open the Spells tab and wield a new arcane power.',
+        requirement: () => gm.spellService.allSpells.any((s) => s.unlocked),
+      ),
+      _GuideStep(
+        message: '4. Return here and unleash your spell upon the world.',
+        requirement: () => gm.state.totalSpellsCast > 0,
+      ),
+      _GuideStep(
+        message:
+            '5. Amass 100k gold, claim the achievement, then ascend via Prestige.',
+        requirement: () =>
+            gm.prestigeService.lifetimeGold >= 100000 &&
+            gm.state.totalPrestiges > 0,
+      ),
     ];
 
     for (final step in steps) {
@@ -135,15 +157,20 @@ class _GameScreenState extends State<GameScreen> {
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: Colors.grey[900],
-          content: Text(step, style: const TextStyle(color: Colors.white70)),
+          content: Text(step.message,
+              style: const TextStyle(color: Colors.white70)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Next'),
+              child: const Text('OK'),
             ),
           ],
         ),
       );
+
+      while (!step.requirement()) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
     }
 
     setState(() => _selectedTab = 4);
@@ -521,6 +548,13 @@ class _GameScreenState extends State<GameScreen> {
       items: tabs,
     );
   }
+}
+
+class _GuideStep {
+  final String message;
+  final bool Function() requirement;
+
+  _GuideStep({required this.message, required this.requirement});
 }
 
 // Add this after the class, at the bottom of the file

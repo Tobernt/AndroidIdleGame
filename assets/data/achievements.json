@@ -877,5 +877,13 @@
       "selectedFaction": "automatons",
       "conqueredFactions": ["humans", "elves", "orcs", "dwarves", "undead"]
     }
+  },
+  {
+    "id": "achieve_completionist",
+    "name": "Master of Legends",
+    "description": "All achievements claimed. You have conquered every challenge!",
+    "hint": "Claim every other achievement.",
+    "isUnlocked": false,
+    "isClaimed": false
   }
 ]

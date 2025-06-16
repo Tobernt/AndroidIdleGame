@@ -229,6 +229,20 @@ class AchievementService {
       state.heroesUnlocked = true;
       debugPrint("🦸 Heroes system unlocked via achievement!");
     }
+
+    // 🔓 Unlock final achievement when every other one is claimed
+    final completionIndex =
+        _achievements.indexWhere((a) => a.id == 'achieve_completionist');
+    if (completionIndex != -1) {
+      final allClaimed = _achievements
+          .where((a) => a.id != 'achieve_completionist')
+          .every((a) => a.isClaimed);
+      final completion = _achievements[completionIndex];
+      if (allClaimed && !completion.isUnlocked) {
+        _achievements[completionIndex] = completion.copyWith(isUnlocked: true);
+        debugPrint('🏆 Completionist achievement unlocked!');
+      }
+    }
   }
 
 }
