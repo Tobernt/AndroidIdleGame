@@ -512,18 +512,20 @@ class _GameScreenState extends State<GameScreen> {
       _NavTab(icon: const Icon(Icons.military_tech), label: 'Conquest'),
     ];
 
-    return Container(
-      color: Colors.black,
-      height: kBottomNavigationBarHeight,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: List.generate(tabs.length, (index) {
-            final tab = tabs[index];
-            final selected = index == _selectedTab;
-            return GestureDetector(
-              onTap: () {
+    return SafeArea(
+      top: false,
+      child: Container(
+        color: Colors.black,
+        height: kBottomNavigationBarHeight,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: List.generate(tabs.length, (index) {
+              final tab = tabs[index];
+              final selected = index == _selectedTab;
+              return GestureDetector(
+                onTap: () {
                 if (index == 7) {
                   final conquestAchievement = gm.achievementService.all
                       .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
@@ -556,8 +558,7 @@ class _GameScreenState extends State<GameScreen> {
                 );
               },
               child: Container(
-                width: 100,
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 color: Colors.black,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
