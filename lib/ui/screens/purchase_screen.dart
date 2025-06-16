@@ -50,7 +50,11 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Support Us')),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Support Us'),
+        backgroundColor: Colors.black,
+      ),
       body: Center(
         child: _purchased
             ? const Text('2× Bonus Active')

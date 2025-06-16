@@ -29,9 +29,15 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: widget.gameManager.spellService,
-      builder: (_, __) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('🪄 Equip Spells'),
+        backgroundColor: Colors.black,
+      ),
+      body: AnimatedBuilder(
+        animation: widget.gameManager.spellService,
+        builder: (_, __) {
         final selectedFactionIds = widget.gameManager.factionManager.selected.map((f) => f.id).toSet();
 
         final availableSpells = widget.gameManager.spellService.allSpells.where((spell) {
@@ -111,12 +117,14 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(
-                                            spell.name,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                          Flexible(
+                                            child: Text(
+                                              spell.name,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                           if (isEquipped)
@@ -165,7 +173,8 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
           ),
         );
       },
-    );
+    ),
+  );
   }
 
   void _confirmEquip(Spell spell) {
