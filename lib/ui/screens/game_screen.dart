@@ -545,6 +545,7 @@ class _GameScreenState extends State<GameScreen> {
                 color: Colors.black,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     tab.icon,
