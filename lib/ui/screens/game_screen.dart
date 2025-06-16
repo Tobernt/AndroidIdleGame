@@ -347,16 +347,19 @@ class _GameScreenState extends State<GameScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton(
-            onPressed: () async {
-              final ads = AdsService();
-              await ads.showRewardedAd(() {
-                gm.addGoldAdModifier();
-                setState(() {});
-              });
-            },
-            child: const Text('📺 Watch Ad for 2× Gold (4h)'),
-          ),
+          gm.state.metaValues['permanent_gold_bonus'] == true
+              ? const Text('2× Bonus Active',
+                  style: TextStyle(color: Colors.lightGreen, fontSize: 16))
+              : ElevatedButton(
+                  onPressed: () async {
+                    final ads = AdsService();
+                    await ads.showRewardedAd(() {
+                      gm.addGoldAdModifier();
+                      setState(() {});
+                    });
+                  },
+                  child: const Text('📺 Watch Ad for 2× Gold (4h)'),
+                ),
           const SizedBox(height: 16),
           const Text('💥 Tap anywhere to gain gold 💰', style: TextStyle(fontSize: 16, color: Colors.white70)),
           const SizedBox(height: 24),
