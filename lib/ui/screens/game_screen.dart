@@ -27,12 +27,14 @@ class _GameScreenState extends State<GameScreen> {
   late final Timer _smoothTimer;
   final Map<String, double> _smoothedValues = {};
   int _selectedTab = 0;
+  late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     gm = widget.gameManager;
     gm.isGameplayActive = true;
+    _pageController = PageController(initialPage: _selectedTab);
 
     _initializeResourceSmoothing();
     _startTickLoop();
@@ -205,6 +207,7 @@ class _GameScreenState extends State<GameScreen> {
     gm.isGameplayActive = false;
     _updateTimer.cancel();
     _smoothTimer.cancel();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -225,9 +228,16 @@ class _GameScreenState extends State<GameScreen> {
               _buildTopBar(),
               const SizedBox(height: 12),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTabContent(),
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (i) => setState(() => _selectedTab = i),
+                  itemCount: 8,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildPage(index),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 12),
@@ -293,8 +303,8 @@ class _GameScreenState extends State<GameScreen> {
     'population': '🧟',
   }[key] ?? '';
 
-  Widget _buildTabContent() {
-    switch (_selectedTab) {
+  Widget _buildPage(int index) {
+    switch (index) {
       case 0: return _buildMainContent();
       case 1: return BuildingScreen(gameManager: gm);
       case 2: return SkillScreen(
@@ -507,6 +517,7 @@ class _GameScreenState extends State<GameScreen> {
       height: kBottomNavigationBarHeight,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         child: Row(
           children: List.generate(tabs.length, (index) {
             final tab = tabs[index];
@@ -538,7 +549,11 @@ class _GameScreenState extends State<GameScreen> {
                   }
                 }
 
-                setState(() => _selectedTab = index);
+                _pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                );
               },
               child: Container(
                 width: 100,
