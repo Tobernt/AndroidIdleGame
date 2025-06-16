@@ -26,7 +26,6 @@ class PrestigeScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('🌟 Prestige'),
-        backgroundColor: Colors.black,
       ),
       body: Center(
         child: SingleChildScrollView(

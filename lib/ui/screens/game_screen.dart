@@ -467,17 +467,16 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildBottomNav() {
     final hasUnclaimedAchievements = gm.achievementService.all.any(
-          (a) => a.isUnlocked && !a.isClaimed,
+      (a) => a.isUnlocked && !a.isClaimed,
     );
 
-    final tabs = <BottomNavigationBarItem>[
-      const BottomNavigationBarItem(icon: Icon(Icons.home), label: "Main"),
-      const BottomNavigationBarItem(icon: Icon(Icons.business), label: "Buildings"),
-      const BottomNavigationBarItem(icon: Icon(Icons.psychology), label: "Skills"),
-      const BottomNavigationBarItem(icon: Icon(Icons.auto_awesome), label: "Spells"),
-      const BottomNavigationBarItem(icon: Icon(Icons.stars), label: "Prestige"),
-
-      BottomNavigationBarItem(
+    final tabs = <_NavTab>[
+      _NavTab(icon: const Icon(Icons.home), label: 'Main'),
+      _NavTab(icon: const Icon(Icons.business), label: 'Buildings'),
+      _NavTab(icon: const Icon(Icons.psychology), label: 'Skills'),
+      _NavTab(icon: const Icon(Icons.auto_awesome), label: 'Spells'),
+      _NavTab(icon: const Icon(Icons.stars), label: 'Prestige'),
+      _NavTab(
         icon: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -497,51 +496,82 @@ class _GameScreenState extends State<GameScreen> {
               ),
           ],
         ),
-        label: "Achievements",
+        label: 'Achievements',
       ),
-
-      const BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Support"),
-
-      const BottomNavigationBarItem(icon: Icon(Icons.military_tech), label: "Conquest"),
+      _NavTab(icon: const Icon(Icons.shopping_cart), label: 'Support'),
+      _NavTab(icon: const Icon(Icons.military_tech), label: 'Conquest'),
     ];
 
-    return BottomNavigationBar(
-      currentIndex: _selectedTab,
-      onTap: (i) {
-        if (i == 7) {
-          final conquestAchievement = gm.achievementService.all
-              .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
-          final isClaimed = conquestAchievement?.isClaimed ?? false;
+    return Container(
+      color: Colors.black,
+      height: kBottomNavigationBarHeight + 4,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(tabs.length, (index) {
+            final tab = tabs[index];
+            final selected = index == _selectedTab;
+            return GestureDetector(
+              onTap: () {
+                if (index == 7) {
+                  final conquestAchievement = gm.achievementService.all
+                      .firstWhereOrNull((a) => a.reward?.type == 'unlock_conquest');
+                  final isClaimed = conquestAchievement?.isClaimed ?? false;
 
-          if (!isClaimed) {
-            showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('🔒 Conquest Locked'),
-                content: const Text(
-                  'You must prestige 10 times and claim the “Unify the World” achievement to unlock Conquest.',
+                  if (!isClaimed) {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('🔒 Conquest Locked'),
+                        content: const Text(
+                          'You must prestige 10 times and claim the “Unify the World” achievement to unlock Conquest.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
+                }
+
+                setState(() => _selectedTab = index);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                color: Colors.black,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    tab.icon,
+                    const SizedBox(height: 4),
+                    Text(
+                      tab.label,
+                      style: TextStyle(
+                        color:
+                            selected ? Colors.white : const Color(0xFFB0C4DE),
+                      ),
+                    ),
+                  ],
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('OK'),
-                  ),
-                ],
               ),
             );
-            return;
-          }
-        }
-
-        setState(() => _selectedTab = i);
-      },
-      backgroundColor: Colors.black,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: const Color(0xFFB0C4DE),
-      type: BottomNavigationBarType.fixed,
-      items: tabs,
+          }),
+        ),
+      ),
     );
   }
+}
+
+class _NavTab {
+  final Widget icon;
+  final String label;
+
+  _NavTab({required this.icon, required this.label});
 }
 
 class _GuideStep {

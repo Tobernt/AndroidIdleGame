@@ -70,7 +70,6 @@ class _HeroScreenState extends State<HeroScreen> {
           backgroundColor: Colors.black,
           appBar: AppBar(
             title: const Text('🦸 Heroes'),
-            backgroundColor: Colors.black,
             automaticallyImplyLeading: false,
           ),
           body: Padding(

@@ -27,7 +27,6 @@ class _AchievementScreenState extends State<AchievementScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('🏆 Achievements'),
-        backgroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.bolt, color: Colors.amber),

@@ -29,7 +29,6 @@ class _FactionScreenState extends State<FactionScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('🛡 Choose Your Faction'),
-        backgroundColor: Colors.black,
         automaticallyImplyLeading: !widget.hideBack,
         actions: [
           IconButton(
