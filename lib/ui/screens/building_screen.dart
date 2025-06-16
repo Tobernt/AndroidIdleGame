@@ -21,7 +21,6 @@ class BuildingScreen extends StatelessWidget {
           backgroundColor: Colors.black,
           appBar: AppBar(
             title: const Text('🏗 Buildings'),
-            backgroundColor: Colors.black,
           ),
           body: buildings.isEmpty
               ? const Center(

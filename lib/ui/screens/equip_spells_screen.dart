@@ -32,8 +32,13 @@ class _EquipSpellsScreenState extends State<EquipSpellsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('🪄 Equip Spells'),
-        backgroundColor: Colors.black,
+        title: Row(
+          children: const [
+            Icon(Icons.auto_awesome),
+            SizedBox(width: 8),
+            Text('Equip Spells'),
+          ],
+        ),
       ),
       body: AnimatedBuilder(
         animation: widget.gameManager.spellService,

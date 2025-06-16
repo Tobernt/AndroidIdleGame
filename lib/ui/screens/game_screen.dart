@@ -504,7 +504,7 @@ class _GameScreenState extends State<GameScreen> {
 
     return Container(
       color: Colors.black,
-      height: kBottomNavigationBarHeight,
+      height: kBottomNavigationBarHeight + 4,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -541,10 +541,10 @@ class _GameScreenState extends State<GameScreen> {
                 setState(() => _selectedTab = index);
               },
               child: Container(
-                width: 100,
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 color: Colors.black,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     tab.icon,
@@ -552,7 +552,8 @@ class _GameScreenState extends State<GameScreen> {
                     Text(
                       tab.label,
                       style: TextStyle(
-                        color: selected ? Colors.white : const Color(0xFFB0C4DE),
+                        color:
+                            selected ? Colors.white : const Color(0xFFB0C4DE),
                       ),
                     ),
                   ],

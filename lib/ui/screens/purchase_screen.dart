@@ -53,7 +53,6 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Support Us'),
-        backgroundColor: Colors.black,
       ),
       body: Center(
         child: _purchased

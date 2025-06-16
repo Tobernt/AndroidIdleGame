@@ -58,7 +58,6 @@ class _ConquestScreenState extends State<ConquestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('⚔️ Conquest'),
-        backgroundColor: Colors.black,
       ),
       backgroundColor: Colors.black,
       body: Padding(

@@ -9,7 +9,6 @@ class InfoScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('\uD83D\uDCD6 How to Play'),
-        backgroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

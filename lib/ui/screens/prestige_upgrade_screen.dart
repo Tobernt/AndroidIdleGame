@@ -35,7 +35,6 @@ class _PrestigeUpgradeScreenState extends State<PrestigeUpgradeScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('🎓 Prestige Upgrades'),
-          backgroundColor: Colors.black,
           automaticallyImplyLeading: false,
         ),
         backgroundColor: Colors.black,
