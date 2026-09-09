@@ -73,7 +73,7 @@ class BuildingService {
     );
   }
 
-  /// ✅ Collect all numeric-based building modifiers (scaled by level)
+  /// Collect all numeric-based building modifiers (scaled by level)
   Map<String, double> getActiveModifiers() {
     final Map<String, double> modifiers = {};
 

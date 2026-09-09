@@ -1,24 +1,23 @@
-# androididlegame
+# Android Idle Game
 
-A new Flutter project.
+A Flutter idle-game prototype with resource production, buildings, heroes, factions, spells, achievements and prestige progression. Game state is stored locally using SharedPreferences.
 
-## Getting Started
+## Run
 
-This project is a starting point for a Flutter application.
+Install Flutter with a compatible Dart SDK (the package requires Dart 3.7.2 or later), then run:
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+flutter pub get
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Code guide
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `lib/core`: game state, progression and orchestration.
+- `lib/features`: resources, buildings, heroes, spells and progression systems.
+- `lib/ui/screens`: game screens and controls.
+- `lib/services`: rewarded-ad simulation and in-app purchase integration.
 
-## Google Play Games Services
+Rewarded ads are simulated locally. Real purchases and Play Games sign-in require separate store configuration; the repository is not a store-ready release. The Android release configuration still uses debug signing.
 
-This project is configured to use the Play Games Services v2 SDK. The Android
-module adds the required `play-services-games-v2` dependency and includes Google
-and Maven Central repositories. To finish enabling Play Games Services features,
-set up sign-in in your Google Play Console and follow the Play Games Services
-documentation.
+Use `flutter analyze` for static checks. No automated game tests are currently included.

@@ -26,7 +26,7 @@ class SpellService extends ChangeNotifier {
 
   Map<String, SpellEffect> buildEffectMap(ModifierManager manager) {
     return {
-      // 🧍 HUMAN SPELLS
+      // HUMAN SPELLS
       "human_spell_1": (state) {
         final income = state.resourceModifiers['gold_per_sec'] ?? 0.0;
         state.addResource('gold', income * 30);
@@ -69,7 +69,7 @@ class SpellService extends ChangeNotifier {
         }
       },
 
-      // 🧟 UNDEAD SPELLS
+      // UNDEAD SPELLS
       "undead_spell_1": (state) {
         state.addResource('population', 10);
       },
@@ -192,7 +192,7 @@ class SpellService extends ChangeNotifier {
         state.metaValues['cast_all_equipped'] = true;
       },
 
-      // 🪓 ORC SPELLS
+      // ORC SPELLS
       "orc_spell_1": (state) {
         // Battle Roar: Boost tap power for 10 seconds
         manager.addModifier(Modifier(
@@ -229,14 +229,14 @@ class SpellService extends ChangeNotifier {
           multiplier: 1.0,
           duration: const Duration(seconds: 20),
         ));
-        // Optional: Add this if you handle special logic for bonus tap gold separately
+
         manager.addModifier(Modifier(
           id: 'bloodfury_gold_boost',
           multiplier: 1.0,
           duration: const Duration(seconds: 20),
         ));
       },
-      // 🤖 AUTOMATON SPELLS
+      // AUTOMATON SPELLS
       "auto_spell_1": (state) {
         // Auto-Trigger: Triggers 5 auto-taps instantly
         state.resourceModifiers['auto_tap_trigger'] = 5.0;
@@ -282,7 +282,7 @@ class SpellService extends ChangeNotifier {
 
   Future<void> loadFromJsonAssets(List<String> paths) async {
     final List<Spell> all = [];
-    final map = buildEffectMap(_modifierManager); // ✅ Build once
+    final map = buildEffectMap(_modifierManager); // Build once
 
     for (final path in paths) {
       final raw = await rootBundle.loadString(path);

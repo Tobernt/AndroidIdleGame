@@ -5,7 +5,7 @@ import '../../features/achievements/achievement_service.dart';
 class AchievementScreen extends StatefulWidget {
   final AchievementService achievementService;
   final GameState gameState;
-  final VoidCallback onConquestUnlocked; // ✅ Callback to notify parent
+  final VoidCallback onConquestUnlocked; // Callback to notify parent
 
   const AchievementScreen({
     super.key,

@@ -101,7 +101,7 @@ class Spell {
     return Spell(
       id: json['id'],
       name: json['name'],
-      description: json['description'] ?? '', // ✅ Add this
+      description: json['description'] ?? '', // Add this
       cooldown: Duration(seconds: json['cooldown']),
       duration: json['duration'] != null ? Duration(seconds: json['duration']) : null,
       effect: effect,

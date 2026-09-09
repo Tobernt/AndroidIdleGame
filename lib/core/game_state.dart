@@ -81,7 +81,7 @@ class GameState {
 
   Map<String, DateTime> timedAchievementStartTimes = {};
 
-  // You can update this in your `reset`, `newGame`, or `prestige` logic:
+
   void resetTimers() {
     sessionStartTime = DateTime.now();
     lastPrestigeTime = DateTime.now();

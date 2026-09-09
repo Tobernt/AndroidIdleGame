@@ -24,7 +24,7 @@ class SpellData {
     required this.tier,
     required this.unlockRequirementId,
     required this.unlocked,
-    required this.faction, // ✅ Include in constructor
+    required this.faction, // Include in constructor
   });
 
   factory SpellData.fromJson(Map<String, dynamic> json) {
@@ -54,7 +54,7 @@ class SpellData {
     return Spell(
       id: id,
       name: name,
-      description: description, // ✅ Add this line
+      description: description, // Add this line
       cooldown: Duration(seconds: cooldown),
       duration: duration != null ? Duration(seconds: duration!) : null,
       effect: effect,

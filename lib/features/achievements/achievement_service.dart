@@ -230,7 +230,7 @@ class AchievementService {
       debugPrint("🦸 Heroes system unlocked via achievement!");
     }
 
-    // 🔓 Unlock final achievement when every other one is claimed
+    // Unlock final achievement when every other one is claimed
     final completionIndex =
         _achievements.indexWhere((a) => a.id == 'achieve_completionist');
     if (completionIndex != -1) {

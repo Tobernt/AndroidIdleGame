@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await widget.gameManager.init(idleDuration: idleDuration);
     }
 
-    // ✅ Stay on HomeScreen regardless of faction
+    // Stay on HomeScreen regardless of faction
     setState(() => initialized = true);
   }
 
@@ -183,14 +183,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.clear();
 
-                    // 🚫 Dispose of the old manager
+                    // Dispose of the old manager
                     widget.gameManager.dispose();
 
-                    // ✅ Create a fresh one
+                    // Create a fresh one
                     final newManager = GameManager();
                     await newManager.init();
 
-                    // ✅ Rebuild the HomeScreen with the new instance
+                    // Rebuild the HomeScreen with the new instance
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(

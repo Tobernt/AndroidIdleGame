@@ -73,16 +73,16 @@ class FactionManager extends ChangeNotifier {
 
   List<Faction> get allFactions => _allFactions;
 
-  /// ✅ Returns currently selected factions (up to maxSelectable)
+  /// Returns currently selected factions (up to maxSelectable)
   List<Faction> get selected =>
       _allFactions.where((f) => f.isSelected).toList();
 
-  /// ✅ Returns all selected faction IDs (for filtering buildings, skills, etc.)
+  /// Returns all selected faction IDs (for filtering buildings, skills, etc.)
   List<String> getSelectedFactionIds() {
     return selected.map((f) => f.id).toList();
   }
 
-  /// ✅ Returns IDs of unlocked factions
+  /// Returns IDs of unlocked factions
   List<String> getUnlockedFactionIds() {
     return _allFactions.where((f) => f.unlocked).map((f) => f.id).toList();
   }
@@ -91,7 +91,7 @@ class FactionManager extends ChangeNotifier {
 
   bool canSelectMore() => selected.length < maxSelectable;
 
-  /// ✅ Toggles a faction as selected, respecting max limit and unlocks
+  /// Toggles a faction as selected, respecting max limit and unlocks
   void toggleSelect(String id) {
     final faction = _allFactions.firstWhere((f) => f.id == id);
 
@@ -110,14 +110,14 @@ class FactionManager extends ChangeNotifier {
     toggleSelect(id);
   }
 
-  /// ✅ Unlocks a faction
+  /// Unlocks a faction
   void unlock(String id) {
     final faction = _allFactions.firstWhere((f) => f.id == id);
     faction.unlocked = true;
     notifyListeners();
   }
 
-  /// ✅ Clears all selected factions (e.g. on prestige)
+  /// Clears all selected factions (e.g. on prestige)
   void clearSelection() {
     for (final faction in _allFactions) {
       faction.isSelected = false;
@@ -125,7 +125,7 @@ class FactionManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ✅ Clears unlocks and resets to only Humans (for prestige reset if needed)
+  /// Clears unlocks and resets to only Humans (for prestige reset if needed)
   void resetUnlocks() {
     for (final faction in _allFactions) {
       faction.unlocked = faction.id == 'humans';

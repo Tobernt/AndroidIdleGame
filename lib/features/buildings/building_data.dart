@@ -38,7 +38,7 @@ class BuildingData {
           : 1.15,
       modifier: Map<String, dynamic>.from(json['modifier'] ?? {}),
       unlockRequirementId: json['unlockRequirementId'],
-      // 👇 ADD THIS LINE
+      // ADD THIS LINE
       tapPerSecond: (json['tapPerSecond'] ?? 0).toDouble(),
     );
   }

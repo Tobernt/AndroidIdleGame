@@ -86,7 +86,7 @@ class PrestigeService {
 
   void prestige(GameState state) {
 
-    // 🎯 1 point per 100k active gold
+    // 1 point per 100k active gold
     final earnedPoints = (state.getResource('gold') / 100000).floor();
     prestigePoints += earnedPoints;
 

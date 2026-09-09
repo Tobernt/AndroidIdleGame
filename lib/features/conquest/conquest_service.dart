@@ -66,7 +66,7 @@ class ConquestManager {
 
     final difficultyTier = index + 1; // Tier starts from 1, 2, ..., N
 
-    // 👇 Per-faction exponential base increases with tier
+    // Per-faction exponential base increases with tier
     final dynamicGrowthRate = 100 + (difficultyTier * 0.05); // e.g., 1.20, 1.25, 1.30, etc.
     final growth = min(1000000.0, pow(dynamicGrowthRate, rounds)); // Optional cap
 

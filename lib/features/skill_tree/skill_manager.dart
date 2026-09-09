@@ -21,7 +21,7 @@ class SkillManager {
   }
 
   final Map<String, SkillEffect> effectMap = {
-    // 🧍 HUMAN SKILLS
+    // HUMAN SKILLS
 
     "human_skill_1": (state) {
       final currentMax = state.getMax('mana');
@@ -50,7 +50,7 @@ class SkillManager {
       state.resourceModifiers['global_output'] =
           (state.resourceModifiers['global_output'] ?? 1.0) * bonusMultiplier;
     },
-    // 🧟 Undead Skills
+    // Undead Skills
     "undead_skill_1": (state) {
       // Dark Brood: +0.5 population/sec
       state.resourceModifiers['population_growth'] =
@@ -81,7 +81,7 @@ class SkillManager {
       // Eternal March: no population cap
       state.setMax('population', double.infinity);
     },
-    // 🧝 ELF SKILLS
+    // ELF SKILLS
 
     "elf_skill_1": (state) {
       // Nature’s Grace: Mana regeneration increased by 20%
